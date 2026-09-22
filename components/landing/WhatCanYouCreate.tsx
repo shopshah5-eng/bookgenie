@@ -1,251 +1,208 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
-import { Sparkles, ArrowRight, BookOpen } from 'lucide-react';
+import { Sparkles, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 
-interface EditorialCard {
+interface ShelfBook {
   id: string;
-  genre: string;
+  type: string;
   title: string;
-  tagline: string;
-  description: string;
-  badge: string;
-  bgGradient: string;
-  textColor: string;
-  accentColor: string;
-  coverAspect: string;
-  sampleQuote: string;
-  promptExample: string;
+  category: string;
+  pages: string;
+  coverImage: string;
+  prompt: string;
 }
 
 export function WhatCanYouCreate() {
   const router = useRouter();
   const { user, openAuthModal } = useAuth();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const primaryCards: EditorialCard[] = [
+  const books: ShelfBook[] = [
     {
-      id: 'novel',
-      genre: 'Novels & Fiction',
-      title: 'The Lost Coast',
-      tagline: 'Build worlds, characters and stories.',
-      description: 'Atmospheric narrative prose with chapter structures, dialogue pacing, and evocative scene setting.',
-      badge: 'LITERARY FICTION',
-      bgGradient: 'from-[#141F2B] via-[#0E1620] to-[#080D13]',
-      textColor: 'text-amber-100',
-      accentColor: 'text-[#D4AF37]',
-      coverAspect: 'aspect-[3/4]',
-      sampleQuote: '“The tide had swept away the footsteps, but the lighthouse still remembered the lantern in the fog.”',
-      promptExample: 'A captivating mystery novel set in a misty coastal town in 1920 with deep character arcs.',
+      id: 'brave-fox',
+      type: 'children',
+      title: 'The Brave Little Fox',
+      category: "Children's Storybook",
+      pages: '28 pages • Full Color',
+      coverImage: '/images/cover-brave-little-fox.jpg',
+      prompt: "A whimsical illustrated children's storybook about a brave little fox exploring an enchanted forest.",
     },
     {
-      id: 'children',
-      genre: "Children's Books",
-      title: 'Barnaby’s Sky',
-      tagline: 'Turn imagination into storybooks.',
-      description: 'Lush full-page color illustrations with playful rhyming cadence or gentle bedtime rhythms.',
-      badge: 'ILLUSTRATED STORYBOOK',
-      bgGradient: 'from-[#6E3C18] via-[#4A240C] to-[#2E1404]',
-      textColor: 'text-amber-50',
-      accentColor: 'text-amber-300',
-      coverAspect: 'aspect-[3/4]',
-      sampleQuote: '“With one brave leap from the maple branch, Barnaby discovered that the wind was made for flying.”',
-      promptExample: "An illustrated children's picture book about a little owl who dreams of dancing among the stars.",
+      id: 'mindful-you',
+      type: 'guide',
+      title: 'THE MINDFUL YOU',
+      category: 'Self-Help & Clarity',
+      pages: '48 pages • Illustrated',
+      coverImage: '/images/cover-mindful-you.jpg',
+      prompt: 'A mindful living guide with structured reflections, presence techniques, and calm inner peace exercises.',
     },
     {
-      id: 'guide',
-      genre: 'Guides & How-To',
-      title: 'Smart Wealth',
-      tagline: 'Transform knowledge into useful books.',
-      description: 'Structured methodologies, actionable takeaways, framework callouts, and clean reading typography.',
-      badge: 'PRACTICAL GUIDE',
-      bgGradient: 'from-[#2A231A] via-[#1B1610] to-[#120E0A]',
-      textColor: 'text-stone-100',
-      accentColor: 'text-amber-400',
-      coverAspect: 'aspect-[3/4]',
-      sampleQuote: '“True financial freedom is not about accumulating assets, but designing an unhurried life.”',
-      promptExample: 'A step-by-step comprehensive guide to mastering personal finance and passive investing in your 20s.',
+      id: 'simple-recipes',
+      type: 'recipe',
+      title: 'SIMPLE RECIPES',
+      category: 'Artisanal Cookbook',
+      pages: '36 pages • Photography',
+      coverImage: '/images/cover-simple-recipes.jpg',
+      prompt: 'An effortless cookbook of 25 fresh Mediterranean seasonal recipes with rustic styling and chef tips.',
     },
     {
-      id: 'recipe',
-      genre: 'Recipe Books',
-      title: 'Nourish & Herb',
-      tagline: 'Turn your recipes into a collection.',
-      description: 'Mouthwatering culinary spreads with ingredient measurements, chef’s notes, and food styling prompts.',
-      badge: 'CULINARY ARTS',
-      bgGradient: 'from-[#421B14] via-[#2A0E09] to-[#180603]',
-      textColor: 'text-rose-100',
-      accentColor: 'text-amber-300',
-      coverAspect: 'aspect-[3/4]',
-      sampleQuote: '“Slow-roasted heirloom tomatoes with hand-torn basil and cold-pressed Tuscan olive oil.”',
-      promptExample: 'A collection of 25 nourishing plant-based dinner recipes with photography and step-by-step guides.',
+      id: 'creators-playbook',
+      type: 'course',
+      title: "The Creator's Playbook",
+      category: 'Strategy & Growth',
+      pages: '64 pages • Frameworks',
+      coverImage: '/images/cover-creators-playbook.jpg',
+      prompt: 'A playbook for modern digital creators focusing on building leverage, creative consistency, and audience growth.',
+    },
+    {
+      id: 'kinder-world',
+      type: 'novel',
+      title: 'A Kinder World',
+      category: 'Humanity & Stories',
+      pages: '52 pages • Prose',
+      coverImage: '/images/cover-kinder-world.jpg',
+      prompt: 'A touching narrative exploring empathy, connection, and the quiet kindness that reshapes human lives.',
+    },
+    {
+      id: 'quiet-journal',
+      type: 'journal',
+      title: 'My Quiet Journal',
+      category: 'Guided Reflections',
+      pages: '32 pages • Prompts',
+      coverImage: '/images/cover-quiet-journal.jpg',
+      prompt: 'A daily guided journal with provocative prompts, morning reflections, and serene evening gratitude spaces.',
     },
   ];
 
-  const secondaryCategories = [
-    {
-      id: 'coloring',
-      name: 'Coloring Books',
-      prompt: 'A 30-page relaxing botanical coloring book with intricate floral patterns.',
-      tag: 'Fine Linework Art',
-    },
-    {
-      id: 'course',
-      name: 'Course Books',
-      prompt: 'A comprehensive fundamentals course book on modern product management.',
-      tag: 'Curriculum & Modules',
-    },
-    {
-      id: 'workbook',
-      name: 'Workbooks',
-      prompt: 'A 4-week structured mindfulness and habit-building workbook with exercises.',
-      tag: 'Interactive Prompts',
-    },
-    {
-      id: 'history',
-      name: 'History Books',
-      prompt: 'An illustrated beginner-friendly history of the ancient Silk Road civilizations.',
-      tag: 'Archival Chronicles',
-    },
-    {
-      id: 'journal',
-      name: 'Guided Journals',
-      prompt: 'A daily guided reflection journal with provocative prompts and inspirational quotes.',
-      tag: 'Daily Reflections',
-    },
-    {
-      id: 'lifestyle',
-      name: 'Bespoke Volumes',
-      prompt: 'A personalized travel guide to the secret spots of Kyoto.',
-      tag: 'Memoirs & Poetry',
-    },
-  ];
-
-  const handleSelect = (typeId: string, promptText: string) => {
-    const targetUrl = `/create?type=${typeId}&prompt=${encodeURIComponent(promptText)}`;
+  const handleSelectBook = (book: ShelfBook) => {
+    const targetUrl = `/create?type=${book.type}&prompt=${encodeURIComponent(book.prompt)}`;
     if (!user) {
+      sessionStorage.setItem('bg_pending_prompt', book.prompt);
+      sessionStorage.setItem('bg_pending_type', book.type);
       openAuthModal('signup', targetUrl);
     } else {
       router.push(targetUrl);
     }
   };
 
+  const scrollShelf = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = direction === 'left' ? -340 : 340;
+      scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <section className="py-20 sm:py-28 border-t border-[rgba(24,21,17,0.08)] bg-[#F8F4EC]">
+    <section className="py-16 sm:py-24 border-t border-[#EDE6DC] dark:border-[#26221D] bg-[#FAF8F5] dark:bg-[#151311] overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 sm:mb-16 gap-6">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F1ECE2] border border-[#E5D5C0] text-[10px] sm:text-[11px] font-semibold text-[#8C5F2E] uppercase tracking-wider mb-3">
-              <Sparkles className="w-3.5 h-3.5 text-[#A47A45]" /> 10 Canonical Publishing Formats
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F1ECE2] dark:bg-[#231E18] border border-[#E5D7C3] dark:border-[#382F24] text-[10px] sm:text-[11px] font-semibold text-[#8C5F2E] dark:text-[#C49B66] uppercase tracking-wider mb-3">
+              <Sparkles className="w-3.5 h-3.5 text-[#A87B45]" />
+              <span>Discover Genres</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#181511] tracking-tight mb-3">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#181511] dark:text-[#F8F5EE] tracking-tight mb-3">
               Create anything worth reading.
             </h2>
-            <p className="text-sm sm:text-base text-[#746B60] max-w-xl">
-              From sweeping literary fiction to illustrated children’s picture books and culinary collections — every volume is crafted with bespoke typography, curated spreads, and print-ready elegance.
+            <p className="text-sm sm:text-base text-[#6B635B] dark:text-[#A8A199] max-w-xl">
+              Explore the range of books created by authors, educators, and creators worldwide. Each rendered with authentic binding, tactile cloth, and bespoke interior typesetting.
             </p>
           </div>
 
-          <button
-            onClick={() => {
-              if (!user) openAuthModal('signup', '/create');
-              else router.push('/create');
-            }}
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#A47A45] hover:text-[#8C5F2E] transition-colors self-start sm:self-auto"
-          >
-            <span>Open Studio desk</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          {/* Carousel Arrows */}
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <button
+              onClick={() => scrollShelf('left')}
+              className="p-2.5 rounded-full border border-[#EDE6DC] dark:border-[#2C2721] bg-white dark:bg-[#1E1B18] text-[#5A5249] dark:text-[#B3AAA0] hover:bg-[#F3ECE0] dark:hover:bg-[#2A2520] transition-colors shadow-2xs"
+              aria-label="Scroll shelf left"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => scrollShelf('right')}
+              className="p-2.5 rounded-full border border-[#EDE6DC] dark:border-[#2C2721] bg-white dark:bg-[#1E1B18] text-[#5A5249] dark:text-[#B3AAA0] hover:bg-[#F3ECE0] dark:hover:bg-[#2A2520] transition-colors shadow-2xs"
+              aria-label="Scroll shelf right"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        {/* 4 Large Featured Editorial Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 mb-12">
-          {primaryCards.map((card) => (
+        {/* Physical Standing Book Shelf */}
+        <div
+          ref={scrollContainerRef}
+          className="flex items-end gap-6 sm:gap-8 overflow-x-auto pb-10 pt-4 px-2 no-scrollbar scroll-smooth"
+        >
+          {books.map((book) => (
             <div
-              key={card.id}
-              onClick={() => handleSelect(card.id, card.promptExample)}
-              className="group cursor-pointer rounded-3xl bg-white border border-[rgba(24,21,17,0.09)] p-6 sm:p-8 hover:border-[#A47A45]/50 shadow-[0_10px_30px_-8px_rgba(24,21,17,0.05)] hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+              key={book.id}
+              onClick={() => handleSelectBook(book)}
+              className="group cursor-pointer flex-shrink-0 w-[200px] sm:w-[220px] flex flex-col items-center select-none transition-transform duration-300 hover:-translate-y-2"
             >
-              <div>
-                {/* Header Badge */}
-                <div className="flex items-center justify-between mb-4 text-xs">
-                  <span className="font-mono text-[10px] text-[#A47A45] font-bold tracking-widest uppercase">
-                    {card.badge}
-                  </span>
-                  <span className="font-serif italic text-[#9E968E] text-[11px]">
-                    Studio Format
-                  </span>
-                </div>
+              {/* Hardcover Volume Graphic with Anatomy */}
+              <div className="relative w-full aspect-[3/4] rounded-sm overflow-hidden shadow-[0_16px_35px_-8px_rgba(24,21,17,0.3)] group-hover:shadow-[0_24px_45px_-8px_rgba(24,21,17,0.42)] transition-all border border-[#E5DFD5] dark:border-[#382F24] bg-white">
+                
+                {/* Book Cover Image */}
+                <Image
+                  src={book.coverImage}
+                  alt={book.title}
+                  fill
+                  sizes="220px"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
 
-                {/* Genre & Tagline */}
-                <h3 className="font-serif font-bold text-2xl sm:text-3xl text-[#181511] mb-1.5 tracking-tight group-hover:text-[#A47A45] transition-colors">
-                  {card.genre}
-                </h3>
-                <p className="font-serif italic text-sm text-[#8C5F2E] mb-3">
-                  {card.tagline}
-                </p>
-                <p className="text-xs sm:text-sm text-[#746B60] leading-relaxed mb-6">
-                  {card.description}
-                </p>
+                {/* Realistic Hinge & Spine Depth Overlay */}
+                <div className="absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-r from-black/45 via-black/10 to-transparent pointer-events-none" />
+                <div className="absolute left-3 top-0 bottom-0 w-[1px] bg-white/30 pointer-events-none" />
+                
+                {/* Book Bottom Page Block Edge (thickness) */}
+                <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-t from-[#EDE5D8] to-transparent border-t border-black/15 pointer-events-none" />
+
+                {/* Subtle Foil Sheen on Hover */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/0 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none duration-500" />
               </div>
 
-              {/* Mini Book Artifact Card Representation */}
-              <div
-                className={`relative w-full rounded-2xl bg-gradient-to-br ${card.bgGradient} p-5 sm:p-6 text-white overflow-hidden shadow-md flex flex-col justify-between min-h-[160px] group-hover:scale-[1.01] transition-transform`}
-              >
-                {/* Book Spine Simulation Accent */}
-                <div className="absolute left-0 top-0 bottom-0 w-3 bg-black/40 border-r border-white/10" />
-
-                <div className="pl-3">
-                  <span className={`text-[10px] font-bold tracking-widest uppercase opacity-80 ${card.accentColor}`}>
-                    {card.title}
-                  </span>
-                  <p className="font-serif italic text-xs sm:text-sm text-white/90 mt-2 leading-relaxed max-w-sm">
-                    {card.sampleQuote}
-                  </p>
-                </div>
-
-                <div className="pl-3 pt-3 border-t border-white/10 flex items-center justify-between text-[10px] text-white/60">
-                  <span>Editorial Layout • Full Spreads</span>
-                  <span className="font-semibold text-white/90 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                    Create this book <ArrowRight className="w-3 h-3" />
-                  </span>
-                </div>
+              {/* Book Metadata Below */}
+              <div className="mt-4 text-center w-full px-1">
+                <h3 className="font-serif font-bold text-sm sm:text-base text-[#181511] dark:text-[#F8F5EE] group-hover:text-[#8C5F2E] dark:group-hover:text-[#C49B66] transition-colors truncate">
+                  {book.title}
+                </h3>
+                <p className="text-xs text-[#8C5F2E] dark:text-[#C49B66] font-medium mt-0.5">
+                  {book.category}
+                </p>
+                <span className="text-[10px] text-[#A8A199] dark:text-[#7A736B] block mt-0.5">
+                  {book.pages}
+                </span>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Specialized Formats Row */}
-        <div className="pt-6 border-t border-[rgba(24,21,17,0.08)]">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-serif font-bold uppercase tracking-wider text-[#8C5F2E]">
-              Specialized Formats & Editions
-            </span>
-          </div>
+        {/* Studio Desk Surface Wooden Shelf Line */}
+        <div className="w-full h-2.5 bg-gradient-to-r from-[#D9CEBF] via-[#ECE3D5] to-[#D9CEBF] dark:from-[#2A241E] dark:via-[#362F27] dark:to-[#2A241E] rounded-full shadow-[0_4px_12px_rgba(24,21,17,0.15)] -mt-6 mb-8" />
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {secondaryCategories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => handleSelect(cat.id, cat.prompt)}
-                className="text-left p-4 rounded-xl bg-white border border-[rgba(24,21,17,0.08)] hover:border-[#A47A45]/40 hover:shadow-sm transition-all group"
-              >
-                <span className="block text-xs font-serif font-bold text-[#181511] group-hover:text-[#A47A45] transition-colors mb-1">
-                  {cat.name}
-                </span>
-                <span className="block text-[10px] text-[#9E968E]">
-                  {cat.tag}
-                </span>
-              </button>
-            ))}
-          </div>
+        {/* Bottom CTA bar */}
+        <div className="text-center pt-2">
+          <button
+            onClick={() => {
+              if (!user) openAuthModal('signup', '/create');
+              else router.push('/create');
+            }}
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#8C5F2E] dark:text-[#C49B66] hover:text-[#5E3F1D] dark:hover:text-[#E0BA88] transition-colors"
+          >
+            <span>Have a custom book idea? Open Studio Desk</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
 
       </div>
     </section>
   );
 }
+
