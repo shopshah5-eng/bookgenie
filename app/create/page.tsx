@@ -21,9 +21,37 @@ import {
   CheckCircle,
 } from 'lucide-react';
 
+function SearchParamsSync({
+  onSync,
+}: {
+  onSync: (data: { prompt?: string; type?: string; lang?: string; style?: string }) => void;
+}) {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const initialPrompt = searchParams.get('prompt') || (typeof window !== 'undefined' ? sessionStorage.getItem('bg_pending_prompt') : null);
+    const initialType = searchParams.get('type') || (typeof window !== 'undefined' ? sessionStorage.getItem('bg_pending_type') : null);
+    const initialLang = searchParams.get('lang');
+    const initialStyle = searchParams.get('style');
+
+    onSync({
+      prompt: initialPrompt ? decodeURIComponent(initialPrompt) : undefined,
+      type: initialType || undefined,
+      lang: initialLang || undefined,
+      style: initialStyle || undefined,
+    });
+
+    if (typeof window !== 'undefined') {
+      if (initialPrompt) sessionStorage.removeItem('bg_pending_prompt');
+      if (initialType) sessionStorage.removeItem('bg_pending_type');
+    }
+  }, [searchParams, onSync]);
+
+  return null;
+}
+
 function CreatePageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { user, openAuthModal } = useAuth();
 
   const [prompt, setPrompt] = useState('');
@@ -39,24 +67,15 @@ function CreatePageContent() {
   const [activeBookId, setActiveBookId] = useState<string | null>(null);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Populate from query params if navigated from landing page
-    const initialPrompt = searchParams.get('prompt') || sessionStorage.getItem('bg_pending_prompt');
-    const initialType = searchParams.get('type') || sessionStorage.getItem('bg_pending_type');
-    const initialLang = searchParams.get('lang');
-    const initialStyle = searchParams.get('style');
-
-    if (initialPrompt) {
-      setPrompt(decodeURIComponent(initialPrompt));
-      sessionStorage.removeItem('bg_pending_prompt');
-    }
-    if (initialType) {
-      setBookType(initialType);
-      sessionStorage.removeItem('bg_pending_type');
-    }
-    if (initialLang) setLanguage(initialLang);
-    if (initialStyle) setStyle(initialStyle);
-  }, [searchParams]);
+  const handleSyncParams = React.useCallback(
+    (data: { prompt?: string; type?: string; lang?: string; style?: string }) => {
+      if (data.prompt) setPrompt(data.prompt);
+      if (data.type) setBookType(data.type);
+      if (data.lang) setLanguage(data.lang);
+      if (data.style) setStyle(data.style);
+    },
+    []
+  );
 
   const bookTypeOptions = [
     { label: 'Auto detect', value: 'auto' },
@@ -333,6 +352,10 @@ function CreatePageContent() {
         </form>
       </main>
 
+      <Suspense fallback={null}>
+        <SearchParamsSync onSync={handleSyncParams} />
+      </Suspense>
+
       {/* Realtime Generation Studio Progress Modal */}
       <GenerationProgressModal
         isOpen={isGenerating}
@@ -349,9 +372,7 @@ function CreatePageContent() {
 export default function CreatePage() {
   return (
     <AuthProvider>
-      <Suspense fallback={<div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">Loading studio...</div>}>
-        <CreatePageContent />
-      </Suspense>
+      <CreatePageContent />
     </AuthProvider>
   );
 }

@@ -26,12 +26,12 @@ export default function ExampleBookPreview({
           <span className="flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-amber-200" />
             <span>
-              Public Showcase Demo: <strong>{book.title}</strong> (Strictly read-only)
+              Curated Sample Preview: <strong>{book.title}</strong> (4 of 28 Pages · Read-Only Demonstration)
             </span>
           </span>
-          <Link href="/create?prompt=Create an illustrated book like Ocean Wonders">
+          <Link href="/create?prompt=Create a children's book like Ocean Wonders">
             <span className="underline font-bold hover:text-amber-200 cursor-pointer">
-              Create something like this →
+              Generate a book like this →
             </span>
           </Link>
         </div>
@@ -128,7 +128,7 @@ export default function ExampleBookPreview({
           </div>
 
           <div className="pt-4 border-t border-[#F4F1EA] flex items-center justify-between text-xs text-[#9E968E]">
-            <span>Ocean Wonders • Public Demo</span>
+            <span>Ocean Wonders • Curated 4-Page Excerpt (Full Book: 28 Pages)</span>
             <span className="font-serif italic text-[#8C5F2E]">BookGenie</span>
           </div>
         </div>
@@ -142,8 +142,8 @@ export default function ExampleBookPreview({
           >
             <ChevronLeft className="w-4 h-4" /> Previous
           </button>
-          <span className="text-xs sm:text-sm font-semibold text-[#6B635B] px-3 py-1 bg-white rounded-full border border-[#EFECE6]">
-            Page {activePage.pageNumber} of {totalPages}
+          <span className="text-xs sm:text-sm font-semibold text-[#6B635B] px-3.5 py-1.5 bg-white rounded-full border border-[#EFECE6] shadow-2xs">
+            Sample Preview — Page {activePage.pageNumber} of {totalPages} (Excerpt of 28-Page Book)
           </span>
           <button
             onClick={() => setCurrentPageIndex((p) => Math.min(p + 1, totalPages - 1))}
