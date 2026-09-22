@@ -70,7 +70,9 @@ export default function ExampleBookPreview({
         <div className="relative w-full bg-white rounded-3xl border border-[#E8DFC8] p-6 sm:p-12 shadow-[0_16px_50px_rgba(45,38,32,0.06)] flex flex-col justify-between min-h-[480px]">
           <div className="flex items-center justify-between pb-3 border-b border-[#F4F1EA] mb-6 text-xs text-[#9E968E]">
             <span className="font-serif italic text-[#8C5F2E]">{book.title}</span>
-            <span>Page {activePage.pageNumber}</span>
+            <span className="font-semibold text-[#6B635B] bg-[#F5EFE6] px-2.5 py-1 rounded-full border border-[#E8DFC8]">
+              Preview — Page {activePage.pageNumber} of 28 (Showcase Excerpt)
+            </span>
           </div>
 
           <div className="space-y-4 my-auto">
@@ -128,8 +130,8 @@ export default function ExampleBookPreview({
           </div>
 
           <div className="pt-4 border-t border-[#F4F1EA] flex items-center justify-between text-xs text-[#9E968E]">
-            <span>Ocean Wonders • Curated 4-Page Excerpt (Full Book: 28 Pages)</span>
-            <span className="font-serif italic text-[#8C5F2E]">BookGenie</span>
+            <span>Ocean Wonders • Curated 4-Page Showcase Excerpt (Full Book: 28 Pages)</span>
+            <span className="font-serif italic text-[#8C5F2E]">BookGenie Studio</span>
           </div>
         </div>
 
@@ -138,17 +140,17 @@ export default function ExampleBookPreview({
           <button
             onClick={() => setCurrentPageIndex((p) => Math.max(p - 1, 0))}
             disabled={currentPageIndex === 0}
-            className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#1A1612] disabled:opacity-40"
+            className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#1A1612] disabled:opacity-40 hover:text-[#9A6F3C] transition-colors"
           >
             <ChevronLeft className="w-4 h-4" /> Previous
           </button>
-          <span className="text-xs sm:text-sm font-semibold text-[#6B635B] px-3.5 py-1.5 bg-white rounded-full border border-[#EFECE6] shadow-2xs">
-            Sample Preview — Page {activePage.pageNumber} of {totalPages} (Excerpt of 28-Page Book)
+          <span className="text-xs sm:text-sm font-semibold text-[#6B635B] px-4 py-1.5 bg-white rounded-full border border-[#EFECE6] shadow-2xs">
+            Preview — Page {activePage.pageNumber} of 28 (Showcase Excerpt {currentPageIndex + 1}/4)
           </span>
           <button
             onClick={() => setCurrentPageIndex((p) => Math.min(p + 1, totalPages - 1))}
             disabled={currentPageIndex === totalPages - 1}
-            className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#1A1612] disabled:opacity-40"
+            className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#1A1612] disabled:opacity-40 hover:text-[#9A6F3C] transition-colors"
           >
             Next <ChevronRight className="w-4 h-4" />
           </button>

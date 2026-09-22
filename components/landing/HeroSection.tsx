@@ -79,8 +79,9 @@ export function HeroSection() {
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#1A1612] tracking-tight leading-[1.12] mb-6">
-              Turn your ideas into{' '}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#1A1612] tracking-tight leading-[1.12] mb-5">
+              Turn your ideas <br className="hidden sm:inline" />
+              into{' '}
               <span className="italic font-normal text-[#9A6F3C] font-serif">
                 beautiful
               </span>{' '}
@@ -89,7 +90,7 @@ export function HeroSection() {
 
             {/* Supporting Copy */}
             <p className="text-base sm:text-lg text-[#6B635B] leading-relaxed max-w-2xl mb-8">
-              Write a prompt, upload your content, and let AI create the writing, visuals, design, and layout for you — in minutes.
+              Write a prompt, upload your content, and let BookGenie handle the writing, visuals, design, and layout.
             </p>
 
             {/* Interactive Prompt Card */}
@@ -113,15 +114,14 @@ export function HeroSection() {
                 <div className="shrink-0 self-end sm:self-center">
                   <button
                     type="button"
-                    onClick={() => {
-                      if (!user) openAuthModal('signup', '/create');
-                      else router.push('/create');
-                    }}
+                    onClick={() => router.push('/create')}
                     className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[#EFECE6] bg-[#FDFBF7] hover:bg-[#F4EFE6] text-xs font-medium text-[#6B635B] transition-colors"
                   >
                     <UploadCloud className="w-4 h-4 text-[#9A6F3C]" />
                     <span>Upload files</span>
-                    <span className="hidden md:inline text-[10px] text-[#9E968E]">(PDF, DOCX, TXT)</span>
+                    <span className="hidden md:inline text-[10px] text-[#9E968E]">
+                      (PDF, DOCX, TXT)
+                    </span>
                   </button>
                 </div>
               </div>
@@ -170,62 +170,82 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right Column: Editorial Visual Showcase with 3D Books & Coffee Mug */}
+          {/* Right Column: Editorial Visual Showcase (Real Book Cover + Real Interior Page Spread) */}
           <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
-            {/* Handwritten style quote bubble */}
-            <div className="absolute -top-6 left-4 sm:left-12 lg:-left-6 bg-white/90 backdrop-blur-sm border border-[#EAE3D5] rounded-2xl px-4 py-2 text-xs font-serif italic text-[#8C5F2E] shadow-sm transform -rotate-3 z-20">
-              A single idea can create a thousand new worlds. ♡
+            {/* Editorial Floating Quality Badge */}
+            <div className="absolute -top-5 left-2 sm:left-6 lg:-left-4 bg-white/95 backdrop-blur-md border border-[#EAE3D5] rounded-2xl px-4 py-2 text-xs font-serif text-[#1A1612] shadow-sm transform -rotate-2 z-30 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#9A6F3C] animate-pulse" />
+              <span className="italic font-medium text-[#8C5F2E]">Generated in 90 seconds</span>
             </div>
 
-            {/* Book Stack Presentation Mockup */}
-            <div className="relative w-full max-w-[380px] sm:max-w-[420px] aspect-[4/5] bg-gradient-to-b from-[#F7F3EB] to-[#EFE8DC] rounded-3xl p-6 sm:p-8 flex flex-col justify-end items-center border border-[#E8DFC8] shadow-[0_20px_50px_rgba(45,38,32,0.08)] overflow-hidden">
-              {/* Background ambient plant / light */}
-              <div className="absolute inset-0 bg-[radial-gradient(#CBB89D_1px,transparent_1px)] [background-size:16px_16px] opacity-25" />
-
-              {/* Stacked Hardcover Linen Books */}
-              <div className="relative z-10 w-full flex flex-col items-center gap-2.5">
-                {/* Book 1 (Standing upright tilted) */}
-                <div className="w-48 h-64 sm:w-56 sm:h-72 bg-[#FDFCF7] border border-[#DDD4C5] rounded-r-xl rounded-l-xs shadow-xl p-5 flex flex-col justify-between transform rotate-2 hover:rotate-0 transition-transform duration-300">
-                  <div className="flex items-center justify-between text-[10px] text-[#9E968E] uppercase tracking-wider font-semibold">
-                    <span>BookGenie Edition</span>
-                    <span>2026</span>
-                  </div>
-                  <div className="text-center my-auto">
-                    <div className="w-12 h-12 mx-auto rounded-full bg-[#F5EFE4] text-[#8C5F2E] flex items-center justify-center mb-3">
-                      <BookOpen className="w-6 h-6 stroke-[1.8]" />
-                    </div>
-                    <h3 className="font-serif font-bold text-lg sm:text-xl text-[#1A1612] leading-tight mb-1">
-                      Bigger Ideas Brighter Worlds
-                    </h3>
-                    <p className="text-[11px] text-[#8C5F2E] font-medium italic">
-                      A Guide to a More Creative You
-                    </p>
-                  </div>
-                  <div className="text-[9px] text-center text-[#A39B92]">
-                    Created with BookGenie AI
-                  </div>
+            {/* Book Artifact Presentation Showcase */}
+            <div className="relative w-full max-w-[420px] aspect-[4/5] rounded-3xl p-5 sm:p-6 flex flex-col justify-center items-center">
+              {/* Back Card: Luxury Book Cover */}
+              <div className="w-64 sm:w-72 h-88 sm:h-96 rounded-2xl bg-gradient-to-b from-[#0B2545] via-[#134074] to-[#001D3D] border border-[#2E5077] shadow-[0_20px_50px_rgba(11,37,69,0.25)] p-5 flex flex-col justify-between text-white transform -rotate-6 transition-transform duration-300 hover:-rotate-3 z-10">
+                <div className="flex items-center justify-between text-[9px] uppercase tracking-widest text-[#E0E1DD] opacity-80">
+                  <span>Children's Book</span>
+                  <span>BookGenie</span>
                 </div>
 
-                {/* Stack of horizontal books below */}
-                <div className="w-64 sm:w-72 h-8 bg-[#EFE9DD] border border-[#DDD3C2] rounded-md shadow-md flex items-center px-4 justify-between text-xs font-serif font-semibold text-[#5A5046]">
-                  <span>Good Ideas</span>
-                  <span className="text-[10px] font-sans text-[#8C8275]">Vol. I</span>
+                <div className="my-auto text-center">
+                  <div className="w-10 h-10 mx-auto rounded-full bg-white/10 border border-white/20 flex items-center justify-center mb-3">
+                    <BookOpen className="w-5 h-5 text-amber-300" />
+                  </div>
+                  <h3 className="font-serif font-bold text-xl sm:text-2xl tracking-tight leading-tight mb-1 text-white">
+                    Ocean Wonders
+                  </h3>
+                  <p className="text-[10px] text-sky-200 font-light max-w-[180px] mx-auto leading-relaxed">
+                    An Underwater Journey Through Coral Reefs & Deep Mysteries
+                  </p>
                 </div>
-                <div className="w-68 sm:w-76 h-8 bg-[#EAE2D4] border border-[#D5CABC] rounded-md shadow-md flex items-center px-4 justify-between text-xs font-serif font-semibold text-[#4A4036]">
-                  <span>Better Habits</span>
-                  <span className="text-[10px] font-sans text-[#8C8275]">Vol. II</span>
-                </div>
-                <div className="w-72 sm:w-80 h-9 bg-[#E2D8C7] border border-[#CDC1B0] rounded-md shadow-lg flex items-center px-4 justify-between text-xs font-serif font-semibold text-[#3A3026]">
-                  <span>Brighter Tomorrows</span>
-                  <span className="text-[10px] font-sans text-[#7C7265]">Complete Edition</span>
+
+                <div className="pt-2 border-t border-white/15 flex items-center justify-between text-[9px] text-sky-300/80">
+                  <span>28 Pages • Illustrated</span>
+                  <span>Hardcover Edition</span>
                 </div>
               </div>
 
-              {/* Ceramic Coffee Mug */}
-              <div className="absolute right-4 bottom-4 w-16 h-20 bg-white/95 rounded-xl border border-[#DDD3C2] shadow-md p-2 flex flex-col justify-between text-[8px] text-[#8C5F2E] font-medium text-center z-20">
-                <span className="text-[7px] text-[#A39B92]">Create</span>
-                <span className="font-serif font-bold">Explore</span>
-                <span>Inspire ♡</span>
+              {/* Overlapping Front Card: Open Interior Book Page */}
+              <div className="absolute top-12 left-8 sm:left-14 w-64 sm:w-72 h-88 sm:h-96 rounded-2xl bg-[#FFFFFF] border border-[#E8DFC8] shadow-[0_25px_60px_rgba(45,38,32,0.14)] p-5 flex flex-col justify-between text-[#1A1612] transform rotate-3 transition-transform duration-300 hover:rotate-1 z-20">
+                {/* Book Header Bar */}
+                <div className="flex items-center justify-between text-[9px] text-[#9E968E] border-b border-[#F4F1EA] pb-2">
+                  <span className="font-serif italic text-[#8C5F2E]">Ocean Wonders</span>
+                  <span className="font-mono">Page 3</span>
+                </div>
+
+                {/* Page Content with Drop Cap & Illustration Container */}
+                <div className="space-y-2.5 my-auto text-left">
+                  <h4 className="font-serif font-bold text-sm text-[#1A1612]">
+                    Chapter 1: The Sunlit Shallows
+                  </h4>
+                  <p className="text-[11px] text-[#4A4036] leading-relaxed">
+                    <span className="float-left text-2xl font-serif font-bold text-[#9A6F3C] leading-none pr-1 pt-0.5">J</span>
+                    ust beneath the gentle waves of Sapphire Bay, morning sun poured through the turquoise water like ribbons of gold.
+                  </p>
+
+                  {/* Illustrated Scene Block */}
+                  <div className="w-full h-24 rounded-xl bg-gradient-to-tr from-[#0077B6] to-[#90E0EF] p-2 flex flex-col justify-end text-white overflow-hidden shadow-inner">
+                    <span className="text-[9px] font-medium bg-black/30 backdrop-blur-xs px-2 py-0.5 rounded-md inline-block self-start">
+                      Barnaby the Turtle
+                    </span>
+                  </div>
+
+                  <p className="text-[10px] text-[#6B635B] leading-relaxed line-clamp-2">
+                    Here lived Barnaby, an ancient sea turtle who had navigated these warm coral canyons for seventy summers.
+                  </p>
+                </div>
+
+                {/* Book Footer Bar */}
+                <div className="flex items-center justify-between text-[9px] text-[#9E968E] border-t border-[#F4F1EA] pt-2">
+                  <span>Editorial Layout</span>
+                  <span className="font-serif text-[#8C5F2E] font-medium">BookGenie Publishing</span>
+                </div>
+              </div>
+
+              {/* Floating Format Pill */}
+              <div className="absolute -bottom-3 right-4 sm:right-10 bg-white/95 backdrop-blur-md border border-[#EAE3D5] rounded-full px-3.5 py-1 text-[11px] font-semibold text-[#8C5F2E] shadow-sm z-30 flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3 text-[#9A6F3C]" />
+                <span>PDF + EPUB3 Ready</span>
               </div>
             </div>
           </div>

@@ -73,22 +73,22 @@ export function MyEbookShelf() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
           <div>
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#1A1612] tracking-tight mb-2">
-              {user ? 'My Bookshelf' : 'Your Personal Library'}
+              My Books
             </h2>
             <p className="text-sm sm:text-base text-[#6B635B]">
-              {user
+              {user && userBooks.length > 0
                 ? 'Your generated books and publications, securely stored in your account.'
-                : 'Sign in to access your saved books, or generate your first book in minutes.'}
+                : 'Your books will appear here after you create your first book.'}
             </p>
           </div>
 
           {user && userBooks.length > 0 && (
-            <button
-              onClick={() => router.push('/create')}
+            <Link
+              href="/create"
               className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#9A6F3C] hover:text-[#845D30] transition-colors self-start sm:self-auto"
             >
               Create another book <ArrowRight className="w-4 h-4" />
-            </button>
+            </Link>
           )}
         </div>
 
@@ -151,69 +151,29 @@ export function MyEbookShelf() {
           </div>
         )}
 
-        {/* Authenticated but Empty Shelf */}
-        {user && userBooks.length === 0 && !loading && (
-          <div className="p-8 sm:p-12 rounded-3xl bg-white border border-[#EFECE6] text-center flex flex-col items-center max-w-xl mx-auto shadow-2xs">
-            <div className="w-14 h-14 rounded-full bg-[#F6F1E8] text-[#8C5F2E] flex items-center justify-center mb-4">
+        {/* Empty State (Both Logged-Out Visitors and Authenticated Users with 0 books) */}
+        {(!user || userBooks.length === 0) && !loading && (
+          <div className="p-8 sm:p-14 rounded-3xl bg-white border border-[#EFECE6] flex flex-col items-center text-center max-w-xl mx-auto shadow-2xs">
+            <div className="w-14 h-14 rounded-full bg-[#F6F1E8] text-[#8C5F2E] flex items-center justify-center mb-4 shadow-2xs">
               <BookOpen className="w-7 h-7 stroke-[1.8]" />
             </div>
-            <h3 className="text-xl font-serif font-bold text-[#1A1612] mb-2">
-              Your Bookshelf is Empty
+            <h3 className="text-2xl font-serif font-bold text-[#1A1612] mb-2">
+              My Books
             </h3>
-            <p className="text-sm text-[#6B635B] mb-6 max-w-md">
-              You haven't generated any books yet. Enter a prompt or topic to create your very first AI-crafted ebook.
+            <p className="text-sm text-[#6B635B] mb-6 max-w-md leading-relaxed">
+              Your books will appear here after you create your first book.
             </p>
-            <button
-              onClick={() => router.push('/create')}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#9A6F3C] to-[#845D30] text-white font-medium text-sm shadow-sm hover:shadow-md transition-all active:scale-98"
-            >
-              <Plus className="w-4 h-4" /> Create Your First Book
-            </button>
-          </div>
-        )}
-
-        {/* Logged Out / Visitor View: Authentic Preview Card */}
-        {!user && (
-          <div className="p-8 sm:p-12 rounded-3xl bg-white border border-[#EFECE6] flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xs">
-            <div className="max-w-xl text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F4EDE0] text-[#8C5F2E] border border-[#E8DCCB] text-[11px] font-semibold tracking-wider uppercase mb-3">
-                Cloud Library
-              </div>
-              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-[#1A1612] mb-2">
-                Start building your AI publication catalogue
-              </h3>
-              <p className="text-sm sm:text-base text-[#6B635B] leading-relaxed mb-6">
-                All books you generate are privately linked to your account, rendered in high-resolution PDF and reflowable EPUB3, and saved to your personal library.
-              </p>
-              <div className="flex flex-wrap items-center gap-3">
-                <button
-                  onClick={() => openAuthModal('signup', '/create')}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#9A6F3C] to-[#845D30] text-white font-medium text-sm hover:shadow-sm transition-all"
-                >
-                  Get Started Free
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Link href="/create">
+                <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#9A6F3C] to-[#845D30] text-white font-medium text-sm shadow-sm hover:shadow-md transition-all active:scale-98">
+                  <Plus className="w-4 h-4" /> Create Your First Book
                 </button>
-                <Link
-                  href="/examples/ocean-wonders"
-                  className="px-5 py-2.5 rounded-xl bg-[#F8F5EE] border border-[#EAE3D5] text-[#1A1612] font-medium text-sm hover:bg-[#F2ECE0] transition-colors"
-                >
-                  Inspect Ocean Wonders Demo →
-                </Link>
-              </div>
-            </div>
-
-            <div className="w-full md:w-72 p-5 rounded-2xl bg-gradient-to-b from-[#FAF7F0] to-[#EFE8DC] border border-[#E6DDCE] flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-full bg-white text-[#8C5F2E] flex items-center justify-center mb-3 shadow-xs">
-                <BookOpen className="w-6 h-6 stroke-[1.8]" />
-              </div>
-              <span className="text-xs font-semibold text-[#8C5F2E] uppercase tracking-wider mb-1">
-                Zero Placeholder Policy
-              </span>
-              <h4 className="text-base font-serif font-bold text-[#1A1612] mb-1.5">
-                100% Real Live Generation
-              </h4>
-              <p className="text-xs text-[#6B635B] leading-relaxed">
-                BookGenie never seeds fake generated books into your account. Only books you write and prompt appear here.
-              </p>
+              </Link>
+              <Link href="/examples/ocean-wonders">
+                <button className="px-5 py-3 rounded-xl bg-[#F8F5EE] border border-[#EAE3D5] text-[#1A1612] font-medium text-sm hover:bg-[#F2ECE0] transition-colors">
+                  View Demo Book →
+                </button>
+              </Link>
             </div>
           </div>
         )}
