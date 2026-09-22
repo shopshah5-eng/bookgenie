@@ -58,7 +58,9 @@ function CreatePageContent() {
   const [bookType, setBookType] = useState('auto');
   const [language, setLanguage] = useState('english');
   const [style, setStyle] = useState('modern');
-  const [uploadedFiles, setUploadedFiles] = useState<Array<{ name: string; size: string }>>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<
+    Array<{ name: string; size: string; content?: string }>
+  >([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -115,13 +117,29 @@ function CreatePageContent() {
     "An illustrated recipe book of 15 authentic Italian pasta dishes from scratch.",
   ];
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-    const newFiles = Array.from(e.target.files).map((f) => ({
-      name: f.name,
-      size: `${(f.size / (1024 * 1024)).toFixed(1)} MB`,
-    }));
-    setUploadedFiles((prev) => [...prev, ...newFiles]);
+    const files = Array.from(e.target.files);
+    const parsedFiles = await Promise.all(
+      files.map(async (f) => {
+        let textContent = '';
+        try {
+          if (f.name.endsWith('.txt') || f.name.endsWith('.md') || f.type.startsWith('text/')) {
+            textContent = await f.text();
+          } else {
+            textContent = `[Attached Document: ${f.name}, Size: ${(f.size / 1024).toFixed(1)} KB]`;
+          }
+        } catch {
+          textContent = `[Attached Document: ${f.name}]`;
+        }
+        return {
+          name: f.name,
+          size: `${(f.size / (1024 * 1024)).toFixed(1)} MB`,
+          content: textContent.slice(0, 10000),
+        };
+      })
+    );
+    setUploadedFiles((prev) => [...prev, ...parsedFiles]);
   };
 
   const handleGenerate = async (e: React.FormEvent) => {
@@ -131,10 +149,25 @@ function CreatePageContent() {
       return;
     }
 
+    // Auth gate: if unauthenticated, save prompt & trigger AuthModal
+    if (!user) {
+      sessionStorage.setItem('bg_pending_prompt', prompt);
+      sessionStorage.setItem('bg_pending_type', bookType);
+      openAuthModal('signup', '/create');
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
 
     try {
+      const uploadedContextString =
+        uploadedFiles.length > 0
+          ? uploadedFiles
+              .map((f) => `### Source Material: ${f.name}\n${f.content || ''}`)
+              .join('\n\n')
+          : undefined;
+
       const response = await fetch('/api/books/create', {
         method: 'POST',
         headers: {
@@ -145,13 +178,13 @@ function CreatePageContent() {
           bookType,
           language,
           style,
-          uploadedContext: uploadedFiles.length > 0 ? `Files attached: ${uploadedFiles.map((f) => f.name).join(', ')}` : undefined,
+          uploadedContext: uploadedContextString,
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to initialize book generation.');
+        throw new Error(errorData.message || errorData.error || 'Failed to initialize book generation.');
       }
 
       const data = await response.json();
@@ -235,6 +268,8 @@ function CreatePageContent() {
             </div>
 
             <textarea
+              id="book-prompt-input"
+              aria-label="Describe the book you want to create"
               rows={5}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}

@@ -2,7 +2,7 @@
 
 import React, { use } from 'react';
 import Link from 'next/link';
-import { getOceanWondersDemoBook } from '@/app/api/books/[id]/route';
+import { getOceanWondersDemoBook } from '@/lib/book/demo-book';
 import { Button } from '@/components/ui/Button';
 import { BookOpen, ChevronLeft, ChevronRight, ArrowLeft, ArrowRight, Sparkles, Download } from 'lucide-react';
 

@@ -14,10 +14,32 @@ export default function ContactPage() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [sent, setSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || data.error || 'Failed to send message.');
+      }
+
+      setSent(true);
+    } catch (err: any) {
+      setError(err.message || 'Failed to submit inquiry. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -66,11 +88,17 @@ export default function ContactPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
+                {error && (
+                  <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700">
+                    {error}
+                  </div>
+                )}
                 <div>
-                  <label className="block text-xs font-semibold text-[#1A1612] mb-1.5">
+                  <label htmlFor="contact-name" className="block text-xs font-semibold text-[#1A1612] mb-1.5">
                     Your Name
                   </label>
                   <Input
+                    id="contact-name"
                     type="text"
                     required
                     placeholder="Your full name"
@@ -79,10 +107,11 @@ export default function ContactPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#1A1612] mb-1.5">
+                  <label htmlFor="contact-email" className="block text-xs font-semibold text-[#1A1612] mb-1.5">
                     Email Address
                   </label>
                   <Input
+                    id="contact-email"
                     type="email"
                     required
                     placeholder="you@domain.com"
@@ -91,10 +120,11 @@ export default function ContactPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#1A1612] mb-1.5">
+                  <label htmlFor="contact-message" className="block text-xs font-semibold text-[#1A1612] mb-1.5">
                     How can we help?
                   </label>
                   <textarea
+                    id="contact-message"
                     rows={4}
                     required
                     placeholder="Describe your question or issue in detail..."
@@ -103,8 +133,14 @@ export default function ContactPage() {
                     className="w-full text-xs sm:text-sm p-3 rounded-xl border border-[#EFECE6] bg-[#FDFBF7] text-[#1A1612] focus:outline-none focus:border-[#9A6F3C] resize-none"
                   />
                 </div>
-                <Button type="submit" variant="primary" size="lg" className="w-full font-semibold">
-                  Send Message
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  disabled={isSubmitting}
+                  className="w-full font-semibold"
+                >
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
                 </Button>
               </form>
             )}

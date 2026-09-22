@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Allow: /pricing
+Allow: /examples
+Allow: /how-it-works
+Allow: /contact
+Allow: /affiliate
+Allow: /faq
+Allow: /privacy
+Allow: /terms
+Allow: /refund
+Allow: /shared/
+Disallow: /api/
+Disallow: /create
+Disallow: /my-books
+
+Sitemap: https://bookgenie-app.netlify.app/sitemap.xml

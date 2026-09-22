@@ -13,10 +13,32 @@ export default function AffiliatePage() {
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
   const [applied, setApplied] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setApplied(true);
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/affiliate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, website }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to submit application.');
+      }
+
+      setApplied(true);
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const benefits = [
@@ -100,6 +122,12 @@ export default function AffiliatePage() {
                   Fill out the form below to receive your unique referral link and promotional toolkit.
                 </p>
 
+                {error && (
+                  <div className="p-3.5 mb-4 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-xl">
+                    {error}
+                  </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-4 text-left">
                   <div>
                     <label className="block text-xs font-semibold text-[#1A1612] mb-1.5">
@@ -127,8 +155,16 @@ export default function AffiliatePage() {
                     />
                   </div>
 
-                  <Button type="submit" variant="primary" size="lg" className="w-full mt-2 font-semibold">
-                    Submit Affiliate Application <ArrowRight className="w-4 h-4 ml-1" />
+                  <Button 
+                    type="submit" 
+                    variant="primary" 
+                    size="lg" 
+                    className="w-full mt-2 font-semibold"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Submitting Application...' : (
+                      <>Submit Affiliate Application <ArrowRight className="w-4 h-4 ml-1" /></>
+                    )}
                   </Button>
                 </form>
               </>

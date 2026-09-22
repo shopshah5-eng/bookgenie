@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, use } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, notFound } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen,
@@ -32,18 +32,26 @@ export default function BookResultPage({
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [isNotFound, setIsNotFound] = useState(false);
 
   // Fetch full canonical BookDocument
   useEffect(() => {
     const fetchBook = async () => {
       try {
         const res = await fetch(`/api/books/${id}`);
+        if (res.status === 404) {
+          setIsNotFound(true);
+          return;
+        }
         if (res.ok) {
           const data = await res.json();
           setBook(data);
+        } else {
+          setIsNotFound(true);
         }
       } catch (err) {
         console.error('Failed to load book document:', err);
+        setIsNotFound(true);
       } finally {
         setIsLoading(false);
       }
@@ -51,6 +59,10 @@ export default function BookResultPage({
 
     fetchBook();
   }, [id]);
+
+  if (isNotFound) {
+    notFound();
+  }
 
   // Keyboard navigation: ArrowLeft / ArrowRight
   useEffect(() => {

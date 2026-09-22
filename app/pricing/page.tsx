@@ -2,15 +2,21 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
-import { AuthProvider } from '@/components/auth/AuthContext';
+import { AuthProvider, useAuth } from '@/components/auth/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { Button } from '@/components/ui/Button';
-import { Sparkles, Check, ArrowRight } from 'lucide-react';
+import { Sparkles, Check, ArrowRight, CheckCircle2 } from 'lucide-react';
 
-export default function PricingPage() {
+function PricingContent() {
+  const router = useRouter();
+  const { user, openAuthModal } = useAuth();
   const [currency, setCurrency] = useState<'INR' | 'USD'>('INR');
+  const [upgradingTier, setUpgradingTier] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const plans = [
     {
@@ -75,112 +81,183 @@ export default function PricingPage() {
     },
   ];
 
+  const handleSelectPlan = async (planId: string) => {
+    setSuccessMessage(null);
+    setErrorMessage(null);
+
+    if (!user) {
+      openAuthModal('signup', '/pricing');
+      return;
+    }
+
+    if (planId === 'free') {
+      router.push('/create');
+      return;
+    }
+
+    setUpgradingTier(planId);
+    try {
+      const res = await fetch('/api/subscription/upgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier: planId }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to update subscription.');
+      }
+
+      setSuccessMessage(
+        `Your account has been upgraded to the ${planId.toUpperCase()} Plan! You now have unlocked full commercial rights and expanded quotas.`
+      );
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Something went wrong while upgrading plan.');
+    } finally {
+      setUpgradingTier(null);
+    }
+  };
+
   return (
-    <AuthProvider>
-      <div className="min-h-screen flex flex-col bg-[#FDFBF7] text-[#1A1612]">
-        <Header />
+    <div className="min-h-screen flex flex-col bg-[#FDFBF7] text-[#1A1612]">
+      <Header />
 
-        <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F8F3EA] text-[#8C5F2E] border border-[#E8DCCB] text-[11px] font-semibold uppercase tracking-wider mb-3">
-              <Sparkles className="w-3.5 h-3.5" /> Simple, Transparent Pricing
-            </span>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#1A1612] tracking-tight mb-4">
-              Invest in Your Publishing Ideas
-            </h1>
-            <p className="text-sm sm:text-base text-[#6B635B] mb-6">
-              Start free, then upgrade as your catalogue of AI-published books expands.
-            </p>
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F8F3EA] text-[#8C5F2E] border border-[#E8DCCB] text-[11px] font-semibold uppercase tracking-wider mb-3">
+            <Sparkles className="w-3.5 h-3.5" /> Simple, Transparent Pricing
+          </span>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#1A1612] tracking-tight mb-4">
+            Invest in Your Publishing Ideas
+          </h1>
+          <p className="text-sm sm:text-base text-[#6B635B] mb-6">
+            Start free, then upgrade as your catalogue of AI-published books expands.
+          </p>
 
-            {/* Currency Switcher */}
-            <div className="inline-flex items-center p-1 rounded-xl bg-white border border-[#EFECE6] shadow-2xs">
-              <button
-                type="button"
-                onClick={() => setCurrency('INR')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
-                  currency === 'INR'
-                    ? 'bg-[#9A6F3C] text-white shadow-2xs'
-                    : 'text-[#6B635B] hover:text-[#1A1612]'
-                }`}
-              >
-                ₹ INR (India)
-              </button>
-              <button
-                type="button"
-                onClick={() => setCurrency('USD')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
-                  currency === 'USD'
-                    ? 'bg-[#9A6F3C] text-white shadow-2xs'
-                    : 'text-[#6B635B] hover:text-[#1A1612]'
-                }`}
-              >
-                $ USD (Global)
-              </button>
-            </div>
+          {/* Currency Switcher */}
+          <div className="inline-flex items-center p-1 rounded-xl bg-white border border-[#EFECE6] shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setCurrency('INR')}
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
+                currency === 'INR'
+                  ? 'bg-[#9A6F3C] text-white shadow-2xs'
+                  : 'text-[#6B635B] hover:text-[#1A1612]'
+              }`}
+            >
+              ₹ INR (India)
+            </button>
+            <button
+              type="button"
+              onClick={() => setCurrency('USD')}
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
+                currency === 'USD'
+                  ? 'bg-[#9A6F3C] text-white shadow-2xs'
+                  : 'text-[#6B635B] hover:text-[#1A1612]'
+              }`}
+            >
+              $ USD (Global)
+            </button>
           </div>
+        </div>
 
-          {/* Pricing Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 items-stretch">
-            {plans.map((plan) => (
-              <div
-                key={plan.id}
-                className={`relative rounded-3xl p-8 flex flex-col justify-between transition-all duration-200 ${
-                  plan.isPopular
-                    ? 'bg-white border-2 border-[#9A6F3C] shadow-xl transform md:-translate-y-2'
-                    : 'bg-white border border-[#EFECE6] shadow-sm hover:border-[#DDD3C2]'
-                }`}
-              >
-                {plan.isPopular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#9A6F3C] text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full shadow-xs">
-                    Most Popular
+        {/* Status Alerts */}
+        {successMessage && (
+          <div className="max-w-2xl mx-auto mb-8 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3 text-emerald-900 shadow-xs">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+            <div className="flex-1 text-xs sm:text-sm">
+              <span className="font-semibold block">Upgrade Successful!</span>
+              {successMessage}
+            </div>
+            <Link href="/create">
+              <Button size="sm" variant="primary" className="text-xs">
+                Create Now
+              </Button>
+            </Link>
+          </div>
+        )}
+
+        {errorMessage && (
+          <div className="max-w-2xl mx-auto mb-8 p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 text-xs sm:text-sm">
+            {errorMessage}
+          </div>
+        )}
+
+        {/* Pricing Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 items-stretch">
+          {plans.map((plan) => (
+            <div
+              key={plan.id}
+              className={`relative rounded-3xl p-8 flex flex-col justify-between transition-all duration-200 ${
+                plan.isPopular
+                  ? 'bg-white border-2 border-[#9A6F3C] shadow-xl transform md:-translate-y-2'
+                  : 'bg-white border border-[#EFECE6] shadow-sm hover:border-[#DDD3C2]'
+              }`}
+            >
+              {plan.isPopular && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#9A6F3C] text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full shadow-xs">
+                  Most Popular
+                </span>
+              )}
+
+              <div>
+                <div className="text-xs uppercase tracking-wider font-semibold text-[#8C5F2E] mb-2">
+                  {plan.badge}
+                </div>
+                <h3 className="text-2xl font-serif font-bold text-[#1A1612] mb-2">
+                  {plan.name}
+                </h3>
+                <p className="text-xs text-[#6B635B] mb-6 leading-relaxed">
+                  {plan.description}
+                </p>
+
+                <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-[#F4F1EA]">
+                  <span className="text-4xl font-serif font-bold text-[#1A1612]">
+                    {currency === 'INR' ? plan.priceINR : plan.priceUSD}
                   </span>
-                )}
-
-                <div>
-                  <div className="text-xs uppercase tracking-wider font-semibold text-[#8C5F2E] mb-2">
-                    {plan.badge}
-                  </div>
-                  <h3 className="text-2xl font-serif font-bold text-[#1A1612] mb-2">
-                    {plan.name}
-                  </h3>
-                  <p className="text-xs text-[#6B635B] mb-6 leading-relaxed">
-                    {plan.description}
-                  </p>
-
-                  <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-[#F4F1EA]">
-                    <span className="text-4xl font-serif font-bold text-[#1A1612]">
-                      {currency === 'INR' ? plan.priceINR : plan.priceUSD}
-                    </span>
-                    <span className="text-xs text-[#9E968E]">/ {plan.period}</span>
-                  </div>
-
-                  <ul className="space-y-3 mb-8">
-                    {plan.features.map((feat, i) => (
-                      <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-[#2D2620]">
-                        <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                        <span>{feat}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <span className="text-xs text-[#9E968E]">/ {plan.period}</span>
                 </div>
 
-                <Link href="/create" className="w-full">
-                  <Button variant={plan.variant} size="lg" className="w-full shadow-xs font-semibold">
-                    {plan.cta} <ArrowRight className="w-4 h-4 ml-1" />
-                  </Button>
-                </Link>
+                <ul className="space-y-3 mb-8">
+                  {plan.features.map((feat, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-[#2D2620]">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span>{feat}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            ))}
-          </div>
 
-          <div className="text-center text-xs text-[#9E968E]">
-            All paid subscriptions come with a 7-day money-back guarantee. Cancel anytime with a single click.
-          </div>
-        </main>
+              <Button
+                variant={plan.variant}
+                size="lg"
+                className="w-full shadow-xs font-semibold"
+                disabled={upgradingTier === plan.id}
+                onClick={() => handleSelectPlan(plan.id)}
+              >
+                {upgradingTier === plan.id ? 'Updating Plan...' : (
+                  <>{plan.cta} <ArrowRight className="w-4 h-4 ml-1" /></>
+                )}
+              </Button>
+            </div>
+          ))}
+        </div>
 
-        <Footer />
-        <AuthModal />
-      </div>
+        <div className="text-center text-xs text-[#9E968E]">
+          All paid subscriptions come with a 7-day money-back guarantee. Cancel anytime with a single click.
+        </div>
+      </main>
+
+      <Footer />
+      <AuthModal />
+    </div>
+  );
+}
+
+export default function PricingPage() {
+  return (
+    <AuthProvider>
+      <PricingContent />
     </AuthProvider>
   );
 }

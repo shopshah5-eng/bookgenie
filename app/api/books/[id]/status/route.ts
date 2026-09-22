@@ -1,6 +1,10 @@
 // app/api/books/[id]/status/route.ts
+// Secure job status endpoint with path-to-job ID validation and ownership checks
+
 import { NextRequest, NextResponse } from 'next/server';
 import { GenerationPipeline } from '@/lib/ai/pipeline';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function GET(
   req: NextRequest,
@@ -13,7 +17,6 @@ export async function GET(
 
     // 1. Query Supabase PostgreSQL jobs table
     try {
-      const { createAdminClient } = await import('@/lib/supabase/admin');
       const supabase = createAdminClient();
       const { data: dbJob } = await supabase
         .from('jobs')
@@ -22,6 +25,44 @@ export async function GET(
         .single();
 
       if (dbJob) {
+        // Enforce ID Match: Path book ID must match the job's book_id
+        if (dbJob.book_id !== id) {
+          return NextResponse.json(
+            {
+              error: 'NOT_FOUND',
+              message: 'Job ID does not match the requested book path.',
+            },
+            { status: 404 }
+          );
+        }
+
+        // Check ownership if user is authenticated and not public demo
+        if (id !== 'ocean-wonders' && id !== 'demo-ocean-wonders') {
+          try {
+            const serverSupabase = await createServerSupabaseClient();
+            const {
+              data: { user },
+            } = await serverSupabase.auth.getUser();
+
+            if (user) {
+              const { data: book } = await supabase
+                .from('books')
+                .select('user_id, is_shared')
+                .eq('id', id)
+                .single();
+
+              if (book && book.user_id && book.user_id !== user.id && !book.is_shared) {
+                return NextResponse.json(
+                  { error: 'FORBIDDEN', message: 'You do not have access to this generation job.' },
+                  { status: 403 }
+                );
+              }
+            }
+          } catch (authErr) {
+            console.warn('Status auth verification check notice:', authErr);
+          }
+        }
+
         const stageDescriptions: Record<string, string[]> = {
           planning: ['Idea Analyzed', 'Crafting Book Blueprint'],
           writing: ['Idea Analyzed', 'Structure & Chapters Crafted', 'Writing Chapter Content'],
@@ -48,6 +89,17 @@ export async function GET(
     // 2. Query in-memory dev store fallback
     const job = GenerationPipeline.getJobState(jobId);
     if (job) {
+      // Enforce ID Match in dev store
+      if (job.bookId !== id) {
+        return NextResponse.json(
+          {
+            error: 'NOT_FOUND',
+            message: 'Job ID does not match the requested book path.',
+          },
+          { status: 404 }
+        );
+      }
+
       return NextResponse.json({
         id: job.id,
         bookId: job.bookId,
