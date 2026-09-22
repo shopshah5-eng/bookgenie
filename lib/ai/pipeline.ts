@@ -3,6 +3,7 @@
 
 import { OpenRouterTextProvider } from './openrouter';
 import { GeminiImageProvider } from './gemini';
+import { PollinationsImageProvider } from './pollinations';
 import { AICostController } from './cost-controller';
 import type { BookBlueprint, BookDocument, BookPageDocument, BookType } from '@/lib/book/types';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -24,7 +25,7 @@ const devJobsStore = new Map<
 
 export class GenerationPipeline {
   private static textProvider = new OpenRouterTextProvider();
-  private static imageProvider = new GeminiImageProvider();
+  private static imageProvider = process.env.AI_IMAGE_PROVIDER === 'gemini' && process.env.GEMINI_API_KEY ? new GeminiImageProvider() : new PollinationsImageProvider();
 
   /**
    * Fast initialization: inserts Book and Job, returns IDs in <250ms
