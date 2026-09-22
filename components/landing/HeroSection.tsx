@@ -1,62 +1,78 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
-import { Button } from '@/components/ui/Button';
-import { Dropdown } from '@/components/ui/Dropdown';
-import { Sparkles, UploadCloud, Lock, ArrowRight, BookOpen, Globe2, Palette } from 'lucide-react';
+import {
+  Sparkles,
+  UploadCloud,
+  Lock,
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  FileText,
+} from 'lucide-react';
 
 export function HeroSection() {
   const router = useRouter();
   const { user, openAuthModal } = useAuth();
 
   const [prompt, setPrompt] = useState('');
-  const [bookType, setBookType] = useState('auto');
-  const [language, setLanguage] = useState('english');
-  const [style, setStyle] = useState('modern');
+  const [selectedType, setSelectedType] = useState('children');
+  const [selectedPages, setSelectedPages] = useState('28');
+  const [selectedStyle, setSelectedStyle] = useState('whimsical');
 
-  const bookTypeOptions = [
-    { label: 'Auto detect', value: 'auto' },
-    { label: "Children's Book", value: 'children' },
-    { label: 'Coloring Book', value: 'coloring' },
-    { label: 'Novel / Fiction', value: 'novel' },
-    { label: 'Course Book', value: 'course' },
-    { label: 'Guide / How-to', value: 'guide' },
-    { label: 'Workbook', value: 'workbook' },
-    { label: 'Recipe Book', value: 'recipe' },
-    { label: 'History Book', value: 'history' },
-    { label: 'Journal', value: 'journal' },
+  const presetSuggestions = [
+    {
+      label: "Children's Book",
+      type: 'children',
+      pages: '28',
+      style: 'whimsical',
+      prompt: 'A 28-page illustrated children’s story about a curious fox who discovers a hidden garden.',
+    },
+    {
+      label: 'Literary Fiction',
+      type: 'novel',
+      pages: '64',
+      style: 'editorial',
+      prompt: 'A misty coastal mystery novel set in an abandoned 1920s lighthouse town.',
+    },
+    {
+      label: 'Botanical Coloring',
+      type: 'coloring',
+      pages: '36',
+      style: 'minimal',
+      prompt: 'A 36-page relaxing botanical coloring book with intricate floral outlines.',
+    },
+    {
+      label: 'Study Guide',
+      type: 'course',
+      pages: '48',
+      style: 'academic',
+      prompt: 'A step-by-step comprehensive guide to mastering modern product design.',
+    },
   ];
 
-  const languageOptions = [
-    { label: 'English', value: 'english' },
-    { label: 'Hindi', value: 'hindi' },
-    { label: 'Spanish', value: 'spanish' },
-    { label: 'French', value: 'french' },
-    { label: 'German', value: 'german' },
-    { label: 'Japanese', value: 'japanese' },
-  ];
-
-  const styleOptions = [
-    { label: 'Modern', value: 'modern' },
-    { label: 'Editorial Luxury', value: 'editorial' },
-    { label: 'Playful Storybook', value: 'playful' },
-    { label: 'Academic & Formal', value: 'academic' },
-    { label: 'Minimalist Clean', value: 'minimal' },
-    { label: 'Vintage Classic', value: 'vintage' },
-  ];
+  const handlePresetSelect = (preset: typeof presetSuggestions[0]) => {
+    setPrompt(preset.prompt);
+    setSelectedType(preset.type);
+    setSelectedPages(preset.pages);
+    setSelectedStyle(preset.style);
+  };
 
   const handleGenerateClick = (e: React.FormEvent) => {
     e.preventDefault();
-
+    const finalPrompt =
+      prompt.trim() ||
+      'A 28-page illustrated children’s story about a curious fox who discovers a hidden garden.';
     const targetUrl = `/create?prompt=${encodeURIComponent(
-      prompt || "Create a 40-page children's coloring book about cute jungle animals."
-    )}&type=${bookType}&lang=${language}&style=${style}`;
+      finalPrompt
+    )}&type=${selectedType}&pages=${selectedPages}&style=${selectedStyle}`;
 
     if (!user) {
-      sessionStorage.setItem('bg_pending_prompt', prompt);
-      sessionStorage.setItem('bg_pending_type', bookType);
+      sessionStorage.setItem('bg_pending_prompt', finalPrompt);
+      sessionStorage.setItem('bg_pending_type', selectedType);
       openAuthModal('signup', targetUrl);
     } else {
       router.push(targetUrl);
@@ -64,190 +80,180 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative overflow-hidden pt-8 pb-16 lg:pt-14 lg:pb-24">
-      {/* Background warm aesthetic ambient glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#F4EDE0]/60 rounded-full blur-3xl -z-10 pointer-events-none" />
+    <section className="relative overflow-hidden pt-4 sm:pt-8 pb-16 lg:pt-10 lg:pb-24">
+      {/* Warm Photographic Studio Background Atmosphere (faded gently on right side) */}
+      <div className="absolute top-0 right-0 w-full lg:w-3/5 h-full opacity-20 lg:opacity-30 pointer-events-none -z-10 mix-blend-multiply select-none">
+        <Image
+          src="/images/hero-publishing-studio.jpg"
+          alt="BookGenie Editorial Publishing Desk"
+          fill
+          priority
+          className="object-cover object-right-top mask-radial-fade"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#F8F4EC] via-[#F8F4EC]/80 to-transparent" />
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          {/* Left Column: Headline, Copy & Interactive Prompt Card */}
-          <div className="lg:col-span-7 flex flex-col items-start text-left">
-            {/* Tag Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F4EDE0] text-[#8C5F2E] border border-[#E8DCCB] text-[11px] font-semibold tracking-wider uppercase mb-5">
-              <Sparkles className="w-3.5 h-3.5" />
-              AI-Powered Book Creation
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+          
+          {/* Left Column: Negative space typography & manuscript card */}
+          <div className="lg:col-span-7 flex flex-col items-start text-left z-10">
+            
+            {/* Studio Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F1ECE2] text-[#8C5F2E] border border-[#E5D5C0] text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase mb-5">
+              <Sparkles className="w-3.5 h-3.5 text-[#A47A45]" />
+              <span>A Luxury Digital Publishing Studio</span>
             </div>
 
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#1A1612] tracking-tight leading-[1.12] mb-5">
-              Turn your ideas <br className="hidden sm:inline" />
-              into{' '}
-              <span className="italic font-normal text-[#9A6F3C] font-serif">
+            {/* Editorial Headline */}
+            <h1 className="text-4xl sm:text-5xl lg:text-[56px] font-serif font-bold text-[#181511] tracking-tight leading-[1.1] mb-5">
+              Your idea deserves <br />
+              a{' '}
+              <span className="italic font-normal text-[#A47A45] font-serif">
                 beautiful
               </span>{' '}
-              books.
+              book.
             </h1>
 
-            {/* Supporting Copy */}
-            <p className="text-base sm:text-lg text-[#6B635B] leading-relaxed max-w-2xl mb-8">
-              Write a prompt, upload your content, and let BookGenie handle the writing, visuals, design, and layout.
+            {/* Editorial Subheading */}
+            <p className="text-base sm:text-lg text-[#746B60] leading-relaxed max-w-xl mb-7 font-sans">
+              Turn a thought, story, lesson, or manuscript into a professionally designed and illustrated book with AI.
             </p>
 
-            {/* Interactive Prompt Card */}
+            {/* Author's Manuscript Card (Not a SaaS form) */}
             <form
               onSubmit={handleGenerateClick}
-              className="w-full bg-white rounded-2xl border border-[#EFECE6] p-4 sm:p-5 shadow-[0_12px_40px_rgba(45,38,32,0.06)] transition-all hover:border-[#DFD9CD]"
+              className="w-full bg-[#FFFFFF] rounded-2xl border border-[rgba(24,21,17,0.1)] p-5 sm:p-6 shadow-[0_12px_36px_-6px_rgba(24,21,17,0.07)] transition-all hover:border-[#A47A45]/40 relative"
             >
-              {/* Top Row: Sparkle + Input + File Upload Trigger */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pb-3 border-b border-[#F4F1EA]">
-                <div className="w-full flex items-center gap-3">
-                  <Sparkles className="w-5 h-5 text-[#9A6F3C] shrink-0" />
-                  <input
-                    type="text"
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Tell us what you want to create... e.g. Create a 40-page children's coloring book about cute jungle animals."
-                    className="w-full text-sm sm:text-base text-[#1A1612] placeholder:text-[#9E968E] bg-transparent focus:outline-none"
-                  />
-                </div>
+              {/* Manuscript Header Tag */}
+              <div className="flex items-center justify-between pb-3 border-b border-[rgba(24,21,17,0.06)] mb-3 text-xs">
+                <span className="font-sans font-bold text-[10px] tracking-widest uppercase text-[#8C5F2E]">
+                  WHAT WILL YOU CREATE?
+                </span>
+                <span className="text-[11px] text-[#9E968E] font-serif italic">
+                  Manuscript Studio
+                </span>
+              </div>
 
-                <div className="shrink-0 self-end sm:self-center">
+              {/* Textarea Input resembling writer's desk sheet */}
+              <div className="relative mb-3">
+                <textarea
+                  rows={2}
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="A 28-page illustrated children's story about a curious fox who discovers a hidden garden..."
+                  className="w-full text-sm sm:text-base text-[#181511] placeholder:text-[#A8A199] bg-transparent focus:outline-none resize-none leading-relaxed font-sans"
+                />
+              </div>
+
+              {/* Quick Editorial Preset Chips */}
+              <div className="flex flex-wrap gap-1.5 pb-4 mb-4 border-b border-[rgba(24,21,17,0.06)]">
+                {presetSuggestions.map((preset) => (
                   <button
+                    key={preset.label}
                     type="button"
-                    onClick={() => router.push('/create')}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[#EFECE6] bg-[#FDFBF7] hover:bg-[#F4EFE6] text-xs font-medium text-[#6B635B] transition-colors"
+                    onClick={() => handlePresetSelect(preset)}
+                    className="text-[11px] px-2.5 py-1 rounded-lg bg-[#F8F4EC] hover:bg-[#F1ECE2] text-[#746B60] hover:text-[#181511] border border-[rgba(24,21,17,0.06)] transition-colors"
                   >
-                    <UploadCloud className="w-4 h-4 text-[#9A6F3C]" />
-                    <span>Upload files</span>
-                    <span className="hidden md:inline text-[10px] text-[#9E968E]">
-                      (PDF, DOCX, TXT)
-                    </span>
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Controls Bar: Source Attachment + Attributes + Action */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => router.push('/create')}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[#746B60] hover:text-[#181511] py-1.5 px-3 rounded-xl border border-[rgba(24,21,17,0.08)] bg-[#FDFBF7] hover:bg-[#F8F4EC] transition-colors self-start"
+                >
+                  <UploadCloud className="w-3.5 h-3.5 text-[#A47A45]" />
+                  <span>Attach notes / PDF</span>
+                </button>
+
+                <div className="flex items-center gap-3">
+                  <div className="hidden sm:flex items-center gap-1.5 text-xs text-[#9E968E]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                    <span>Instant Blueprint</span>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white gold-gradient-bg shadow-md hover:shadow-lg transition-all active:scale-[0.98] w-full sm:w-auto"
+                  >
+                    <span>Create My Book</span>
+                    <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>
-
-              {/* Bottom Controls Row: Dropdowns + CTA */}
-              <div className="pt-3 flex flex-wrap items-center justify-between gap-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Dropdown
-                    label="Book type"
-                    options={bookTypeOptions}
-                    value={bookType}
-                    onChange={setBookType}
-                    icon={<BookOpen className="w-3.5 h-3.5" />}
-                  />
-                  <Dropdown
-                    label="Language"
-                    options={languageOptions}
-                    value={language}
-                    onChange={setLanguage}
-                    icon={<Globe2 className="w-3.5 h-3.5" />}
-                  />
-                  <Dropdown
-                    label="Style"
-                    options={styleOptions}
-                    value={style}
-                    onChange={setStyle}
-                    icon={<Palette className="w-3.5 h-3.5" />}
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="lg"
-                  className="w-full sm:w-auto shadow-md"
-                >
-                  Generate My Book <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
             </form>
 
-            {/* Reassurance Micro-copy */}
-            <div className="flex items-center gap-2 mt-3.5 text-xs text-[#9E968E]">
-              <Lock className="w-3.5 h-3.5" />
-              <span>No writing or design skills needed. Just your idea.</span>
+            {/* Editorial Reassurance */}
+            <div className="flex items-center gap-2 mt-4 text-xs text-[#746B60]">
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#8C5F2E]" />
+              <span>Full commercial rights. Print-ready PDF & reflowable EPUB included.</span>
             </div>
           </div>
 
-          {/* Right Column: Editorial Visual Showcase (Real Book Cover + Real Interior Page Spread) */}
-          <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
-            {/* Editorial Floating Quality Badge */}
-            <div className="absolute -top-5 left-2 sm:left-6 lg:-left-4 bg-white/95 backdrop-blur-md border border-[#EAE3D5] rounded-2xl px-4 py-2 text-xs font-serif text-[#1A1612] shadow-sm transform -rotate-2 z-30 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#9A6F3C] animate-pulse" />
-              <span className="italic font-medium text-[#8C5F2E]">Generated in 90 seconds</span>
-            </div>
+          {/* Right Column: Signature Floating Book Ensemble */}
+          <div className="lg:col-span-5 relative flex justify-center lg:justify-end select-none">
+            
+            {/* Visual Ensemble Container */}
+            <div className="relative w-full max-w-[440px] aspect-[4/5] flex items-center justify-center">
+              
+              {/* Background Layer: Real Open Illustrated Book Spread (Slightly rotated behind) */}
+              <div className="absolute top-4 right-0 sm:right-2 w-72 sm:w-80 h-96 sm:h-[400px] rounded-2xl overflow-hidden book-shadow transform rotate-3 animate-book-float-delayed z-10 border border-[#E5D5C0]">
+                <Image
+                  src="/images/editorial-book-spread.jpg"
+                  alt="Open illustrated book spread"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-3 right-4 px-2.5 py-1 rounded-md bg-black/60 backdrop-blur-xs text-[10px] text-white font-serif italic">
+                  Curated Interior Spread
+                </div>
+              </div>
 
-            {/* Book Artifact Presentation Showcase */}
-            <div className="relative w-full max-w-[420px] aspect-[4/5] rounded-3xl p-5 sm:p-6 flex flex-col justify-center items-center">
-              {/* Back Card: Luxury Book Cover */}
-              <div className="w-64 sm:w-72 h-88 sm:h-96 rounded-2xl bg-gradient-to-b from-[#0B2545] via-[#134074] to-[#001D3D] border border-[#2E5077] shadow-[0_20px_50px_rgba(11,37,69,0.25)] p-5 flex flex-col justify-between text-white transform -rotate-6 transition-transform duration-300 hover:-rotate-3 z-10">
-                <div className="flex items-center justify-between text-[9px] uppercase tracking-widest text-[#E0E1DD] opacity-80">
-                  <span>Children's Book</span>
-                  <span>BookGenie</span>
+              {/* Front Layer: Luxury Hardcover Jacket (Floating slightly above with spine depth) */}
+              <div className="absolute top-12 left-2 sm:left-4 w-64 sm:w-72 h-88 sm:h-96 rounded-sm bg-gradient-to-b from-[#0B2545] via-[#103766] to-[#08182B] border border-[#2E5077] book-shadow p-5 flex flex-col justify-between text-white transform -rotate-4 animate-book-float z-20 transition-transform">
+                
+                {/* Book Spine Shadow Simulation */}
+                <div className="absolute left-0 top-0 bottom-0 w-3 bg-[#061220] book-spine-shadow border-r border-white/10" />
+
+                {/* Cover Top Header */}
+                <div className="pl-3 flex items-center justify-between text-[9px] uppercase tracking-widest text-[#D4AF37] font-semibold">
+                  <span>Children's Volume</span>
+                  <span>Studio Edition</span>
                 </div>
 
-                <div className="my-auto text-center">
-                  <div className="w-10 h-10 mx-auto rounded-full bg-white/10 border border-white/20 flex items-center justify-center mb-3">
-                    <BookOpen className="w-5 h-5 text-amber-300" />
+                {/* Cover Title Typography */}
+                <div className="pl-3 my-auto text-center">
+                  <div className="w-9 h-9 mx-auto rounded-full bg-white/10 border border-[#D4AF37]/40 flex items-center justify-center mb-2.5 shadow-inner">
+                    <BookOpen className="w-4 h-4 text-[#D4AF37]" />
                   </div>
                   <h3 className="font-serif font-bold text-xl sm:text-2xl tracking-tight leading-tight mb-1 text-white">
                     Ocean Wonders
                   </h3>
-                  <p className="text-[10px] text-sky-200 font-light max-w-[180px] mx-auto leading-relaxed">
-                    An Underwater Journey Through Coral Reefs & Deep Mysteries
+                  <p className="text-[10px] text-sky-200/90 font-light max-w-[180px] mx-auto leading-relaxed">
+                    Secrets of the Coral Reef & Deep Blue Mysteries
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-white/15 flex items-center justify-between text-[9px] text-sky-300/80">
-                  <span>28 Pages • Illustrated</span>
-                  <span>Hardcover Edition</span>
+                {/* Cover Bottom Meta */}
+                <div className="pl-3 pt-2 border-t border-white/15 flex items-center justify-between text-[9px] text-sky-200/80">
+                  <span>28 Pages • Full Color</span>
+                  <span className="font-serif italic text-amber-200">BookGenie</span>
                 </div>
               </div>
 
-              {/* Overlapping Front Card: Open Interior Book Page */}
-              <div className="absolute top-12 left-8 sm:left-14 w-64 sm:w-72 h-88 sm:h-96 rounded-2xl bg-[#FFFFFF] border border-[#E8DFC8] shadow-[0_25px_60px_rgba(45,38,32,0.14)] p-5 flex flex-col justify-between text-[#1A1612] transform rotate-3 transition-transform duration-300 hover:rotate-1 z-20">
-                {/* Book Header Bar */}
-                <div className="flex items-center justify-between text-[9px] text-[#9E968E] border-b border-[#F4F1EA] pb-2">
-                  <span className="font-serif italic text-[#8C5F2E]">Ocean Wonders</span>
-                  <span className="font-mono">Page 3</span>
-                </div>
-
-                {/* Page Content with Drop Cap & Illustration Container */}
-                <div className="space-y-2.5 my-auto text-left">
-                  <h4 className="font-serif font-bold text-sm text-[#1A1612]">
-                    Chapter 1: The Sunlit Shallows
-                  </h4>
-                  <p className="text-[11px] text-[#4A4036] leading-relaxed">
-                    <span className="float-left text-2xl font-serif font-bold text-[#9A6F3C] leading-none pr-1 pt-0.5">J</span>
-                    ust beneath the gentle waves of Sapphire Bay, morning sun poured through the turquoise water like ribbons of gold.
-                  </p>
-
-                  {/* Illustrated Scene Block */}
-                  <div className="w-full h-24 rounded-xl bg-gradient-to-tr from-[#0077B6] to-[#90E0EF] p-2 flex flex-col justify-end text-white overflow-hidden shadow-inner">
-                    <span className="text-[9px] font-medium bg-black/30 backdrop-blur-xs px-2 py-0.5 rounded-md inline-block self-start">
-                      Barnaby the Turtle
-                    </span>
-                  </div>
-
-                  <p className="text-[10px] text-[#6B635B] leading-relaxed line-clamp-2">
-                    Here lived Barnaby, an ancient sea turtle who had navigated these warm coral canyons for seventy summers.
-                  </p>
-                </div>
-
-                {/* Book Footer Bar */}
-                <div className="flex items-center justify-between text-[9px] text-[#9E968E] border-t border-[#F4F1EA] pt-2">
-                  <span>Editorial Layout</span>
-                  <span className="font-serif text-[#8C5F2E] font-medium">BookGenie Publishing</span>
-                </div>
-              </div>
-
-              {/* Floating Format Pill */}
-              <div className="absolute -bottom-3 right-4 sm:right-10 bg-white/95 backdrop-blur-md border border-[#EAE3D5] rounded-full px-3.5 py-1 text-[11px] font-semibold text-[#8C5F2E] shadow-sm z-30 flex items-center gap-1.5">
-                <Sparkles className="w-3 h-3 text-[#9A6F3C]" />
-                <span>PDF + EPUB3 Ready</span>
+              {/* Floating Quality Badge */}
+              <div className="absolute -bottom-2 right-2 sm:right-6 bg-white/95 backdrop-blur-md border border-[#E5D5C0] rounded-full px-4 py-1.5 text-xs font-serif text-[#181511] book-shadow z-30 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#A47A45] animate-pulse" />
+                <span className="italic font-medium text-[#8C5F2E]">Generated in 90 seconds</span>
               </div>
             </div>
+
           </div>
         </div>
       </div>

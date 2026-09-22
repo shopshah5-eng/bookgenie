@@ -1,133 +1,128 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, ChevronRight, ArrowRight, Eye, Sparkles } from 'lucide-react';
+import { ArrowRight, BookOpen, Sparkles, ExternalLink } from 'lucide-react';
 
-interface ShowcaseBook {
+interface LibraryBook {
   id: string;
   slug: string;
   title: string;
+  authorSubtitle: string;
   genre: string;
   pages: number;
-  gradient: string;
+  coverBg: string;
+  spineBg: string;
   tagline: string;
+  featured?: boolean;
   isDemo?: boolean;
 }
 
 export function BookShowcase() {
   const router = useRouter();
-  const [scrollIndex, setScrollIndex] = useState(0);
 
-  const books: ShowcaseBook[] = [
+  const libraryBooks: LibraryBook[] = [
     {
       id: 'demo-ocean-wonders',
       slug: 'ocean-wonders',
       title: 'Ocean Wonders',
+      authorSubtitle: 'Secrets of the Coral Reef',
       genre: "Children's Book",
       pages: 28,
-      gradient: 'from-[#0D3B66] via-[#05668D] to-[#028090]',
-      tagline: 'An underwater adventure exploring coral reefs & friendly sea turtles.',
+      coverBg: 'from-[#0B2545] via-[#103766] to-[#08182B]',
+      spineBg: 'bg-[#061220]',
+      tagline: 'An underwater picture book exploring vibrant coral canyons & friendly sea turtles.',
+      featured: true,
       isDemo: true,
     },
     {
       id: 'showcase-kinder-world',
       slug: 'a-kinder-world',
       title: 'A Kinder World',
-      genre: 'Storybook',
+      authorSubtitle: 'Fables for Young Minds',
+      genre: 'Illustrated Story',
       pages: 32,
-      gradient: 'from-[#C4A484] via-[#AA8A68] to-[#8C6D4F]',
-      tagline: 'A heartwarming tale of a young elephant discovering compassion.',
+      coverBg: 'from-[#4D3319] via-[#35210E] to-[#1E1106]',
+      spineBg: 'bg-[#150B03]',
+      tagline: 'A heartwarming literary fable of a young elephant discovering quiet compassion.',
     },
     {
       id: 'showcase-productivity',
       slug: 'the-productivity-playbook',
       title: 'The Productivity Playbook',
-      genre: 'Business & Focus',
+      authorSubtitle: 'Deep Work & Systems',
+      genre: 'Non-Fiction Guide',
       pages: 64,
-      gradient: 'from-[#EDE6D6] via-[#E0D5C1] to-[#C9B99E]',
-      tagline: 'Science-backed daily routines to multiply your focus without burnout.',
+      coverBg: 'from-[#1C2630] via-[#121B24] to-[#0B1015]',
+      spineBg: 'bg-[#070B0E]',
+      tagline: 'Field-tested daily routines to multiply deep focus without creative burnout.',
     },
     {
       id: 'showcase-delicious',
       slug: 'delicious-every-day',
       title: 'Delicious Every Day',
-      genre: 'Cookbook',
+      authorSubtitle: 'The Tuscan Herb Table',
+      genre: 'Cookbook & Recipes',
       pages: 48,
-      gradient: 'from-[#D9822B] via-[#C36319] to-[#994700]',
-      tagline: 'Wholesome Mediterranean recipes made with five fresh ingredients.',
+      coverBg: 'from-[#5C2317] via-[#3B140D] to-[#220A05]',
+      spineBg: 'bg-[#170503]',
+      tagline: 'Wholesome Mediterranean recipes crafted with five fresh seasonal ingredients.',
     },
     {
       id: 'showcase-night-sky',
       slug: 'the-night-sky',
       title: 'The Night Sky',
+      authorSubtitle: 'Constellation Chronicles',
       genre: 'Science & Cosmos',
       pages: 56,
-      gradient: 'from-[#0B132B] via-[#1C2541] to-[#3A506B]',
-      tagline: 'A stargazers illustrated guide to constellations and galaxies.',
+      coverBg: 'from-[#161D36] via-[#0E1324] to-[#070912]',
+      spineBg: 'bg-[#04050A]',
+      tagline: 'An illustrated astronomical field guide to ancient constellations and galaxies.',
     },
     {
       id: 'showcase-financial',
       slug: 'financial-freedom',
-      title: 'Financial Freedom',
-      genre: 'Practical Guide',
+      title: 'Smart Capital',
+      authorSubtitle: 'Principles of Modern Wealth',
+      genre: 'Finance & Strategy',
       pages: 72,
-      gradient: 'from-[#2D5A27] via-[#1E4D2B] to-[#123519]',
-      tagline: 'The beginner roadmap to passive investing and wealth generation.',
+      coverBg: 'from-[#233327] via-[#16221A] to-[#0D140F]',
+      spineBg: 'bg-[#080D0A]',
+      tagline: 'A practical roadmap to passive asset building and intentional financial freedom.',
     },
   ];
 
-  const handleNext = () => {
-    setScrollIndex((prev) => (prev < books.length - 3 ? prev + 1 : 0));
-  };
-
-  const handlePrev = () => {
-    setScrollIndex((prev) => (prev > 0 ? prev - 1 : books.length - 3));
-  };
-
   return (
-    <section className="py-14 sm:py-20 border-t border-[#EFECE6] bg-[#FDFBF7]">
+    <section className="py-20 sm:py-28 border-t border-[rgba(24,21,17,0.08)] bg-[#F8F4EC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 gap-6">
           <div>
-            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#1A1612] tracking-tight mb-2">
-              Beautiful books. Real possibilities.
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F1ECE2] border border-[#E5D5C0] text-[10px] sm:text-[11px] font-semibold text-[#8C5F2E] uppercase tracking-wider mb-3">
+              <Sparkles className="w-3.5 h-3.5 text-[#A47A45]" /> Curated Digital Bookstore
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#181511] tracking-tight mb-3">
+              The BookGenie Library
             </h2>
-            <p className="text-sm sm:text-base text-[#6B635B]">
-              See what others are creating with BookGenie.
+            <p className="text-sm sm:text-base text-[#746B60] max-w-xl">
+              Browse actual volumes planned, written, illustrated, and typeset through our studio pipeline. Inspect live reader samples or read the full excerpt.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Link
-              href="/examples"
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#9A6F3C] hover:text-[#845D30] transition-colors mr-2"
-            >
-              Explore more examples <ArrowRight className="w-4 h-4" />
-            </Link>
-
-            <button
-              onClick={handlePrev}
-              className="p-2 rounded-full border border-[#EFECE6] bg-white hover:bg-[#F9F7F2] text-[#6B635B] hover:text-[#1A1612] transition-colors shadow-2xs"
-              aria-label="Previous showcase book"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={handleNext}
-              className="p-2 rounded-full border border-[#EFECE6] bg-white hover:bg-[#F9F7F2] text-[#6B635B] hover:text-[#1A1612] transition-colors shadow-2xs"
-              aria-label="Next showcase book"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+          <Link
+            href="/examples"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#A47A45] hover:text-[#8C5F2E] transition-colors self-start sm:self-auto"
+          >
+            <span>View all library volumes</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
 
-        {/* Book Showcase Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {books.map((book) => (
+        {/* Digital Bookstore Bookshelf Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5 sm:gap-6">
+          {libraryBooks.map((book) => (
             <div
               key={book.id}
               onClick={() => {
@@ -137,57 +132,67 @@ export function BookShowcase() {
                   router.push(`/create?prompt=${encodeURIComponent(book.tagline)}&type=${encodeURIComponent(book.genre)}`);
                 }
               }}
-              className="group relative flex flex-col aspect-[3/4.2] rounded-2xl overflow-hidden cursor-pointer shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5"
+              className="group cursor-pointer flex flex-col justify-between"
             >
-              {/* Cover Artwork Canvas */}
+              {/* Hardcover Book Object */}
               <div
-                className={`w-full h-full bg-gradient-to-b ${book.gradient} p-4 sm:p-5 flex flex-col justify-between text-white relative`}
+                className={`relative w-full aspect-[3/4.4] rounded-sm bg-gradient-to-b ${book.coverBg} p-4 sm:p-5 flex flex-col justify-between text-white book-shadow transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-2xl overflow-hidden border border-white/10`}
               >
-                {/* Texture overlay */}
-                <div className="absolute inset-0 bg-black/10 mix-blend-overlay pointer-events-none" />
+                {/* Book Spine Simulation Accent */}
+                <div
+                  className={`absolute left-0 top-0 bottom-0 w-2.5 sm:w-3 ${book.spineBg} book-spine-shadow border-r border-white/10`}
+                />
 
                 {/* Top Badge */}
-                <div className="relative z-10 flex items-center justify-between">
-                  <span className="text-[10px] uppercase tracking-wider font-semibold opacity-85 px-2 py-0.5 rounded-md bg-white/15 backdrop-blur-xs">
+                <div className="pl-2 flex items-center justify-between z-10">
+                  <span className="text-[8px] sm:text-[9px] uppercase tracking-widest font-semibold text-white/70">
                     {book.genre}
                   </span>
                   {book.isDemo && (
-                    <span className="text-[9px] uppercase tracking-widest font-bold text-amber-300 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" /> DEMO
+                    <span className="text-[8px] uppercase tracking-wider font-bold text-[#D4AF37] bg-white/10 px-1.5 py-0.5 rounded-xs">
+                      DEMO
                     </span>
                   )}
                 </div>
 
                 {/* Center Title */}
-                <div className="relative z-10 my-auto text-center">
-                  <h3 className="font-serif font-bold text-base sm:text-lg tracking-tight leading-snug drop-shadow-sm mb-1">
+                <div className="pl-2 my-auto text-center z-10">
+                  <h3 className="font-serif font-bold text-sm sm:text-base tracking-tight leading-tight mb-1 text-white group-hover:text-amber-200 transition-colors">
                     {book.title}
                   </h3>
-                  <p className="text-[11px] opacity-80 line-clamp-2 font-light">
-                    {book.tagline}
+                  <p className="text-[9px] sm:text-[10px] text-white/70 font-light italic">
+                    {book.authorSubtitle}
                   </p>
                 </div>
 
-                {/* Bottom Bar */}
-                <div className="relative z-10 flex items-center justify-between text-[10px] opacity-75 font-medium">
-                  <span>{book.pages} pages</span>
-                  <span className="italic font-serif">BookGenie</span>
+                {/* Bottom Spine Label */}
+                <div className="pl-2 pt-2 border-t border-white/15 flex items-center justify-between text-[8px] sm:text-[9px] text-white/60 z-10">
+                  <span>{book.pages} Pages</span>
+                  <span className="font-serif italic text-amber-100/80">Studio Ed.</span>
                 </div>
 
-                {/* Hover Reveal Action Bar */}
-                <div className="absolute inset-0 bg-[#1A1612]/70 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4 text-center z-20">
-                  <Eye className="w-6 h-6 text-[#E8DCCB] mb-2" />
-                  <span className="text-xs font-semibold text-white mb-1">
-                    {book.isDemo ? 'Read Demo Book →' : 'Create This Book →'}
-                  </span>
-                  <span className="text-[10px] text-[#D9CEBA]">
-                    {book.isDemo ? 'Interactive Full Preview' : 'Use as inspiration'}
+                {/* Hover Reveal Subtle Overlay */}
+                <div className="absolute inset-0 bg-[#181511]/70 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-3 text-center z-20">
+                  <BookOpen className="w-5 h-5 text-amber-200 mb-1.5" />
+                  <span className="text-[11px] font-semibold text-white">
+                    {book.isDemo ? 'Read Showcase Excerpt →' : 'Create Similar Book →'}
                   </span>
                 </div>
+              </div>
+
+              {/* External Shelf Label Below */}
+              <div className="mt-3 px-1">
+                <span className="block text-xs font-serif font-bold text-[#181511] truncate group-hover:text-[#A47A45] transition-colors">
+                  {book.title}
+                </span>
+                <span className="block text-[11px] text-[#746B60] truncate">
+                  {book.tagline}
+                </span>
               </div>
             </div>
           ))}
         </div>
+
       </div>
     </section>
   );

@@ -2,22 +2,25 @@
 
 @layer base {
   :root {
-    --canvas: #FDFBF7;
-    --canvas-subtle: #F6F2EA;
-    --foreground: #1A1612;
-    --foreground-muted: #6B635B;
+    --canvas: #F8F4EC;
+    --canvas-pure: #FDFBF7;
+    --canvas-subtle: #F1ECE2;
+    --canvas-sand: #E9E1D4;
+
+    --foreground: #181511;
+    --foreground-muted: #746B60;
     --foreground-faint: #9E968E;
     
     --card: #FFFFFF;
-    --card-foreground: #1A1612;
-    --border: #EFECE6;
-    --border-subtle: #F4F1EC;
+    --card-foreground: #181511;
+    --border: rgba(24, 21, 17, 0.09);
+    --border-subtle: rgba(24, 21, 17, 0.05);
 
-    --gold-primary: #9A6F3C;
-    --gold-hover: #845D30;
-    --gold-light: #F9F3EA;
-    --gold-border: #E4D5C1;
-    --gold-gradient: linear-gradient(135deg, #A87B45 0%, #8C5F2E 100%);
+    --gold-primary: #A47A45;
+    --gold-hover: #8C5F2E;
+    --gold-light: #F7EFE4;
+    --gold-border: #E5D5C0;
+    --gold-gradient: linear-gradient(135deg, #B88E56 0%, #8C5F2E 100%);
 
     --font-serif: var(--font-playfair), 'Cormorant Garamond', Georgia, serif;
     --font-sans: var(--font-jakarta), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -25,15 +28,17 @@
 
   .dark {
     --canvas: #12100E;
+    --canvas-pure: #181512;
     --canvas-subtle: #1C1917;
+    --canvas-sand: #25201C;
     --foreground: #F5F2EB;
     --foreground-muted: #A8A199;
     --foreground-faint: #6A645D;
 
     --card: #181512;
     --card-foreground: #F5F2EB;
-    --border: #2B2621;
-    --border-subtle: #211D19;
+    --border: rgba(245, 242, 235, 0.1);
+    --border-subtle: rgba(245, 242, 235, 0.05);
 
     --gold-primary: #B2834A;
     --gold-hover: #C8995E;
@@ -67,6 +72,53 @@
   }
 }
 
+/* Subtle Paper Texture & Atmosphere */
+.paper-atmosphere {
+  background-color: #F8F4EC;
+  background-image: 
+    radial-gradient(ellipse at top left, rgba(255, 255, 255, 0.8) 0%, transparent 60%),
+    radial-gradient(ellipse at bottom right, rgba(233, 225, 212, 0.45) 0%, transparent 70%);
+}
+
+/* Subtle Book Float Animation */
+@keyframes book-float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.6deg);
+  }
+}
+
+@keyframes book-float-delayed {
+  0%, 100% {
+    transform: translateY(0px) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(-0.4deg);
+  }
+}
+
+.animate-book-float {
+  animation: book-float 7s ease-in-out infinite;
+}
+
+.animate-book-float-delayed {
+  animation: book-float-delayed 8.5s ease-in-out infinite 1s;
+}
+
+/* Authentic Book Shadows */
+.book-shadow {
+  box-shadow: 
+    0 1px 3px rgba(24, 21, 17, 0.05),
+    0 12px 28px -6px rgba(24, 21, 17, 0.16),
+    0 24px 48px -12px rgba(24, 21, 17, 0.12);
+}
+
+.book-spine-shadow {
+  box-shadow: inset -4px 0 8px -2px rgba(0, 0, 0, 0.35);
+}
+
 /* Custom subtle scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
@@ -83,17 +135,19 @@
   background: #B8B0A2;
 }
 
-/* Editorial Glass & Shimmer Utilities */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
+/* Editorial Floating Glass Header */
+.editorial-glass-header {
+  background: rgba(253, 251, 247, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(24, 21, 17, 0.08);
 }
 
-.dark .glass-panel {
-  background: rgba(24, 21, 18, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
+.dark .editorial-glass-header {
+  background: rgba(24, 21, 18, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(245, 242, 235, 0.1);
 }
 
 .gold-gradient-bg {
@@ -121,3 +175,4 @@
     break-after: page;
   }
 }
+
