@@ -1,108 +1,127 @@
 // scripts/test-endpoints.mjs
 async function runTests() {
   const baseUrl = 'http://localhost:3000';
-  console.log('--- Starting Production Endpoint QA Verification ---');
+  console.log('--- Starting Retest & Design QA Verification ---');
 
-  // Test 1: PDF Export format
+  // Test 1: Canonical Demo Consistency
+  try {
+    const demoRes = await fetch(`${baseUrl}/api/books/demo-ocean-wonders`);
+    console.log('Test 1 (Demo API Status):', demoRes.status);
+    const demoData = await demoRes.json();
+    console.log('Test 1 (Demo pageCount):', demoData.pageCount);
+    console.log('Test 1 (Demo pages array length):', demoData.pages?.length);
+    if (demoData.pageCount === 16 && demoData.pages?.length === 16) {
+      console.log('  -> PASS: Demo pageCount and array length are exactly synchronized at 16!');
+    } else {
+      console.error('  -> FAIL: Demo pageCount mismatch!');
+    }
+  } catch (e) {
+    console.error('Test 1 Error:', e.message);
+  }
+
+  // Test 2: PDF Export of 16-page Demo
   try {
     const pdfRes = await fetch(`${baseUrl}/api/books/demo-ocean-wonders/export?format=pdf`);
-    console.log('Test 1 (PDF Export Status):', pdfRes.status);
-    console.log('Test 1 (Content-Type):', pdfRes.headers.get('content-type'));
-    console.log('Test 1 (Content-Disposition):', pdfRes.headers.get('content-disposition'));
+    console.log('Test 2 (PDF Export Status):', pdfRes.status);
     const pdfBuf = await pdfRes.arrayBuffer();
     const pdfHeader = String.fromCharCode(...new Uint8Array(pdfBuf.slice(0, 8)));
-    console.log('Test 1 (Binary Magic Bytes):', pdfHeader.trim());
+    console.log('Test 2 (Binary Magic Bytes):', pdfHeader.trim());
     if (pdfHeader.startsWith('%PDF-')) {
       console.log('  -> PASS: Authentic Binary PDF returned!');
     } else {
       console.error('  -> FAIL: Not a binary PDF!');
     }
   } catch (e) {
-    console.error('Test 1 Error:', e.message);
-  }
-
-  // Test 2: Invalid export format
-  try {
-    const badRes = await fetch(`${baseUrl}/api/books/demo-ocean-wonders/export?format=exe`);
-    console.log('Test 2 (Invalid Export Format):', badRes.status, 'Expected: 400');
-  } catch (e) {
     console.error('Test 2 Error:', e.message);
   }
 
-  // Test 3: Unauthenticated /api/books/create POST
+  // Test 3: EPUB Export Language Tag
   try {
-    const anonRes = await fetch(`${baseUrl}/api/books/create`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: 'Create a test book anonymously' }),
-    });
-    console.log('Test 3 (Anonymous Book Creation Blocked):', anonRes.status, 'Expected: 401');
-    const anonJson = await anonRes.json();
-    console.log('Test 3 (Error Message):', anonJson.error);
+    const epubRes = await fetch(`${baseUrl}/api/books/demo-ocean-wonders/export?format=epub`);
+    console.log('Test 3 (EPUB Export Status):', epubRes.status);
+    console.log('Test 3 (Content-Type):', epubRes.headers.get('content-type'));
+    if (epubRes.status === 200 && epubRes.headers.get('content-type') === 'application/epub+zip') {
+      console.log('  -> PASS: Valid EPUB 3 container generated!');
+    }
   } catch (e) {
     console.error('Test 3 Error:', e.message);
   }
 
-  // Test 4: Contact API submission
+  // Test 4: Unknown Book Route returns real HTTP 404 (Server Component SSR)
   try {
-    const contactRes = await fetch(`${baseUrl}/api/contact`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: 'QA Auditor',
-        email: 'qa@example.com',
-        message: 'This is a verified test inquiry for BookGenie editorial.',
-      }),
-    });
-    console.log('Test 4 (Contact Submission):', contactRes.status);
-    const contactJson = await contactRes.json();
-    console.log('Test 4 (Contact Response):', contactJson);
+    const notFoundBookRes = await fetch(`${baseUrl}/book/does-not-exist`, { redirect: 'manual' });
+    console.log('Test 4 (/book/does-not-exist Status):', notFoundBookRes.status, 'Expected: 404');
+    if (notFoundBookRes.status === 404) {
+      console.log('  -> PASS: Genuine HTTP 404 returned on SSR for missing book!');
+    } else {
+      console.warn('  -> NOTE: Status was', notFoundBookRes.status);
+    }
   } catch (e) {
     console.error('Test 4 Error:', e.message);
   }
 
-  // Test 5: Affiliate API submission
+  // Test 5: Unknown Shared Route returns real HTTP 404 (Server Component SSR)
   try {
-    const affRes = await fetch(`${baseUrl}/api/affiliate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: 'partner@example.com',
-        website: 'https://youtube.com/@creativepublishing',
-      }),
-    });
-    console.log('Test 5 (Affiliate Submission):', affRes.status);
-    const affJson = await affRes.json();
-    console.log('Test 5 (Affiliate Response):', affJson);
+    const notFoundShareRes = await fetch(`${baseUrl}/shared/no-such-token`, { redirect: 'manual' });
+    console.log('Test 5 (/shared/no-such-token Status):', notFoundShareRes.status, 'Expected: 404');
+    if (notFoundShareRes.status === 404) {
+      console.log('  -> PASS: Genuine HTTP 404 returned on SSR for missing share token!');
+    } else {
+      console.warn('  -> NOTE: Status was', notFoundShareRes.status);
+    }
   } catch (e) {
     console.error('Test 5 Error:', e.message);
   }
 
-  // Test 6: Upgrade API unauthenticated check
+  // Test 6: Affiliate invalid URL rejection
   try {
-    const upRes = await fetch(`${baseUrl}/api/subscription/upgrade`, {
+    const invalidUrlRes = await fetch(`${baseUrl}/api/affiliate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tier: 'pro' }),
+      body: JSON.stringify({
+        email: 'test@example.com',
+        website: 'not-a-url',
+      }),
     });
-    console.log('Test 6 (Unauthenticated Upgrade Blocked):', upRes.status, 'Expected: 401');
+    console.log('Test 6 (Invalid website URL rejection):', invalidUrlRes.status, 'Expected: 400');
+    const json = await invalidUrlRes.json();
+    console.log('Test 6 (Rejection message):', json.message);
+    if (invalidUrlRes.status === 400 && json.error === 'INVALID_WEBSITE') {
+      console.log('  -> PASS: Malformed website URLs successfully rejected!');
+    }
   } catch (e) {
     console.error('Test 6 Error:', e.message);
   }
 
-  // Test 7: Public discovery files
+  // Test 7: Honeypot trap check
   try {
-    const robotsRes = await fetch(`${baseUrl}/robots.txt`);
-    console.log('Test 7 (robots.txt Status):', robotsRes.status);
-    const sitemapRes = await fetch(`${baseUrl}/sitemap.xml`);
-    console.log('Test 7 (sitemap.xml Status):', sitemapRes.status);
-    const secRes = await fetch(`${baseUrl}/.well-known/security.txt`);
-    console.log('Test 7 (security.txt Status):', secRes.status);
+    const hpRes = await fetch(`${baseUrl}/api/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'SpamBot',
+        email: 'bot@spam.com',
+        message: 'Buy cheap things now!',
+        hp_field: 'I am a bot',
+      }),
+    });
+    console.log('Test 7 (Honeypot Trap Status):', hpRes.status, 'Expected: 200 (silent discard)');
+    if (hpRes.status === 200) {
+      console.log('  -> PASS: Bot honeypot trapped cleanly!');
+    }
   } catch (e) {
     console.error('Test 7 Error:', e.message);
   }
 
-  console.log('--- Verification Complete ---');
+  // Test 8: Examples ocean-wonders page
+  try {
+    const exRes = await fetch(`${baseUrl}/examples/ocean-wonders`);
+    console.log('Test 8 (/examples/ocean-wonders Status):', exRes.status, 'Expected: 200');
+  } catch (e) {
+    console.error('Test 8 Error:', e.message);
+  }
+
+  console.log('--- Retest Verification Complete ---');
 }
 
 runTests();

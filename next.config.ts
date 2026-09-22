@@ -2,11 +2,11 @@ import type { NextConfig } from "next";
 
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline';
+  script-src 'self' 'unsafe-inline';
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com data:;
   img-src 'self' data: blob: https://image.pollinations.ai https://images.unsplash.com https://*.supabase.co;
-  connect-src 'self' https://*.supabase.co https://openrouter.ai https://generativelanguage.googleapis.com;
+  connect-src 'self' https://*.supabase.co;
   frame-ancestors 'none';
   base-uri 'self';
   form-action 'self';

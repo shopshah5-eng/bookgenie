@@ -324,13 +324,18 @@ function CreatePageContent() {
             </div>
 
             {/* File Upload Trigger */}
-            <label className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-[#EFECE6] bg-[#FDFBF7] hover:bg-[#F4EFE6] text-xs font-semibold text-[#6B635B] hover:text-[#1A1612] cursor-pointer transition-colors shadow-2xs">
+            <label
+              htmlFor="source-file-upload"
+              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-[#EFECE6] bg-[#FDFBF7] hover:bg-[#F4EFE6] text-xs font-semibold text-[#6B635B] hover:text-[#1A1612] cursor-pointer transition-colors shadow-2xs"
+            >
               <UploadCloud className="w-4 h-4 text-[#9A6F3C]" />
-              <span>Attach files (PDF, DOCX, TXT)</span>
+              <span>Attach notes or text drafts (.txt, .md)</span>
               <input
+                id="source-file-upload"
+                aria-label="Attach source notes or draft document (.txt, .md)"
                 type="file"
                 multiple
-                accept=".pdf,.docx,.txt,.md,image/*"
+                accept=".txt,.md,.text"
                 onChange={handleFileUpload}
                 className="hidden"
               />

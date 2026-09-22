@@ -71,14 +71,20 @@ export function HeroSection() {
               onSubmit={handleGenerateClick}
               className="w-full bg-white dark:bg-[#1A1816] rounded-2xl border border-[#EDE6DC] dark:border-[#2C2721] p-5 sm:p-6 shadow-[0_12px_40px_-8px_rgba(24,21,17,0.08)] transition-all hover:border-[#8C5F2E]/40"
             >
-              <div className="flex items-center justify-between pb-2.5 mb-2 text-xs text-[#8C5F2E] font-medium tracking-wide uppercase">
-                <span className="text-[10px] font-bold">Describe Your Book</span>
+              {/* Text Input Header */}
+              <div className="flex items-center justify-between text-[#746B60] dark:text-[#A8A199] mb-2 uppercase tracking-wider">
+                <label htmlFor="hero-book-prompt" className="text-[10px] font-bold cursor-pointer">
+                  Describe Your Book
+                </label>
                 <span className="text-[11px] text-[#A8A199] lowercase italic font-serif">or paste a synopsis</span>
               </div>
 
               {/* Text Input Area */}
               <div className="relative mb-4">
                 <textarea
+                  id="hero-book-prompt"
+                  name="bookPrompt"
+                  aria-label="Describe your book or paste a synopsis"
                   rows={3}
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
@@ -92,7 +98,8 @@ export function HeroSection() {
                 <button
                   type="button"
                   onClick={() => router.push('/create')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E5DFD5] dark:border-[#2C2721] bg-[#FAF8F5] dark:bg-[#23201C] text-xs font-medium text-[#5A5249] dark:text-[#B3AAA0] hover:bg-white transition-colors"
+                  aria-label="Upload reference document notes"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E5DFD5] dark:border-[#2C2721] bg-[#FAF8F5] dark:bg-[#23201C] text-xs font-medium text-[#5A5249] dark:text-[#B3AAA0] hover:bg-white transition-colors cursor-pointer"
                 >
                   <Upload className="w-3.5 h-3.5 text-[#8C5F2E]" />
                   <span>Upload</span>
@@ -100,7 +107,13 @@ export function HeroSection() {
 
                 {/* Category selector */}
                 <div className="relative">
+                  <label htmlFor="hero-book-category" className="sr-only">
+                    Book Category
+                  </label>
                   <select
+                    id="hero-book-category"
+                    name="bookCategory"
+                    aria-label="Select book category"
                     value={selectedType}
                     onChange={(e) => setSelectedType(e.target.value)}
                     className="appearance-none inline-flex items-center gap-1 px-3 py-1.5 pr-6 rounded-lg border border-[#E5DFD5] dark:border-[#2C2721] bg-[#FAF8F5] dark:bg-[#23201C] text-xs font-medium text-[#5A5249] dark:text-[#B3AAA0] cursor-pointer focus:outline-none"
@@ -117,7 +130,13 @@ export function HeroSection() {
 
                 {/* Language selector */}
                 <div className="relative">
+                  <label htmlFor="hero-book-language" className="sr-only">
+                    Language
+                  </label>
                   <select
+                    id="hero-book-language"
+                    name="bookLanguage"
+                    aria-label="Select language"
                     value={selectedLanguage}
                     onChange={(e) => setSelectedLanguage(e.target.value)}
                     className="appearance-none inline-flex items-center gap-1 px-3 py-1.5 pr-6 rounded-lg border border-[#E5DFD5] dark:border-[#2C2721] bg-[#FAF8F5] dark:bg-[#23201C] text-xs font-medium text-[#5A5249] dark:text-[#B3AAA0] cursor-pointer focus:outline-none"
@@ -132,7 +151,13 @@ export function HeroSection() {
 
                 {/* Style selector */}
                 <div className="relative">
+                  <label htmlFor="hero-book-style" className="sr-only">
+                    Visual Style
+                  </label>
                   <select
+                    id="hero-book-style"
+                    name="bookStyle"
+                    aria-label="Select visual style"
                     value={selectedStyle}
                     onChange={(e) => setSelectedStyle(e.target.value)}
                     className="appearance-none inline-flex items-center gap-1 px-3 py-1.5 pr-6 rounded-lg border border-[#E5DFD5] dark:border-[#2C2721] bg-[#FAF8F5] dark:bg-[#23201C] text-xs font-medium text-[#5A5249] dark:text-[#B3AAA0] cursor-pointer focus:outline-none"

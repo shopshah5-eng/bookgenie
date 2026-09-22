@@ -28,7 +28,7 @@ export default function ExamplesPage() {
       title: 'Ocean Wonders',
       category: 'children',
       categoryLabel: "Children's Book",
-      pages: 28,
+      pages: 16,
       gradient: 'from-[#0D3B66] via-[#05668D] to-[#028090]',
       desc: 'Explore the living coral kingdoms and meet Barnaby the wise sea turtle.',
       isDemo: true,

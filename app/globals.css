@@ -176,3 +176,16 @@
   }
 }
 
+/* Suppress Netlify Injected Preview Badges / Scaffolding */
+[data-netlify-deploy-id],
+.netlify-badge,
+#netlify-badge,
+div[class*="netlify-badge"],
+div[id*="netlify-badge"],
+iframe[src*="netlify"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+

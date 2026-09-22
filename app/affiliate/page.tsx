@@ -129,11 +129,22 @@ export default function AffiliatePage() {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4 text-left">
+                  {/* Invisible honeypot for spam bots */}
+                  <input
+                    type="text"
+                    name="hp_field"
+                    className="hidden"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                  />
+
                   <div>
-                    <label className="block text-xs font-semibold text-[#1A1612] mb-1.5">
+                    <label htmlFor="affiliate-email" className="block text-xs font-semibold text-[#1A1612] mb-1.5">
                       Your Email Address
                     </label>
                     <Input
+                      id="affiliate-email"
                       type="email"
                       required
                       placeholder="you@domain.com"
@@ -143,13 +154,14 @@ export default function AffiliatePage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#1A1612] mb-1.5">
+                    <label htmlFor="affiliate-website" className="block text-xs font-semibold text-[#1A1612] mb-1.5">
                       Website or Primary Social Channel
                     </label>
                     <Input
+                      id="affiliate-website"
                       type="text"
                       required
-                      placeholder="https://youtube.com/@yourchannel or blog URL"
+                      placeholder="https://youtube.com/@yourchannel or https://myblog.com"
                       value={website}
                       onChange={(e) => setWebsite(e.target.value)}
                     />

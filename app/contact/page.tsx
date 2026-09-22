@@ -93,6 +93,15 @@ export default function ContactPage() {
                     {error}
                   </div>
                 )}
+                {/* Invisible honeypot for spam bots */}
+                <input
+                  type="text"
+                  name="hp_field"
+                  className="hidden"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                />
                 <div>
                   <label htmlFor="contact-name" className="block text-xs font-semibold text-[#1A1612] mb-1.5">
                     Your Name

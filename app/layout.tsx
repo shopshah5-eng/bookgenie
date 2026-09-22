@@ -15,9 +15,27 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://bookgenie-app.netlify.app'),
   title: "BookGenie — Turn Your Ideas Into Beautiful Books",
   description:
     "BookGenie is an AI publishing platform that turns a user's prompt or uploaded content into a beautifully structured, illustrated, and formatted ebook with AI-generated writing, visuals, and downloadable PDF/EPUB.",
+  alternates: {
+    canonical: 'https://bookgenie-app.netlify.app',
+  },
+  openGraph: {
+    title: "BookGenie — Turn Your Ideas Into Beautiful Books",
+    description:
+      "Turn your prompt or notes into a beautifully structured, illustrated, and formatted publication with downloadable PDF and EPUB.",
+    url: 'https://bookgenie-app.netlify.app',
+    siteName: 'BookGenie AI Publishing Studio',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "BookGenie — Turn Your Ideas Into Beautiful Books",
+    description:
+      "Turn your prompt or notes into a beautifully structured, illustrated, and formatted publication.",
+  },
   keywords: [
     "AI book generator",
     "ebook creator",

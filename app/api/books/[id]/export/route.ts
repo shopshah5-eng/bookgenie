@@ -14,15 +14,36 @@ import JSZip from 'jszip';
 /**
  * Compiles a valid EPUB 3.0 container in-memory
  */
+function toBcp47(langStr?: string): string {
+  if (!langStr) return 'en';
+  const lower = langStr.trim().toLowerCase();
+  const map: Record<string, string> = {
+    english: 'en',
+    spanish: 'es',
+    french: 'fr',
+    german: 'de',
+    italian: 'it',
+    portuguese: 'pt',
+    japanese: 'ja',
+    chinese: 'zh',
+    hindi: 'hi',
+    russian: 'ru',
+    arabic: 'ar',
+    korean: 'ko',
+    dutch: 'nl',
+  };
+  return map[lower] || (lower.length === 2 ? lower : 'en');
+}
+
 async function generateEpub3Buffer(book: BookDocument): Promise<Buffer> {
   const zip = new JSZip();
 
-  // 1. mimetype (MUST be first and uncompressed)
+  // 1. mimetype (MUST be first file, uncompressed)
   zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
 
   // 2. META-INF/container.xml
-  zip.folder('META-INF')?.file(
-    'container.xml',
+  zip.file(
+    'META-INF/container.xml',
     `<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
   <rootfiles>
@@ -34,9 +55,9 @@ async function generateEpub3Buffer(book: BookDocument): Promise<Buffer> {
   const oebps = zip.folder('OEBPS');
   if (!oebps) throw new Error('Failed to create OEBPS archive directory');
 
-  // Sanitize all book fields
+  // Sanitize all book fields & normalize language to BCP-47
   const safeTitle = escapeHtml(book.title || 'Untitled');
-  const safeLang = escapeHtml(book.language || 'en');
+  const safeLang = toBcp47(book.language);
   const safeId = escapeHtml(book.id || 'book-id');
 
   // 3. OEBPS/toc.xhtml (EPUB 3 Navigation Document)

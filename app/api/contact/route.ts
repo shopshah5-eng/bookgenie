@@ -1,11 +1,39 @@
 // app/api/contact/route.ts
-// Contact inquiry submission endpoint with input validation and persistence
+// Contact inquiry submission endpoint with input validation, abuse controls & persistence
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+// Sliding-window IP rate limiter: max 5 requests per 5 minutes
+const rateLimitMap = new Map<string, number[]>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const windowMs = 5 * 60 * 1000;
+  const maxRequests = 5;
+
+  const timestamps = rateLimitMap.get(ip) || [];
+  const validTimestamps = timestamps.filter((t) => now - t < windowMs);
+
+  if (validTimestamps.length >= maxRequests) {
+    return false;
+  }
+
+  validTimestamps.push(now);
+  rateLimitMap.set(ip, validTimestamps);
+  return true;
+}
+
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
+    if (!checkRateLimit(ip)) {
+      return NextResponse.json(
+        { error: 'TOO_MANY_REQUESTS', message: 'Too many submissions. Please wait a few minutes before trying again.' },
+        { status: 429 }
+      );
+    }
+
     let body: any;
     try {
       body = await req.json();
@@ -16,26 +44,34 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Honeypot trap: if bot filled hp_field or website_hp, silently return 200 without saving
+    if (body?.hp_field || body?.website_hp) {
+      return NextResponse.json({
+        success: true,
+        message: 'Your message has been received. Our editorial team will respond within 12 hours.',
+      });
+    }
+
     const { name, email, message, category = 'support' } = body || {};
 
-    if (!name || typeof name !== 'string' || name.trim().length < 2) {
+    if (!name || typeof name !== 'string' || name.trim().length < 2 || name.length > 100) {
       return NextResponse.json(
-        { error: 'INVALID_NAME', message: 'Please provide your name.' },
+        { error: 'INVALID_NAME', message: 'Please provide a valid name (2-100 characters).' },
         { status: 400 }
       );
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || typeof email !== 'string' || !emailRegex.test(email.trim())) {
+    if (!email || typeof email !== 'string' || !emailRegex.test(email.trim()) || email.length > 150) {
       return NextResponse.json(
         { error: 'INVALID_EMAIL', message: 'Please provide a valid email address.' },
         { status: 400 }
       );
     }
 
-    if (!message || typeof message !== 'string' || message.trim().length < 10) {
+    if (!message || typeof message !== 'string' || message.trim().length < 10 || message.length > 5000) {
       return NextResponse.json(
-        { error: 'INVALID_MESSAGE', message: 'Message must be at least 10 characters long.' },
+        { error: 'INVALID_MESSAGE', message: 'Message must be between 10 and 5,000 characters long.' },
         { status: 400 }
       );
     }
@@ -56,16 +92,14 @@ export async function POST(req: NextRequest) {
       console.warn('Contact submission database notice:', dbErr);
     }
 
-    console.log(`[Contact Form Submission] From: ${submission.name} (${submission.email}) | Category: ${submission.category}`);
-
     return NextResponse.json({
       success: true,
       message: 'Your message has been received. Our editorial team will respond within 12 hours.',
     });
   } catch (err: any) {
-    console.error('Contact submission error:', err);
+    console.error('Contact endpoint error:', err);
     return NextResponse.json(
-      { error: 'SERVER_ERROR', message: 'Failed to submit message. Please try again or email support@bookgenie.ai directly.' },
+      { error: 'INTERNAL_ERROR', message: 'Failed to process inquiry. Please try again later.' },
       { status: 500 }
     );
   }
