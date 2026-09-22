@@ -1,0 +1,17 @@
+// lib/supabase/admin.ts
+// Privileged server client using SUPABASE_SERVICE_ROLE_KEY
+// NEVER import or invoke this in client components or browser contexts.
+
+import { createClient } from '@supabase/supabase-js';
+
+export function createAdminClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-role-key';
+
+  return createClient(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+}

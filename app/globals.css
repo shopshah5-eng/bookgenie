@@ -1,26 +1,123 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --canvas: #FDFBF7;
+    --canvas-subtle: #F6F2EA;
+    --foreground: #1A1612;
+    --foreground-muted: #6B635B;
+    --foreground-faint: #9E968E;
+    
+    --card: #FFFFFF;
+    --card-foreground: #1A1612;
+    --border: #EFECE6;
+    --border-subtle: #F4F1EC;
+
+    --gold-primary: #9A6F3C;
+    --gold-hover: #845D30;
+    --gold-light: #F9F3EA;
+    --gold-border: #E4D5C1;
+    --gold-gradient: linear-gradient(135deg, #A87B45 0%, #8C5F2E 100%);
+
+    --font-serif: var(--font-playfair), 'Cormorant Garamond', Georgia, serif;
+    --font-sans: var(--font-jakarta), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .dark {
+    --canvas: #12100E;
+    --canvas-subtle: #1C1917;
+    --foreground: #F5F2EB;
+    --foreground-muted: #A8A199;
+    --foreground-faint: #6A645D;
+
+    --card: #181512;
+    --card-foreground: #F5F2EB;
+    --border: #2B2621;
+    --border-subtle: #211D19;
+
+    --gold-primary: #B2834A;
+    --gold-hover: #C8995E;
+    --gold-light: #252019;
+    --gold-border: #4A3E31;
+    --gold-gradient: linear-gradient(135deg, #B2834A 0%, #8C5F2E 100%);
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--canvas);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  h1, h2, h3, .font-serif-editorial {
+    font-family: var(--font-serif);
+    letter-spacing: -0.015em;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Custom subtle scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--canvas-subtle);
+}
+::-webkit-scrollbar-thumb {
+  background: #D9D2C7;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #B8B0A2;
+}
+
+/* Editorial Glass & Shimmer Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+}
+
+.dark .glass-panel {
+  background: rgba(24, 21, 18, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+}
+
+.gold-gradient-bg {
+  background: var(--gold-gradient);
+  color: #FFFFFF;
+}
+
+.gold-gradient-text {
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Print CSS for on-demand PDF rendering */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .page-break {
+    page-break-after: always;
+    break-after: page;
+  }
 }
