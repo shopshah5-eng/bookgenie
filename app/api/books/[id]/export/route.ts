@@ -135,6 +135,9 @@ function renderBookToPrintHtml(book: BookDocument): string {
 </html>`;
 }
 
+import { generateEpub3Buffer } from '@/lib/book/epub-builder';
+import { createAdminClient } from '@/lib/supabase/admin';
+
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -144,36 +147,80 @@ export async function GET(
     const url = new URL(req.url);
     const format = url.searchParams.get('format') || 'pdf';
 
-    let book = GenerationPipeline.getBook(id);
-    if (!book) {
-      book = getOceanWondersDemoBook();
-      book.id = id;
+    let book: BookDocument | null = null;
+
+    // 1. Fetch from Supabase PostgreSQL
+    try {
+      const admin = createAdminClient();
+      const { data: dbBook } = await admin.from('books').select('*').eq('id', id).single();
+      if (dbBook) {
+        const { data: dbPages } = await admin.from('book_pages').select('*').eq('book_id', id).order('page_number', { ascending: true });
+        book = {
+          schemaVersion: 1,
+          id: dbBook.id,
+          userId: dbBook.user_id,
+          title: dbBook.title,
+          subtitle: dbBook.subtitle || undefined,
+          bookType: dbBook.book_type,
+          language: dbBook.language || 'English',
+          style: dbBook.style || 'Modern',
+          pageCount: dbBook.page_count || dbPages?.length || 0,
+          coverUrl: dbBook.cover_url,
+          blueprint: dbBook.blueprint,
+          pages: (dbPages || []).map((p) => ({
+            pageNumber: p.page_number,
+            chapterIndex: p.chapter_index,
+            title: p.title,
+            pageType: p.page_type,
+            layout: p.layout,
+            blocks: p.blocks,
+          })),
+          versionNumber: dbBook.version_number || 1,
+          createdAt: dbBook.created_at,
+          updatedAt: dbBook.updated_at,
+        };
+      }
+    } catch (dbErr) {
+      console.warn('Supabase export fetch warning:', dbErr);
     }
 
-    const safeTitle = book.title.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    if (!book) {
+      book = GenerationPipeline.getBook(id) || null;
+    }
+
+    if (!book) {
+      if (id === 'ocean-wonders' || id === 'demo-ocean-wonders') {
+        book = getOceanWondersDemoBook();
+      } else {
+        return NextResponse.json({ error: 'Book not found.' }, { status: 404 });
+      }
+    }
+
+    const safeTitle = (book.title || 'book').toLowerCase().replace(/[^a-z0-9]/g, '-');
 
     if (format === 'epub') {
-      // Return EPUB format representation
-      const epubHtml = renderBookToPrintHtml(book);
-      return new NextResponse(epubHtml, {
+      const epubBuffer = await generateEpub3Buffer(book);
+      return new NextResponse(new Uint8Array(epubBuffer), {
         status: 200,
         headers: {
-          'Content-Type': 'application/epub+zip, text/html',
+          'Content-Type': 'application/epub+zip',
           'Content-Disposition': `attachment; filename="${safeTitle}-v${book.versionNumber || 1}.epub"`,
+          'Content-Length': epubBuffer.length.toString(),
         },
       });
     }
 
-    // Default: Printable HTML / PDF compile stream
+    // Default: High-Resolution Print-Ready HTML with auto-trigger print for PDF export
     const printHtml = renderBookToPrintHtml(book);
     return new NextResponse(printHtml, {
       status: 200,
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
-        'Content-Disposition': `attachment; filename="${safeTitle}-v${book.versionNumber || 1}.html"`,
+        'Content-Disposition': `inline; filename="${safeTitle}-v${book.versionNumber || 1}.html"`,
       },
     });
   } catch (err: any) {
+    console.error('Export error:', err);
     return NextResponse.json(
       { error: err.message || 'Export failed.' },
       { status: 500 }

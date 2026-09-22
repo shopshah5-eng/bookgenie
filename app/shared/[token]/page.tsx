@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, use } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen,
@@ -11,46 +10,46 @@ import {
   Download,
   Share2,
   Sparkles,
-  ArrowLeft,
+  ArrowRight,
   Loader2,
   Check,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { FloatingEditDock } from '@/components/reader/FloatingEditDock';
 import type { BookDocument, BookPageDocument } from '@/lib/book/types';
 
-export default function BookResultPage({
+export default function SharedBookPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ token: string }>;
 }) {
-  const { id } = use(params);
-  const router = useRouter();
+  const { token } = use(params);
 
   const [book, setBook] = useState<BookDocument | null>(null);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [isUpdating, setIsUpdating] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
-  // Fetch full canonical BookDocument
+  // Touch swipe tracking coordinates
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+
+  // Fetch sanitized public BookDocument
   useEffect(() => {
-    const fetchBook = async () => {
+    const fetchSharedBook = async () => {
       try {
-        const res = await fetch(`/api/books/${id}`);
+        const res = await fetch(`/api/shared/${token}`);
         if (res.ok) {
           const data = await res.json();
           setBook(data);
         }
       } catch (err) {
-        console.error('Failed to load book document:', err);
+        console.error('Failed to load shared book:', err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchBook();
-  }, [id]);
+    fetchSharedBook();
+  }, [token]);
 
   // Keyboard navigation: ArrowLeft / ArrowRight
   useEffect(() => {
@@ -77,31 +76,7 @@ export default function BookResultPage({
     }
   };
 
-  const handleRegenerate = async (instruction: string, targetPage?: number) => {
-    setIsUpdating(true);
-    try {
-      const res = await fetch(`/api/books/${id}/regenerate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          instruction,
-          targetPageNumbers: targetPage ? [targetPage] : undefined,
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setBook(data.book);
-      }
-    } catch (err) {
-      console.error('Revision error:', err);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const [touchStartX, setTouchStartX] = useState<number | null>(null);
-
+  // Touch swipe gestures
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStartX(e.touches[0].clientX);
   };
@@ -112,35 +87,21 @@ export default function BookResultPage({
     const diff = touchStartX - touchEndX;
 
     if (diff > 50) {
+      // Swiped left -> next page
       handleNextPage();
     } else if (diff < -50) {
+      // Swiped right -> prev page
       handlePrevPage();
     }
     setTouchStartX(null);
   };
 
   const handleShare = async () => {
-    let shareUrl = `${window.location.origin}/shared/${book?.shareToken || id}`;
-
-    try {
-      const res = await fetch(`/api/books/${id}/share`, { method: 'POST' });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.shareUrl) {
-          shareUrl = data.shareUrl;
-          if (book) {
-            setBook({ ...book, isShared: true, shareToken: data.shareToken });
-          }
-        }
-      }
-    } catch (shareErr) {
-      console.warn('Share token creation notice:', shareErr);
-    }
-
+    const shareUrl = window.location.href;
     if (navigator.share) {
       try {
         await navigator.share({
-          title: book?.title || 'BookGenie Publication',
+          title: book?.title || 'BookGenie Edition',
           text: `Read "${book?.title}" created with BookGenie AI`,
           url: shareUrl,
         });
@@ -159,7 +120,7 @@ export default function BookResultPage({
       <div className="min-h-screen bg-[#FDFBF7] flex flex-col items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-[#9A6F3C] mb-3" />
         <p className="text-sm font-serif italic text-[#6B635B]">
-          Opening your book in the BookGenie Studio...
+          Opening shared publication...
         </p>
       </div>
     );
@@ -169,13 +130,13 @@ export default function BookResultPage({
     return (
       <div className="min-h-screen bg-[#FDFBF7] flex flex-col items-center justify-center p-4 text-center">
         <h2 className="text-2xl font-serif font-bold text-[#1A1612] mb-2">
-          Book not found or still generating
+          Publication Not Found
         </h2>
-        <p className="text-sm text-[#6B635B] mb-6">
-          The requested book is either being written or does not exist.
+        <p className="text-sm text-[#6B635B] mb-6 max-w-md">
+          This shared publication may have been set to private, expired, or does not exist.
         </p>
-        <Link href="/create">
-          <Button variant="primary">← Create a New Book</Button>
+        <Link href="/">
+          <Button variant="primary">Explore BookGenie</Button>
         </Link>
       </div>
     );
@@ -192,31 +153,37 @@ export default function BookResultPage({
     >
       {/* Editorial Header */}
       <header className="sticky top-0 z-30 w-full bg-[#FDFBF7]/95 backdrop-blur-md border-b border-[#EFECE6] px-4 sm:px-8 h-18 flex items-center justify-between shadow-2xs">
-        {/* Left: Back to create & Brand */}
-        <div className="flex items-center gap-4">
-          <Link
-            href="/create"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B635B] hover:text-[#1A1612] transition-colors py-1 px-2.5 rounded-lg border border-[#EFECE6] bg-white"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Create another</span>
-          </Link>
-
-          <div className="hidden md:flex flex-col border-l border-[#EFECE6] pl-4">
-            <h1 className="text-sm font-bold font-serif text-[#1A1612] truncate max-w-xs">
-              {book.title}
-            </h1>
-            <span className="text-[10px] text-[#9E968E]">
-              {book.bookType} • {totalPages} pages • {book.language} • Version {book.versionNumber || 1}
+        {/* Left: Brand */}
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="w-9 h-9 rounded-xl bg-[#F8F3EA] text-[#8C5F2E] border border-[#E8DCCB] flex items-center justify-center shadow-2xs">
+            <BookOpen className="w-4.5 h-4.5 stroke-[2]" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-serif font-bold text-[#1A1612] tracking-tight group-hover:text-[#9A6F3C] transition-colors">
+              BookGenie
+            </span>
+            <span className="text-[10px] text-[#9E968E] uppercase tracking-wider">
+              Public Reader
             </span>
           </div>
+        </Link>
+
+        {/* Center: Book Title (Desktop) */}
+        <div className="hidden lg:flex flex-col items-center text-center">
+          <h1 className="text-sm font-bold font-serif text-[#1A1612] truncate max-w-sm">
+            {book.title}
+          </h1>
+          <span className="text-[10px] text-[#9E968E]">
+            {book.bookType} • {totalPages} pages • {book.language}
+          </span>
         </div>
 
-        {/* Right Actions: Share, Download PDF, Download EPUB */}
+        {/* Right Actions: Share, Download, Create */}
         <div className="flex items-center gap-2 sm:gap-2.5">
           <button
             onClick={handleShare}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#EFECE6] bg-white hover:bg-[#FDFBF7] text-xs font-semibold text-[#1A1612] transition-all shadow-2xs"
+            aria-label="Share this book"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#EFECE6] bg-white hover:bg-[#FDFBF7] text-xs font-semibold text-[#1A1612] transition-all shadow-2xs min-h-[40px]"
           >
             {copySuccess ? (
               <>
@@ -232,29 +199,28 @@ export default function BookResultPage({
           </button>
 
           <a
-            href={`/api/books/${id}/export?format=pdf`}
+            href={`/api/books/${book.id}/export?format=pdf`}
             download
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#EFECE6] bg-white hover:bg-[#FDFBF7] text-xs font-semibold text-[#1A1612] transition-all shadow-2xs"
+            aria-label="Download PDF"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#EFECE6] bg-white hover:bg-[#FDFBF7] text-xs font-semibold text-[#1A1612] transition-all shadow-2xs min-h-[40px]"
           >
             <Download className="w-3.5 h-3.5 text-[#9A6F3C]" />
             <span className="hidden sm:inline">Download</span> PDF
           </a>
 
-          <a
-            href={`/api/books/${id}/export?format=epub`}
-            download
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-[#A87B45] to-[#8C5F2E] hover:from-[#9A6F3C] hover:to-[#845D30] text-white text-xs font-semibold shadow-xs transition-all"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Download</span> EPUB
-          </a>
+          <Link href="/create">
+            <Button variant="primary" className="text-xs px-3.5 py-2 min-h-[40px]">
+              <Sparkles className="w-3.5 h-3.5 mr-1" />
+              <span>Create Free</span>
+            </Button>
+          </Link>
         </div>
       </header>
 
       {/* Main Digital Reader Arena */}
       <main className="flex-1 flex flex-col items-center justify-between p-4 sm:p-8 max-w-4xl mx-auto w-full">
         {/* Book Title on Mobile */}
-        <div className="md:hidden text-center mb-4">
+        <div className="lg:hidden text-center mb-4">
           <h2 className="text-base font-serif font-bold text-[#1A1612]">
             {book.title}
           </h2>
@@ -267,21 +233,6 @@ export default function BookResultPage({
         <div className="relative w-full max-w-2xl min-h-[520px] sm:min-h-[580px] bg-white rounded-3xl border border-[#E8DFC8] shadow-[0_16px_50px_rgba(45,38,32,0.06)] p-6 sm:p-12 flex flex-col justify-between my-auto transition-all">
           {/* Subtle Paper Texture Line */}
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#9A6F3C]/40 via-[#9A6F3C]/80 to-[#9A6F3C]/40 rounded-t-3xl" />
-
-          {/* Localized In-Progress Revision Notice */}
-          {isUpdating && (
-            <div className="absolute inset-0 bg-white/80 backdrop-blur-xs rounded-3xl z-20 flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-200">
-              <div className="w-10 h-10 rounded-full bg-[#F8F3EA] text-[#8C5F2E] flex items-center justify-center mb-3">
-                <Sparkles className="w-5 h-5 animate-spin" />
-              </div>
-              <span className="text-sm font-serif font-bold text-[#1A1612] mb-1">
-                Updating Page {activePage.pageNumber}...
-              </span>
-              <p className="text-xs text-[#6B635B]">
-                Refining content according to your natural-language instruction.
-              </p>
-            </div>
-          )}
 
           <AnimatePresence mode="wait">
             <motion.div
@@ -394,7 +345,7 @@ export default function BookResultPage({
               <div className="pt-4 border-t border-[#F4F1EA] flex items-center justify-between text-xs text-[#9E968E]">
                 <span>Chapter {activePage.chapterIndex || 1}</span>
                 <span className="font-serif italic text-[#8C5F2E]">
-                  BookGenie Publishing
+                  BookGenie Public Reader
                 </span>
               </div>
             </motion.div>
@@ -402,7 +353,7 @@ export default function BookResultPage({
         </div>
 
         {/* Clean Center Paginated Navigation Controls: Previous | Page X of Y | Next */}
-        <div className="flex items-center gap-6 mt-6 pb-20 select-none">
+        <div className="flex items-center gap-6 mt-6 pb-12 select-none">
           <button
             onClick={handlePrevPage}
             disabled={currentPageIndex === 0}
@@ -429,14 +380,15 @@ export default function BookResultPage({
         </div>
       </main>
 
-      {/* Floating Natural Language AI Edit Dock */}
-      <FloatingEditDock
-        currentPageNumber={activePage.pageNumber}
-        totalPages={totalPages}
-        onRegenerate={handleRegenerate}
-        isUpdating={isUpdating}
-        versionNumber={book.versionNumber || 1}
-      />
+      {/* Floating CTA Banner for Public Readers */}
+      <footer className="w-full bg-[#FDFBF7] border-t border-[#EFECE6] py-3 px-4 text-center">
+        <p className="text-xs text-[#6B635B]">
+          Want to turn your ideas or notes into a book?{' '}
+          <Link href="/create" className="text-[#8C5F2E] font-semibold hover:underline">
+            Create your own book with BookGenie AI →
+          </Link>
+        </p>
+      </footer>
     </div>
   );
 }

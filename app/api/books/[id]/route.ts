@@ -139,17 +139,75 @@ export async function GET(
       return NextResponse.json(getOceanWondersDemoBook());
     }
 
-    const book = GenerationPipeline.getBook(id);
+    // 1. Query Supabase PostgreSQL
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const supabase = createAdminClient();
+      const { data: dbBook } = await supabase
+        .from('books')
+        .select('*')
+        .eq('id', id)
+        .single();
 
+      if (dbBook) {
+        const { data: dbPages } = await supabase
+          .from('book_pages')
+          .select('*')
+          .eq('book_id', id)
+          .order('page_number', { ascending: true });
+
+        const doc: BookDocument = {
+          schemaVersion: 1,
+          id: dbBook.id,
+          userId: dbBook.user_id,
+          title: dbBook.title,
+          subtitle: dbBook.subtitle || undefined,
+          bookType: dbBook.book_type,
+          language: dbBook.language || 'English',
+          style: dbBook.style || 'Modern',
+          pageCount: dbBook.page_count || dbPages?.length || 0,
+          coverUrl: dbBook.blueprint?.visualPlan?.[0]?.url || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
+          blueprint: dbBook.blueprint || {
+            title: dbBook.title,
+            bookType: dbBook.book_type,
+            audience: 'General Readers',
+            language: dbBook.language,
+            style: dbBook.style,
+            pageTarget: dbBook.page_target || 16,
+            chapters: [],
+            visualPlan: [],
+          },
+          pages: (dbPages || []).map((p) => ({
+            pageNumber: p.page_number,
+            chapterIndex: p.chapter_index,
+            title: p.title,
+            pageType: p.page_type,
+            layout: p.layout,
+            blocks: p.blocks,
+          })),
+          versionNumber: dbBook.version_number || 1,
+          isShared: dbBook.is_shared,
+          shareToken: dbBook.share_token,
+          createdAt: dbBook.created_at,
+          updatedAt: dbBook.updated_at,
+        };
+
+        return NextResponse.json(doc);
+      }
+    } catch (dbErr) {
+      console.warn('Supabase fetch error, checking dev store:', dbErr);
+    }
+
+    // 2. Check local dev memory store
+    const book = GenerationPipeline.getBook(id);
     if (book) {
       return NextResponse.json(book);
     }
 
-    // Fallback: Return standard demo book so link never 404s in local testing
-    const fallback = getOceanWondersDemoBook();
-    fallback.id = id;
-    fallback.title = id.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-    return NextResponse.json(fallback);
+    return NextResponse.json(
+      { error: 'Book not found.' },
+      { status: 404 }
+    );
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || 'Book not found.' },

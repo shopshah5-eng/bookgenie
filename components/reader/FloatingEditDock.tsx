@@ -45,7 +45,13 @@ export function FloatingEditDock({
   };
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-xl px-4 pointer-events-none">
+    <div
+      className={`fixed z-40 pointer-events-none transition-all ${
+        isExpanded
+          ? 'inset-x-0 bottom-0 sm:bottom-6 sm:left-1/2 sm:-translate-x-1/2 sm:max-w-xl sm:px-4 w-full'
+          : 'bottom-6 left-1/2 -translate-x-1/2 w-full max-w-xl px-4'
+      }`}
+    >
       <div className="pointer-events-auto">
         <AnimatePresence mode="wait">
           {!isExpanded ? (
@@ -96,7 +102,7 @@ export function FloatingEditDock({
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 30, opacity: 0 }}
               transition={{ type: 'spring', damping: 26, stiffness: 300 }}
-              className="bg-white rounded-3xl border border-[#EFECE6] p-5 sm:p-6 shadow-2xl"
+              className="bg-white rounded-t-3xl sm:rounded-3xl rounded-b-none sm:rounded-b-3xl border border-[#EFECE6] p-5 sm:p-6 shadow-2xl max-h-[85vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between pb-3 border-b border-[#F4F1EA] mb-3">
                 <div className="flex items-center gap-2">

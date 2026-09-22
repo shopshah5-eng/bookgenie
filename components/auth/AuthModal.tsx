@@ -40,17 +40,6 @@ export function AuthModal() {
         });
 
         if (signUpError) {
-          // If Supabase credentials are placeholder in local dev, allow simulated session
-          if (signUpError.message?.includes('placeholder') || signUpError.message?.includes('Failed to fetch')) {
-            const mockUser = {
-              id: 'local-dev-user-id',
-              email,
-              user_metadata: { full_name: name || 'Creator' },
-            };
-            localStorage.setItem('bg_demo_user', JSON.stringify(mockUser));
-            window.location.reload();
-            return;
-          }
           throw signUpError;
         }
 
@@ -67,16 +56,6 @@ export function AuthModal() {
         });
 
         if (signInError) {
-          if (signInError.message?.includes('placeholder') || signInError.message?.includes('Failed to fetch')) {
-            const mockUser = {
-              id: 'local-dev-user-id',
-              email,
-              user_metadata: { full_name: 'Creator' },
-            };
-            localStorage.setItem('bg_demo_user', JSON.stringify(mockUser));
-            window.location.reload();
-            return;
-          }
           throw signInError;
         }
 
@@ -86,7 +65,7 @@ export function AuthModal() {
         }
       } else if (authView === 'forgot_password') {
         const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth/callback?next=/create`,
+          redirectTo: `${window.location.origin}/api/auth/callback?next=/create`,
         });
         if (resetError) throw resetError;
         setSuccessMessage('Password reset link sent to your email.');
@@ -113,16 +92,6 @@ export function AuthModal() {
       });
 
       if (oauthError) {
-        if (oauthError.message?.includes('placeholder') || oauthError.message?.includes('Failed to fetch')) {
-          const mockUser = {
-            id: 'google-dev-user-id',
-            email: 'creator@example.com',
-            user_metadata: { full_name: 'Google Creator' },
-          };
-          localStorage.setItem('bg_demo_user', JSON.stringify(mockUser));
-          window.location.reload();
-          return;
-        }
         throw oauthError;
       }
     } catch (err: any) {

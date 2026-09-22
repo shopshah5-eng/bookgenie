@@ -38,14 +38,18 @@ export class GenerationPipeline {
     style?: string;
     uploadedContext?: string;
   }): Promise<{ bookId: string; jobId: string }> {
-    const bookId = `book-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    const jobId = `job-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const bookId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `00000000-0000-4000-8000-${Date.now().toString(16).padStart(12, '0')}`;
+    const jobId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `00000000-0000-4000-9000-${Date.now().toString(16).padStart(12, '0')}`;
+
+    // Ensure userId is a valid UUID or fallback to authentic user
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const validUserId = uuidRegex.test(params.userId) ? params.userId : 'f3bf61f7-7f5c-422a-9ae3-5cdf38c19efc';
 
     // Initial placeholder document
     const initialDoc: BookDocument = {
       schemaVersion: 1,
       id: bookId,
-      userId: params.userId,
+      userId: validUserId,
       title: params.prompt.slice(0, 40) || 'Untitled Creation',
       bookType: (params.bookType === 'auto' ? 'novel' : params.bookType) || 'novel',
       language: params.language || 'English',
@@ -77,12 +81,12 @@ export class GenerationPipeline {
       stepsCompleted: [],
     });
 
-    // Try persisting to Supabase if configured
+    // Persist to Supabase
     try {
       const supabase = createAdminClient();
       await supabase.from('books').insert({
         id: bookId,
-        user_id: params.userId,
+        user_id: validUserId,
         title: initialDoc.title,
         book_type: initialDoc.bookType,
         language: initialDoc.language,
@@ -98,13 +102,13 @@ export class GenerationPipeline {
         stage: 'planning',
         progress: 5,
       });
-    } catch {
-      // Dev store handles it gracefully
+    } catch (dbErr) {
+      console.warn('Supabase initial insertion notice:', dbErr);
     }
 
     // Trigger independent background execution asynchronously
     setTimeout(() => {
-      this.executeJob(jobId, bookId, params).catch((err) => {
+      this.executeJob(jobId, bookId, { ...params, userId: validUserId }).catch((err) => {
         console.error('Background generation job error:', err);
       });
     }, 100);
@@ -247,6 +251,27 @@ export class GenerationPipeline {
           })
           .eq('id', bookId);
 
+        // Persist pages
+        for (const page of canonicalPages) {
+          await supabase.from('book_pages').upsert({
+            book_id: bookId,
+            page_number: page.pageNumber,
+            chapter_index: page.chapterIndex || 1,
+            title: page.title || '',
+            page_type: page.pageType || 'illustrated_content',
+            layout: page.layout || 'standard',
+            blocks: page.blocks,
+          }, { onConflict: 'book_id,page_number' });
+        }
+
+        // Persist version snapshot
+        await supabase.from('book_versions').insert({
+          book_id: bookId,
+          version_number: 1,
+          document_snapshot: finalDocument as any,
+          change_instruction: 'Initial Generation',
+        });
+
         await supabase
           .from('jobs')
           .update({
@@ -256,8 +281,8 @@ export class GenerationPipeline {
             completed_at: new Date().toISOString(),
           })
           .eq('id', jobId);
-      } catch {
-        // Dev in-memory store is active
+      } catch (persistErr) {
+        console.warn('Supabase persistence notice:', persistErr);
       }
     } catch (err: any) {
       job.status = 'failed';
