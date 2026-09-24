@@ -8,8 +8,15 @@ import { HeroSection } from '@/components/landing/HeroSection';
 import { PromptBarSection } from '@/components/landing/PromptBarSection';
 import { PromptToPageShowcase } from '@/components/landing/PromptToPageShowcase';
 import { BookShowcase } from '@/components/landing/BookShowcase';
-import { StudioAndCategoriesSection } from '@/components/landing/StudioAndCategoriesSection';
+import { TechnicalQualitySection } from '@/components/landing/TechnicalQualitySection';
+import { StudioWorkflowSection } from '@/components/landing/StudioWorkflowSection';
+import { ExportFormatsSection } from '@/components/landing/ExportFormatsSection';
+import { CategoriesBentoSection } from '@/components/landing/CategoriesBentoSection';
+import { AudienceSection } from '@/components/landing/AudienceSection';
 import { Testimonials } from '@/components/landing/Testimonials';
+import { PricingTeaserSection } from '@/components/landing/PricingTeaserSection';
+import { FAQSection } from '@/components/landing/FAQSection';
+import { EditorialSupportBanner } from '@/components/landing/EditorialSupportBanner';
 import { CallToActionBanner } from '@/components/landing/CallToActionBanner';
 import { Footer } from '@/components/landing/Footer';
 
@@ -25,32 +32,51 @@ export default function HomePage() {
           {/* 02 Editorial Hero: AI Publishing Studio + Standing Book Mockup */}
           <HeroSection />
 
-          {/* 03 What do you want to create today? Standalone Prompt & Category Pills */}
+          {/* 03 What do you want to create today? Real Controls: Upload, Category, Lang, Style */}
           <PromptBarSection />
 
-          {/* 04 From blank page to bound book: 6-Step Workflow */}
+          {/* 04 From blank page to bound book: 7-Stage Publishing Architecture (Restored VERIFY) */}
           <div id="workflow">
             <PromptToPageShowcase />
           </div>
 
-          {/* 05 Made with BookGenie: 4-Book Showcase */}
+          {/* 05 Explore the BookGenie Library: Real Showcase with Preview & Create Similar */}
           <div id="examples">
             <BookShowcase />
           </div>
 
-          {/* 06 Meet your publishing studio + One studio. Every kind of book. */}
-          <div id="studio">
-            <StudioAndCategoriesSection />
-          </div>
+          {/* 06 More than AI writing: Structured, Consistent, Editorial, Verified, Publication-Ready */}
+          <TechnicalQualitySection />
 
-          {/* 07 Your work stays yours: 5 Trust Badges + Priya S. Testimonial */}
+          {/* 07 Meet your publishing studio: 6-Stage Studio Workspace & Typeset Canvas */}
+          <StudioWorkflowSection />
+
+          {/* 08 One book. Every format: 300 DPI CMYK PDF, Reflowable EPUB3, Private Web Reader */}
+          <ExportFormatsSection />
+
+          {/* 09 One studio. Every kind of book: 6 Genre & Format Bento Cards */}
+          <CategoriesBentoSection />
+
+          {/* 10 Built for every kind of creator: Authors, Educators, Solopreneurs */}
+          <AudienceSection />
+
+          {/* 11 Your work stays yours: Supabase Row-Level Security & 100% Commercial Rights */}
           <Testimonials />
 
-          {/* 08 Pre-Footer Call to Action Banner + Book Spine Still Life */}
+          {/* 12 Transparent Pricing Teaser: Free Creator Studio vs Pro Edition */}
+          <PricingTeaserSection />
+
+          {/* 13 Frequently Asked Questions */}
+          <FAQSection />
+
+          {/* 14 Editorial Support Banner */}
+          <EditorialSupportBanner />
+
+          {/* 15 Final Call to Action Banner + Book Spine Still Life */}
           <CallToActionBanner />
         </main>
 
-        {/* 09 Minimalist Footer */}
+        {/* 16 Comprehensive 4-Column Footer */}
         <Footer />
 
         {/* Centered Backdrop-Blur Authentication Modal */}

@@ -7,58 +7,80 @@ import {
   Printer,
   BookOpen,
   Lightbulb,
+  CheckCircle2,
 } from 'lucide-react';
 
 export function Testimonials() {
   const trustFeatures = [
-    { title: 'Full commercial rights', icon: ShieldCheck },
-    { title: 'Private projects', icon: Lock },
-    { title: 'Print-ready PDF', icon: Printer },
-    { title: 'Reflowable EPUB', icon: BookOpen },
-    { title: 'No design experience required', icon: Lightbulb },
+    { title: '100% Commercial rights', icon: ShieldCheck, desc: 'You own all copyright, prose, and generated artwork completely.' },
+    { title: 'Private by design (RLS)', icon: Lock, desc: 'Protected by Supabase Row Level Security. Never used to train public models.' },
+    { title: 'Print-ready CMYK PDF', icon: Printer, desc: '300 DPI press files prepared for Amazon KDP & IngramSpark.' },
+    { title: 'Validated EPUB3', icon: BookOpen, desc: 'Reflowable digital standard compatible with Apple Books & Kindle.' },
+    { title: 'Deterministic typography', icon: Lightbulb, desc: 'Automatic drop caps, folios, dual margins, and orphan suppression.' },
   ];
 
   return (
-    <section className="py-12 sm:py-14 bg-white dark:bg-[#0A0A0A] border-b border-[#F0F0EE] dark:border-[#1E1E1E] transition-colors">
+    <section className="py-14 sm:py-20 bg-white dark:bg-[#0A0A0A] border-b border-[#F0F0EE] dark:border-[#1E1E1E] transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
-          {/* Left Column: Your work stays yours + horizontal row of 5 badges */}
+          {/* Left Column: Heading & 5 Trust Badges */}
           <div className="lg:col-span-7 flex flex-col items-start">
-            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#111111] dark:text-[#F5F5F5] tracking-tight mb-4">
-              Your work stays yours.
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#F3F3F1] dark:bg-[#1E1E1E] text-[#666666] dark:text-[#A0A0A0] text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase mb-3 border border-[#E5E5E5] dark:border-[#2C2C2C]">
+              INTELLECTUAL PROPERTY &amp; SECURITY
+            </div>
+
+            <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#111111] dark:text-[#F5F5F5] tracking-tight mb-3">
+              Your work stays yours. Private by design.
             </h2>
 
-            {/* Horizontal row of 5 badges with icons */}
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-xs sm:text-[13px] text-[#555555] dark:text-[#A0A0A0]">
+            <p className="text-sm text-[#666666] dark:text-[#999999] mb-8 leading-relaxed max-w-xl">
+              We believe authors and publishers should retain total sovereignty over their work. Your manuscripts and generated assets are isolated with database-level security and are never used to train shared AI models.
+            </p>
+
+            {/* List of 5 verified capabilities */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
               {trustFeatures.map((feat) => {
                 const Icon = feat.icon;
                 return (
-                  <div key={feat.title} className="flex items-center gap-1.5 whitespace-nowrap">
-                    <Icon className="w-3.5 h-3.5 text-[#777777] dark:text-[#888888] shrink-0" />
-                    <span>{feat.title}</span>
+                  <div key={feat.title} className="p-3.5 rounded-xl border border-[#EAEAEA] dark:border-[#222222] bg-[#FAFAFA] dark:bg-[#141414] flex flex-col justify-start">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Icon className="w-4 h-4 text-[#9A6F3C] dark:text-[#D4AF37] shrink-0" />
+                      <span className="text-xs font-semibold text-[#111111] dark:text-white">{feat.title}</span>
+                    </div>
+                    <p className="text-[11px] text-[#666666] dark:text-[#999999] leading-relaxed">
+                      {feat.desc}
+                    </p>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          {/* Right Column: Verified Product Statement */}
-          <div className="lg:col-span-5 flex flex-col justify-center pl-0 lg:pl-6 border-t lg:border-t-0 lg:border-l border-[#F0F0EE] dark:border-[#222222] pt-6 lg:pt-0">
-            <blockquote className="font-serif italic text-base sm:text-lg text-[#222222] dark:text-[#E8E8E8] leading-snug">
-              &ldquo;Built to help creators move from idea to finished book.&rdquo;
+          {/* Right Column: Security Architecture Statement Card */}
+          <div className="lg:col-span-5 p-7 sm:p-8 rounded-3xl border border-[#EAEAEA] dark:border-[#222222] bg-[#FAFAFA] dark:bg-[#141414] shadow-[0_8px_30px_rgba(0,0,0,0.02)]">
+            <blockquote className="font-serif italic text-lg sm:text-xl text-[#111111] dark:text-white leading-snug">
+              &ldquo;Built to give every creator the power of a world-class publishing house without sacrificing privacy or ownership.&rdquo;
             </blockquote>
             
-            <p className="text-xs sm:text-[13px] text-[#666666] dark:text-[#999999] mt-2.5 leading-relaxed font-sans">
+            <p className="text-xs sm:text-[13px] text-[#666666] dark:text-[#999999] mt-4 leading-relaxed font-sans">
               BookGenie couples high-fidelity AI generation with automated book design engines, outputting publication-standard files ready for distribution.
             </p>
 
-            <div className="flex items-center gap-2 mt-3.5 pt-3 border-t border-[#F5F5F3] dark:border-[#1E1E1E]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
-              <span className="text-[11px] font-medium text-[#444444] dark:text-[#AAAAAA]">
-                Production-grade typesetting &amp; instant asset ownership
-              </span>
+            <div className="space-y-2 mt-6 pt-5 border-t border-[#EFEFEF] dark:border-[#222222]">
+              <div className="flex items-center gap-2 text-xs text-[#333333] dark:text-[#CCCCCC]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#16A34A] shrink-0" />
+                <span>Supabase Row-Level Security (RLS) enforcement</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-[#333333] dark:text-[#CCCCCC]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#16A34A] shrink-0" />
+                <span>Zero model training on user prompts or manuscripts</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-[#333333] dark:text-[#CCCCCC]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#16A34A] shrink-0" />
+                <span>Immediate export to open, non-proprietary formats</span>
+              </div>
             </div>
           </div>
 

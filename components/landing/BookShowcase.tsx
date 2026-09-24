@@ -12,33 +12,19 @@ interface BookItem {
   specs: string;
   image: string;
   demoUrl: string;
+  typeParam: string;
 }
 
 export function BookShowcase() {
   const books: BookItem[] = [
     {
-      id: 'star-explorer',
-      title: 'The Little Star Explorer',
+      id: 'ocean-wonders',
+      title: 'Ocean Wonders',
       category: "Children's Storybook",
-      specs: '28 pages • Full Color',
+      specs: '28 pages • Full Color • CMYK',
       image: '/images/cover-star-explorer.jpg',
-      demoUrl: '/examples/star-explorer',
-    },
-    {
-      id: 'mindful-morning',
-      title: 'The Mindful Morning',
-      category: 'Self-Help & Reflection',
-      specs: '64 pages • Editorial',
-      image: '/images/cover-mindful-morning.jpg',
-      demoUrl: '/examples/mindful-morning',
-    },
-    {
-      id: 'flavours-home',
-      title: 'Flavours of Home',
-      category: 'Artisan Culinary Collection',
-      specs: '72 pages • Photography',
-      image: '/images/cover-flavours-home.jpg',
-      demoUrl: '/examples/flavours-home',
+      demoUrl: '/examples/ocean-wonders',
+      typeParam: 'children',
     },
     {
       id: 'silent-path',
@@ -47,6 +33,25 @@ export function BookShowcase() {
       specs: '320 pages • Literary Typeset',
       image: '/images/cover-silent-path.jpg',
       demoUrl: '/examples/silent-path',
+      typeParam: 'novel',
+    },
+    {
+      id: 'flavours-home',
+      title: 'Flavours of Home',
+      category: 'Artisan Culinary Collection',
+      specs: '72 pages • High-Res Photos',
+      image: '/images/cover-flavours-home.jpg',
+      demoUrl: '/examples/flavours-home',
+      typeParam: 'cookbook',
+    },
+    {
+      id: 'mindful-morning',
+      title: 'The Mindful Morning',
+      category: 'Self-Help & Personal Growth',
+      specs: '64 pages • Editorial Typography',
+      image: '/images/cover-mindful-morning.jpg',
+      demoUrl: '/examples/mindful-morning',
+      typeParam: 'guide',
     },
   ];
 
@@ -68,8 +73,11 @@ export function BookShowcase() {
         {/* Section Header */}
         <div className="flex flex-row items-baseline justify-between mb-8 sm:mb-10">
           <div>
+            <div className="inline-flex items-center px-3 py-0.5 rounded-full bg-[#F3F3F1] dark:bg-[#1E1E1E] text-[#666666] dark:text-[#A0A0A0] text-[10px] font-semibold tracking-wider uppercase mb-2 border border-[#E5E5E5] dark:border-[#2C2C2C]">
+              SHOWCASE LIBRARY
+            </div>
             <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#111111] dark:text-[#F5F5F5] tracking-tight">
-              Made with BookGenie
+              Explore the BookGenie Library
             </h2>
             <p className="text-xs sm:text-sm text-[#666666] dark:text-[#999999] mt-0.5">
               Production blueprints, typography layouts, and complete working editions.
@@ -80,7 +88,7 @@ export function BookShowcase() {
             href="/examples"
             className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-[#111111] dark:text-[#F5F5F5] hover:text-[#9A6F3C] dark:hover:text-[#E8C28A] transition-colors group shrink-0"
           >
-            <span>View more examples</span>
+            <span>View full library</span>
             <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
@@ -102,18 +110,18 @@ export function BookShowcase() {
             {displayedBooks.map((book) => (
               <div
                 key={book.id}
-                className="flex items-center gap-3 sm:gap-4 p-2 group hover:-translate-y-1 transition-transform duration-300"
+                className="flex items-center gap-3 sm:gap-4 p-3 rounded-2xl border border-transparent hover:border-[#EAEAEA] dark:hover:border-[#262626] hover:bg-[#FAFAFA] dark:hover:bg-[#141414] group hover:-translate-y-1 transition-all duration-300"
               >
                 {/* 3D Hardcover Book Mockup */}
                 <Link
                   href={book.demoUrl}
-                  className="relative w-[110px] sm:w-[130px] aspect-[1/1.4] shrink-0 rounded-r-md rounded-l-xs overflow-hidden shadow-[4px_6px_16px_rgba(0,0,0,0.18)] dark:shadow-[4px_6px_20px_rgba(0,0,0,0.6)] border-l-2 border-l-white/60 dark:border-l-white/20 transition-all group-hover:shadow-[6px_10px_24px_rgba(0,0,0,0.22)]"
+                  className="relative w-[110px] sm:w-[125px] aspect-[1/1.4] shrink-0 rounded-r-md rounded-l-xs overflow-hidden shadow-[4px_6px_16px_rgba(0,0,0,0.18)] dark:shadow-[4px_6px_20px_rgba(0,0,0,0.6)] border-l-2 border-l-white/60 dark:border-l-white/20 transition-all group-hover:shadow-[6px_10px_24px_rgba(0,0,0,0.22)]"
                 >
                   <Image
                     src={book.image}
                     alt={book.title}
                     fill
-                    sizes="(max-width: 640px) 110px, 130px"
+                    sizes="(max-width: 640px) 110px, 125px"
                     className="object-cover object-center"
                   />
                   {/* Subtle Spine Crease Highlight */}
@@ -125,19 +133,29 @@ export function BookShowcase() {
                   <h3 className="font-serif font-bold text-sm sm:text-base text-[#111111] dark:text-[#F5F5F5] leading-snug line-clamp-2">
                     {book.title}
                   </h3>
-                  <div className="text-[11px] text-[#666666] dark:text-[#A0A0A0] mt-0.5">
+                  <div className="text-[11px] font-medium text-[#9A6F3C] dark:text-[#D4AF37] mt-0.5">
                     {book.category}
                   </div>
                   <div className="text-[10px] text-[#888888] dark:text-[#777777] mt-0.5">
                     {book.specs}
                   </div>
-                  <Link
-                    href={book.demoUrl}
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#111111] dark:text-[#F5F5F5] hover:text-[#9A6F3C] dark:hover:text-[#E8C28A] mt-2 transition-colors cursor-pointer"
-                  >
-                    <span>Explore book</span>
-                    <ArrowRight className="w-3 h-3 stroke-[2]" />
-                  </Link>
+
+                  <div className="flex flex-col gap-1.5 mt-2.5">
+                    <Link
+                      href={book.demoUrl}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#111111] dark:text-white hover:text-[#9A6F3C] dark:hover:text-[#E8C28A] transition-colors cursor-pointer"
+                    >
+                      <span>Read preview</span>
+                      <ArrowRight className="w-3 h-3 stroke-[2]" />
+                    </Link>
+
+                    <Link
+                      href={`/create?type=${book.typeParam}`}
+                      className="inline-flex items-center gap-1 text-[10px] text-[#666666] dark:text-[#A0A0A0] hover:text-[#111111] dark:hover:text-white transition-colors"
+                    >
+                      <span>Create similar →</span>
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
