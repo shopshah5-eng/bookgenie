@@ -36,15 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (data?.user) {
           setUser(data.user);
         } else {
-          // Check local simulated session for dev testing
-          const stored = localStorage.getItem('bg_demo_user');
-          if (stored) {
-            try {
-              setUser(JSON.parse(stored));
-            } catch {
-              localStorage.removeItem('bg_demo_user');
-            }
-          }
+          setUser(null);
         }
       } catch (err) {
         console.warn('Supabase auth init notice:', err);
@@ -73,7 +65,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Ignore network errors
     }
-    localStorage.removeItem('bg_demo_user');
     setUser(null);
   };
 

@@ -10,12 +10,14 @@ import { useRouter } from 'next/navigation';
 export function Header() {
   const { user, openAuthModal, signOut } = useAuth();
   const [isDark, setIsDark] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const router = useRouter();
 
   // Synchronize state with current HTML class on mount (default to minimal white)
   useEffect(() => {
+    setMounted(true);
     try {
       const savedTheme = localStorage.getItem('bookgenie_theme_v2');
       if (savedTheme === 'dark') {
@@ -48,10 +50,10 @@ export function Header() {
 
   const navLinks = [
     { label: 'How it works', href: '/how-it-works' },
-    { label: 'Examples', href: '/examples' },
-    { label: 'Templates', href: '/#studio' },
+    { label: 'Showcase', href: '/examples' },
+    { label: 'Studio', href: '/#studio' },
     { label: 'Pricing', href: '/pricing' },
-    { label: 'Blog', href: '/faq' },
+    { label: 'FAQ', href: '/faq' },
   ];
 
   return (
@@ -94,9 +96,9 @@ export function Header() {
             onClick={toggleTheme}
             className="p-2 rounded-full text-[#555555] dark:text-[#A0A0A0] hover:text-[#111111] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
             aria-label="Toggle theme"
-            title={isDark ? "Switch to white mode" : "Switch to black mode"}
+            title={mounted && isDark ? "Switch to white mode" : "Switch to dark mode"}
           >
-            {isDark ? (
+            {mounted && isDark ? (
               <Sun className="w-4 h-4 text-amber-400" />
             ) : (
               <Moon className="w-4 h-4 text-[#555555]" />

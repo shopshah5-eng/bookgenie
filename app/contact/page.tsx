@@ -103,43 +103,49 @@ export default function ContactPage() {
                   aria-hidden="true"
                 />
                 <div>
-                  <label htmlFor="contact-name" className="block text-xs font-semibold text-[#1A1612] mb-1.5">
+                  <label htmlFor="contact-name" className="block text-xs font-semibold text-[#111111] mb-1.5">
                     Your Name
                   </label>
                   <Input
                     id="contact-name"
+                    name="name"
                     type="text"
                     required
+                    aria-required="true"
                     placeholder="Your full name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label htmlFor="contact-email" className="block text-xs font-semibold text-[#1A1612] mb-1.5">
+                  <label htmlFor="contact-email" className="block text-xs font-semibold text-[#111111] mb-1.5">
                     Email Address
                   </label>
                   <Input
                     id="contact-email"
+                    name="email"
                     type="email"
                     required
+                    aria-required="true"
                     placeholder="you@domain.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label htmlFor="contact-message" className="block text-xs font-semibold text-[#1A1612] mb-1.5">
+                  <label htmlFor="contact-message" className="block text-xs font-semibold text-[#111111] mb-1.5">
                     How can we help?
                   </label>
                   <textarea
                     id="contact-message"
+                    name="message"
                     rows={4}
                     required
+                    aria-required="true"
                     placeholder="Describe your question or issue in detail..."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    className="w-full text-xs sm:text-sm p-3 rounded-xl border border-[#EFECE6] bg-[#FDFBF7] text-[#1A1612] focus:outline-none focus:border-[#9A6F3C] resize-none"
+                    className="w-full text-xs sm:text-sm p-3 rounded-xl border border-[#E5E5E5] bg-white text-[#111111] focus:outline-none focus:border-[#111111] resize-none transition-colors"
                   />
                 </div>
                 <Button

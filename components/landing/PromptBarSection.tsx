@@ -136,15 +136,14 @@ export function PromptBarSection() {
     const finalPrompt = prompt.trim() || "A children's story about a little fox who discovers a magical forest...";
     const targetUrl = `/create?prompt=${encodeURIComponent(finalPrompt)}&type=${activeCategory}&lang=${selectedLanguage}&style=${selectedStyle}`;
 
-    if (!user) {
+    try {
       sessionStorage.setItem('bg_pending_prompt', finalPrompt);
       sessionStorage.setItem('bg_pending_type', activeCategory);
       sessionStorage.setItem('bg_pending_lang', selectedLanguage);
       sessionStorage.setItem('bg_pending_style', selectedStyle);
-      openAuthModal('signup', targetUrl);
-    } else {
-      router.push(targetUrl);
-    }
+    } catch (_) {}
+
+    router.push(targetUrl);
   };
 
   return (

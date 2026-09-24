@@ -140,13 +140,15 @@ export default function AffiliatePage() {
                   />
 
                   <div>
-                    <label htmlFor="affiliate-email" className="block text-xs font-semibold text-[#1A1612] mb-1.5">
+                    <label htmlFor="affiliate-email" className="block text-xs font-semibold text-[#111111] mb-1.5">
                       Your Email Address
                     </label>
                     <Input
                       id="affiliate-email"
+                      name="email"
                       type="email"
                       required
+                      aria-required="true"
                       placeholder="you@domain.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -154,13 +156,15 @@ export default function AffiliatePage() {
                   </div>
 
                   <div>
-                    <label htmlFor="affiliate-website" className="block text-xs font-semibold text-[#1A1612] mb-1.5">
+                    <label htmlFor="affiliate-website" className="block text-xs font-semibold text-[#111111] mb-1.5">
                       Website or Primary Social Channel
                     </label>
                     <Input
                       id="affiliate-website"
+                      name="website"
                       type="text"
                       required
+                      aria-required="true"
                       placeholder="https://youtube.com/@yourchannel or https://myblog.com"
                       value={website}
                       onChange={(e) => setWebsite(e.target.value)}

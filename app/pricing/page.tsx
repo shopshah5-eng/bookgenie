@@ -8,7 +8,7 @@ import { Footer } from '@/components/landing/Footer';
 import { AuthProvider, useAuth } from '@/components/auth/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { Button } from '@/components/ui/Button';
-import { Sparkles, Check, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Check, ArrowRight, CheckCircle2, Info } from 'lucide-react';
 
 function PricingContent() {
   const router = useRouter();
@@ -21,11 +21,11 @@ function PricingContent() {
   const plans = [
     {
       id: 'free',
-      name: 'Free Starter',
-      badge: 'For Curious Creators',
+      name: 'Starter',
+      badge: 'Always Free',
       priceINR: '₹0',
       priceUSD: '$0',
-      period: 'forever free',
+      period: 'forever',
       description: 'Test the power of AI publishing with complete core features.',
       features: [
         '3 generated books per month',
@@ -37,15 +37,16 @@ function PricingContent() {
       ],
       cta: 'Start Free',
       variant: 'secondary' as const,
+      isPopular: false,
     },
     {
       id: 'creator',
       name: 'Creator',
-      badge: 'Most Popular',
+      badge: 'Most Popular • Beta Access',
       priceINR: '₹999',
       priceUSD: '$19',
       period: 'per month',
-      description: 'For educators, authors, and entrepreneurs publishing regularly.',
+      description: 'For educators, authors, and entrepreneurs publishing regularly. Free during beta.',
       features: [
         '20 generated books per month',
         'Up to 60 pages per book',
@@ -55,14 +56,14 @@ function PricingContent() {
         'Unlimited AI revisions & versioning',
         'Character consistency bibles',
       ],
-      cta: 'Choose Creator Plan',
+      cta: 'Activate Creator (Beta)',
       variant: 'primary' as const,
       isPopular: true,
     },
     {
       id: 'pro',
       name: 'Pro Publisher',
-      badge: 'For Serious Makers',
+      badge: 'Power Authors',
       priceINR: '₹2,499',
       priceUSD: '$49',
       period: 'per month',
@@ -74,10 +75,11 @@ function PricingContent() {
         'Priority server-side generation queue',
         'Full PDF & EPUB with custom print CSS',
         'Full commercial and distribution rights',
-        'Early access to coming KDP export templates',
+        'Early access to KDP export templates',
       ],
-      cta: 'Choose Pro Plan',
+      cta: 'Activate Pro (Beta)',
       variant: 'secondary' as const,
+      isPopular: false,
     },
   ];
 
@@ -109,7 +111,7 @@ function PricingContent() {
       }
 
       setSuccessMessage(
-        `Your account has been upgraded to the ${planId.toUpperCase()} Plan! You now have unlocked full commercial rights and expanded quotas.`
+        `Your account has been upgraded to ${planId.toUpperCase()} Plan (Beta Access)! You now have unlocked commercial rights and expanded quotas.`
       );
     } catch (err: any) {
       setErrorMessage(err.message || 'Something went wrong while upgrading plan.');
@@ -119,30 +121,30 @@ function PricingContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FDFBF7] text-[#1A1612]">
+    <div className="min-h-screen flex flex-col bg-white text-[#111111]">
       <Header />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F8F3EA] text-[#8C5F2E] border border-[#E8DCCB] text-[11px] font-semibold uppercase tracking-wider mb-3">
-            <Sparkles className="w-3.5 h-3.5" /> Simple, Transparent Pricing
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F5F5F3] text-[#111111] border border-[#E5E5E5] text-[11px] font-semibold uppercase tracking-wider mb-3">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" /> Transparent Pricing • Public Beta
           </span>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#1A1612] tracking-tight mb-4">
-            Invest in Your Publishing Ideas
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#111111] tracking-tight mb-4">
+            Simple, Transparent Publishing
           </h1>
-          <p className="text-sm sm:text-base text-[#6B635B] mb-6">
-            Start free, then upgrade as your catalogue of AI-published books expands.
+          <p className="text-sm sm:text-base text-[#666666] mb-6">
+            Explore our planned tiers. During our public beta, creators can activate Creator or Pro features directly with no billing commitment.
           </p>
 
           {/* Currency Switcher */}
-          <div className="inline-flex items-center p-1 rounded-xl bg-white border border-[#EFECE6] shadow-2xs">
+          <div className="inline-flex items-center p-1 rounded-xl bg-white border border-[#E5E5E5] shadow-2xs">
             <button
               type="button"
               onClick={() => setCurrency('INR')}
               className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
                 currency === 'INR'
-                  ? 'bg-[#9A6F3C] text-white shadow-2xs'
-                  : 'text-[#6B635B] hover:text-[#1A1612]'
+                  ? 'bg-[#111111] text-white shadow-2xs'
+                  : 'text-[#666666] hover:text-[#111111]'
               }`}
             >
               ₹ INR (India)
@@ -152,12 +154,20 @@ function PricingContent() {
               onClick={() => setCurrency('USD')}
               className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
                 currency === 'USD'
-                  ? 'bg-[#9A6F3C] text-white shadow-2xs'
-                  : 'text-[#6B635B] hover:text-[#1A1612]'
+                  ? 'bg-[#111111] text-white shadow-2xs'
+                  : 'text-[#666666] hover:text-[#111111]'
               }`}
             >
               $ USD (Global)
             </button>
+          </div>
+        </div>
+
+        {/* Beta Notice Banner */}
+        <div className="max-w-2xl mx-auto mb-10 p-4 bg-[#FAF9F5] border border-[#EFECE6] rounded-2xl flex items-start gap-3 text-xs text-[#555555]">
+          <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+          <div>
+            <strong className="text-[#111111]">Early Access Beta:</strong> Automated Stripe/Razorpay payments will be introduced at production launch. You can activate Creator or Pro perks right now on your account without any credit card.
           </div>
         </div>
 
@@ -166,11 +176,11 @@ function PricingContent() {
           <div className="max-w-2xl mx-auto mb-8 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3 text-emerald-900 shadow-xs">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
             <div className="flex-1 text-xs sm:text-sm">
-              <span className="font-semibold block">Upgrade Successful!</span>
+              <span className="font-semibold block">Beta Access Active!</span>
               {successMessage}
             </div>
             <Link href="/create">
-              <Button size="sm" variant="primary" className="text-xs">
+              <Button size="sm" variant="primary" className="text-xs bg-[#111111] text-white">
                 Create Now
               </Button>
             </Link>
@@ -188,14 +198,14 @@ function PricingContent() {
           {plans.map((plan) => (
             <div
               key={plan.id}
-              className={`relative rounded-3xl p-8 flex flex-col justify-between transition-all duration-200 ${
+              className={`relative rounded-2xl p-8 flex flex-col justify-between transition-all duration-200 ${
                 plan.isPopular
-                  ? 'bg-white border-2 border-[#9A6F3C] shadow-xl transform md:-translate-y-2'
-                  : 'bg-white border border-[#EFECE6] shadow-sm hover:border-[#DDD3C2]'
+                  ? 'bg-white border-2 border-[#111111] shadow-lg transform md:-translate-y-1'
+                  : 'bg-white border border-[#E5E5E5] shadow-xs hover:border-[#CCCCCC]'
               }`}
             >
               {plan.isPopular && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#9A6F3C] text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full shadow-xs">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#111111] text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full shadow-xs">
                   Most Popular
                 </span>
               )}
@@ -204,23 +214,23 @@ function PricingContent() {
                 <div className="text-xs uppercase tracking-wider font-semibold text-[#8C5F2E] mb-2">
                   {plan.badge}
                 </div>
-                <h3 className="text-2xl font-serif font-bold text-[#1A1612] mb-2">
+                <h3 className="text-2xl font-serif font-bold text-[#111111] mb-2">
                   {plan.name}
                 </h3>
-                <p className="text-xs text-[#6B635B] mb-6 leading-relaxed">
+                <p className="text-xs text-[#666666] mb-6 leading-relaxed">
                   {plan.description}
                 </p>
 
-                <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-[#F4F1EA]">
-                  <span className="text-4xl font-serif font-bold text-[#1A1612]">
+                <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-[#F0F0EE]">
+                  <span className="text-4xl font-serif font-bold text-[#111111]">
                     {currency === 'INR' ? plan.priceINR : plan.priceUSD}
                   </span>
-                  <span className="text-xs text-[#9E968E]">/ {plan.period}</span>
+                  <span className="text-xs text-[#888888]">/ {plan.period}</span>
                 </div>
 
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feat, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-[#2D2620]">
+                    <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-[#333333]">
                       <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                       <span>{feat}</span>
                     </li>
@@ -231,11 +241,15 @@ function PricingContent() {
               <Button
                 variant={plan.variant}
                 size="lg"
-                className="w-full shadow-xs font-semibold"
+                className={`w-full shadow-xs font-semibold ${
+                  plan.isPopular
+                    ? 'bg-[#111111] hover:bg-[#222222] text-white'
+                    : 'bg-white border border-[#E5E5E5] text-[#111111] hover:bg-[#F9F9F8]'
+                }`}
                 disabled={upgradingTier === plan.id}
                 onClick={() => handleSelectPlan(plan.id)}
               >
-                {upgradingTier === plan.id ? 'Updating Plan...' : (
+                {upgradingTier === plan.id ? 'Activating...' : (
                   <>{plan.cta} <ArrowRight className="w-4 h-4 ml-1" /></>
                 )}
               </Button>
@@ -243,8 +257,8 @@ function PricingContent() {
           ))}
         </div>
 
-        <div className="text-center text-xs text-[#9E968E]">
-          All paid subscriptions come with a 7-day money-back guarantee. Cancel anytime with a single click.
+        <div className="text-center text-xs text-[#888888]">
+          Public Beta Evaluation Edition • No credit card required • Commercial rights included during beta testing.
         </div>
       </main>
 

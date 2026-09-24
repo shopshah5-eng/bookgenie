@@ -9,9 +9,9 @@ Allow: /faq
 Allow: /privacy
 Allow: /terms
 Allow: /refund
+Allow: /cookies
 Allow: /shared/
 Disallow: /api/
 Disallow: /create
-Disallow: /my-books
 
 Sitemap: https://bookgenie-app.netlify.app/sitemap.xml

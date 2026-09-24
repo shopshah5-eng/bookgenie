@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
+import { AppProviders } from "@/components/providers/AppProviders";
+
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair",
@@ -28,6 +30,14 @@ export const metadata: Metadata = {
       "Turn your prompt or notes into a beautifully structured, illustrated, and formatted publication with downloadable PDF and EPUB.",
     url: 'https://bookgenie-app.netlify.app',
     siteName: 'BookGenie AI Publishing Studio',
+    images: [
+      {
+        url: '/images/hero-brighter-you.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'BookGenie AI Publishing Studio',
+      },
+    ],
     type: 'website',
   },
   twitter: {
@@ -35,6 +45,7 @@ export const metadata: Metadata = {
     title: "BookGenie — Turn Your Ideas Into Beautiful Books",
     description:
       "Turn your prompt or notes into a beautifully structured, illustrated, and formatted publication.",
+    images: ['/images/hero-brighter-you.jpg'],
   },
   keywords: [
     "AI book generator",
@@ -47,6 +58,20 @@ export const metadata: Metadata = {
   ],
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "BookGenie",
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "BookGenie is an AI publishing studio that turns prompts and manuscripts into beautifully structured, illustrated, and formatted books."
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -55,6 +80,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${playfair.variable} ${jakarta.variable}`}>
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -70,8 +99,21 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased selection:bg-[#9A6F3C]/20 selection:text-[#111111] dark:selection:text-white bg-white dark:bg-[#0A0A0A] text-[#111111] dark:text-[#F5F5F5] transition-colors duration-200">
-        {children}
+      <body
+        suppressHydrationWarning
+        className="antialiased selection:bg-[#9A6F3C]/20 selection:text-[#111111] dark:selection:text-white bg-white dark:bg-[#0A0A0A] text-[#111111] dark:text-[#F5F5F5] transition-colors duration-200"
+      >
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#111111] focus:text-white focus:rounded-full focus:shadow-lg focus:outline-none"
+        >
+          Skip to content
+        </a>
+        <div id="main-content" tabIndex={-1} className="outline-none">
+          <AppProviders>
+            {children}
+          </AppProviders>
+        </div>
       </body>
     </html>
   );

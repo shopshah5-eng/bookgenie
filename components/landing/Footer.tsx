@@ -6,23 +6,22 @@ import Link from 'next/link';
 export function Footer() {
   const productLinks = [
     { label: 'Create a Book', href: '/create' },
-    { label: 'BookGenie Library', href: '/examples' },
-    { label: 'How It Works', href: '/how-it-works' },
-    { label: 'Studio Workspace', href: '/#studio' },
+    { label: 'Showcase Gallery', href: '/examples' },
+    { label: 'Publishing Architecture', href: '/how-it-works' },
+    { label: 'Studio Creator', href: '/create' },
     { label: 'Pricing & Plans', href: '/pricing' },
-    { label: 'Interactive Reader', href: '/examples/ocean-wonders' },
+    { label: 'Demo Reader', href: '/examples/ocean-wonders' },
   ];
 
   const publishingLinks = [
     { label: '7-Stage Pipeline', href: '/how-it-works' },
-    { label: '300 DPI Print PDF', href: '/examples' },
-    { label: 'Reflowable EPUB3', href: '/examples' },
+    { label: 'Print PDF & EPUB Specs', href: '/how-it-works' },
     { label: 'Commercial Rights', href: '/terms' },
-    { label: 'Deterministic QC', href: '/how-it-works' },
+    { label: 'Deterministic Quality Control', href: '/how-it-works' },
   ];
 
   const supportLinks = [
-    { label: 'Frequently Asked Questions', href: '/#faq' },
+    { label: 'Frequently Asked Questions', href: '/faq' },
     { label: 'Editorial Support', href: '/contact' },
     { label: 'Contact Us', href: '/contact' },
     { label: 'Affiliate Program', href: '/affiliate' },

@@ -1,0 +1,16 @@
+{
+  "name": "BookGenie AI Publishing Studio",
+  "short_name": "BookGenie",
+  "description": "Turn your prompt or notes into a beautifully structured, illustrated, and formatted publication.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#111111",
+  "icons": [
+    {
+      "src": "/file.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
