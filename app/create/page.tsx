@@ -72,7 +72,12 @@ function CreatePageContent() {
   const handleSyncParams = React.useCallback(
     (data: { prompt?: string; type?: string; lang?: string; style?: string }) => {
       if (data.prompt) setPrompt(data.prompt);
-      if (data.type) setBookType(data.type);
+      if (data.type) {
+        let t = data.type.toLowerCase().trim();
+        if (t === 'cookbook') t = 'recipe';
+        if (t === 'other') t = 'auto';
+        setBookType(t);
+      }
       if (data.lang) setLanguage(data.lang);
       if (data.style) setStyle(data.style);
     },
@@ -199,36 +204,29 @@ function CreatePageContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FDFBF7] text-[#1A1612]">
-      {/* Minimalist Publishing Studio Header */}
-      <header className="w-full bg-[#FDFBF7] border-b border-[#EFECE6] px-4 sm:px-8 h-20 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3 select-none group">
-          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#F8F3EA] text-[#8C5F2E] border border-[#E8DCCB] shadow-2xs">
-            <BookOpen className="w-5 h-5 stroke-[2.2]" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl font-serif font-bold text-[#1A1612] tracking-tight leading-none">
-              BookGenie
-            </span>
-            <span className="text-[9px] uppercase tracking-widest text-[#9E968E] font-medium mt-0.5">
-              Publishing Studio
-            </span>
-          </div>
+    <div className="min-h-screen flex flex-col bg-white dark:bg-[#0A0A0A] text-[#111111] dark:text-[#F5F5F5] transition-colors">
+      {/* Minimalist Editorial Studio Header */}
+      <header className="w-full bg-white/90 dark:bg-[#0A0A0A]/90 backdrop-blur-md border-b border-[#EAEAEA] dark:border-[#222222] px-4 sm:px-8 h-18 flex items-center justify-between sticky top-0 z-40 transition-colors">
+        <Link href="/" className="flex items-center gap-1.5 select-none group">
+          <span className="text-amber-600 dark:text-amber-400 text-lg font-serif leading-none select-none">✦</span>
+          <span className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-[#111111] dark:text-[#F5F5F5] leading-none">
+            BookGenie
+          </span>
         </Link>
 
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="text-xs sm:text-sm font-medium text-[#6B635B] hover:text-[#1A1612] transition-colors"
+            className="text-xs sm:text-sm font-medium text-[#555555] dark:text-[#AAAAAA] hover:text-[#111111] dark:hover:text-white transition-colors"
           >
             ← Back to Home
           </Link>
           {user && (
-            <div className="flex items-center gap-2 pl-3 border-l border-[#EFECE6]">
-              <div className="w-7 h-7 rounded-full bg-[#F8F3EA] text-[#8C5F2E] flex items-center justify-center font-bold text-xs">
+            <div className="flex items-center gap-2 pl-3 border-l border-[#EAEAEA] dark:border-[#262626]">
+              <div className="w-7 h-7 rounded-full bg-[#F3F3F1] dark:bg-[#222222] text-[#111111] dark:text-white flex items-center justify-center font-bold text-xs">
                 {user.email?.charAt(0).toUpperCase() || 'U'}
               </div>
-              <span className="text-xs font-medium text-[#1A1612] hidden sm:inline">
+              <span className="text-xs font-medium text-[#111111] dark:text-white hidden sm:inline">
                 {user.user_metadata?.full_name || 'Creator'}
               </span>
             </div>
@@ -239,19 +237,16 @@ function CreatePageContent() {
       {/* Main Creation Space */}
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
         <div className="text-center mb-8">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F8F3EA] text-[#8C5F2E] border border-[#E8DCCB] text-[11px] font-semibold uppercase tracking-wider mb-3">
-            <Sparkles className="w-3.5 h-3.5" /> Page 1 — Create
-          </span>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#1A1612] tracking-tight mb-3">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#111111] dark:text-[#F5F5F5] tracking-tight mb-3">
             What do you want to create?
           </h1>
-          <p className="text-sm sm:text-base text-[#6B635B] max-w-xl mx-auto">
+          <p className="text-sm sm:text-base text-[#555555] dark:text-[#AAAAAA] max-w-xl mx-auto font-sans">
             Describe your idea or attach reference notes. BookGenie generates the blueprint, chapters, illustrations, and downloadable files.
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700 text-left">
+          <div className="mb-6 p-4 rounded-2xl bg-red-50/80 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-xs sm:text-sm text-red-700 dark:text-red-300 text-left">
             {error}
           </div>
         )}
@@ -259,9 +254,9 @@ function CreatePageContent() {
         {/* The Master Creation Form */}
         <form onSubmit={handleGenerate} className="space-y-6">
           {/* Large Prompt Textarea */}
-          <div className="bg-white rounded-3xl border border-[#EFECE6] p-5 sm:p-7 shadow-[0_12px_40px_rgba(45,38,32,0.04)] focus-within:border-[#9A6F3C] focus-within:ring-4 focus-within:ring-[#9A6F3C]/10 transition-all">
-            <div className="flex items-center justify-between mb-3 text-xs text-[#9E968E]">
-              <span className="font-semibold uppercase tracking-wider text-[#6B635B] flex items-center gap-1.5">
+          <div className="bg-[#FAFAFA] dark:bg-[#141414] rounded-3xl border border-[#EAEAEA] dark:border-[#242424] p-5 sm:p-7 shadow-[0_8px_30px_rgba(0,0,0,0.02)] focus-within:border-[#111111] dark:focus-within:border-white transition-all">
+            <div className="flex items-center justify-between mb-3 text-xs text-[#888888]">
+              <span className="font-semibold uppercase tracking-wider text-[#444444] dark:text-[#CCCCCC] flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-[#9A6F3C]" /> Book Prompt
               </span>
               <span>{prompt.length} characters</span>
@@ -274,12 +269,12 @@ function CreatePageContent() {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Tell BookGenie what to create... e.g. Create a 60-page premium history book about the Mughal Empire for beginners. Include timelines, maps, important people, illustrations and chapter summaries."
-              className="w-full resize-none text-base sm:text-lg text-[#1A1612] placeholder:text-[#9E968E] bg-transparent focus:outline-none leading-relaxed"
+              className="w-full resize-none text-base sm:text-lg text-[#111111] dark:text-[#F5F5F5] placeholder:text-[#999999] bg-transparent focus:outline-none leading-relaxed font-sans"
             />
 
             {/* Quick Inspiration Pills */}
-            <div className="pt-4 border-t border-[#F4F1EA]">
-              <span className="text-[11px] font-semibold text-[#9E968E] block mb-2">
+            <div className="pt-4 border-t border-[#EFEFEF] dark:border-[#222222]">
+              <span className="text-[11px] font-semibold text-[#888888] block mb-2">
                 Need inspiration? Click any example:
               </span>
               <div className="flex flex-wrap gap-2">
@@ -288,7 +283,7 @@ function CreatePageContent() {
                     key={i}
                     type="button"
                     onClick={() => setPrompt(sug)}
-                    className="text-left text-xs bg-[#FDFBF7] hover:bg-[#F6EFE3] text-[#6B635B] hover:text-[#1A1612] px-3 py-1.5 rounded-xl border border-[#EFECE6] transition-colors line-clamp-1"
+                    className="text-left text-xs bg-white dark:bg-[#1E1E1E] hover:bg-[#F3F3F1] dark:hover:bg-[#282828] text-[#555555] dark:text-[#CCCCCC] hover:text-[#111111] dark:hover:text-white px-3 py-1.5 rounded-full border border-[#E5E5E5] dark:border-[#333333] transition-colors line-clamp-1 cursor-pointer"
                   >
                     “{sug}”
                   </button>
@@ -298,7 +293,7 @@ function CreatePageContent() {
           </div>
 
           {/* Controls Bar: Book Type, Language, Style */}
-          <div className="bg-white rounded-2xl border border-[#EFECE6] p-4 sm:p-5 shadow-xs flex flex-wrap items-center justify-between gap-4">
+          <div className="bg-[#FAFAFA] dark:bg-[#141414] rounded-2xl border border-[#EAEAEA] dark:border-[#242424] p-4 sm:p-5 shadow-2xs flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-3">
               <Dropdown
                 label="Book type"
@@ -326,10 +321,10 @@ function CreatePageContent() {
             {/* File Upload Trigger */}
             <label
               htmlFor="source-file-upload"
-              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-[#EFECE6] bg-[#FDFBF7] hover:bg-[#F4EFE6] text-xs font-semibold text-[#6B635B] hover:text-[#1A1612] cursor-pointer transition-colors shadow-2xs"
+              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-full border border-[#E5E5E5] dark:border-[#333333] bg-white dark:bg-[#1C1C1C] hover:bg-[#F7F7F6] dark:hover:bg-[#252525] text-xs font-semibold text-[#444444] dark:text-[#CCCCCC] hover:text-[#111111] dark:hover:text-white cursor-pointer transition-colors shadow-2xs"
             >
               <UploadCloud className="w-4 h-4 text-[#9A6F3C]" />
-              <span>Attach notes or text drafts (.txt, .md)</span>
+              <span>Attach notes (.txt, .md)</span>
               <input
                 id="source-file-upload"
                 aria-label="Attach source notes or draft document (.txt, .md)"
@@ -344,24 +339,24 @@ function CreatePageContent() {
 
           {/* Uploaded Files Tag List */}
           {uploadedFiles.length > 0 && (
-            <div className="bg-white rounded-2xl border border-[#EFECE6] p-4 flex flex-wrap gap-2.5">
-              <span className="w-full text-xs font-bold text-[#1A1612] mb-1">
+            <div className="bg-[#FAFAFA] dark:bg-[#141414] rounded-2xl border border-[#EAEAEA] dark:border-[#242424] p-4 flex flex-wrap gap-2.5">
+              <span className="w-full text-xs font-bold text-[#111111] dark:text-white mb-1">
                 Attached Source Materials ({uploadedFiles.length})
               </span>
               {uploadedFiles.map((file, idx) => (
                 <div
                   key={idx}
-                  className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-[#F8F4EC] border border-[#EADFCB] text-xs text-[#6B635B]"
+                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-[#202020] border border-[#E5E5E5] dark:border-[#333333] text-xs text-[#555555] dark:text-[#CCCCCC]"
                 >
                   <FileText className="w-3.5 h-3.5 text-[#9A6F3C]" />
-                  <span className="font-medium text-[#1A1612]">{file.name}</span>
-                  <span className="text-[10px] text-[#9E968E]">({file.size})</span>
+                  <span className="font-medium text-[#111111] dark:text-white">{file.name}</span>
+                  <span className="text-[10px] text-[#888888]">({file.size})</span>
                   <button
                     type="button"
                     onClick={() =>
                       setUploadedFiles((prev) => prev.filter((_, i) => i !== idx))
                     }
-                    className="text-[#9E968E] hover:text-red-600 ml-1"
+                    className="text-[#888888] hover:text-red-600 ml-1"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -372,22 +367,21 @@ function CreatePageContent() {
 
           {/* Big CTA Bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
-            <div className="flex items-center gap-2 text-xs text-[#9E968E]">
+            <div className="flex items-center gap-2 text-xs text-[#777777] dark:text-[#999999]">
               <Lock className="w-4 h-4 text-[#9A6F3C]" />
               <span>
-                Deterministic layout & page count. Multi-tier cost-controlled AI.
+                Deterministic layout &amp; page budgets. Private by design.
               </span>
             </div>
 
-            <Button
+            <button
               type="submit"
-              variant="primary"
-              size="lg"
-              isLoading={isSubmitting}
-              className="w-full sm:w-auto px-8 py-3.5 text-base font-semibold shadow-md"
+              disabled={isSubmitting}
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full text-sm font-semibold text-white bg-[#111111] hover:bg-black dark:bg-white dark:text-black dark:hover:bg-[#EAEAEA] transition-all shadow-sm active:scale-[0.98] cursor-pointer disabled:opacity-50 w-full sm:w-auto"
             >
-              Generate My Book <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
+              <span>{isSubmitting ? 'Initializing studio...' : 'Generate My Book'}</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
         </form>
       </main>

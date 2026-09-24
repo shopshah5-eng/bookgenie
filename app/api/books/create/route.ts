@@ -94,15 +94,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const normalizedBookType = String(bookType).toLowerCase().trim();
-    if (!ALLOWED_BOOK_TYPES.includes(normalizedBookType)) {
-      return NextResponse.json(
-        {
-          error: 'INVALID_BOOK_TYPE',
-          message: `Unsupported bookType "${bookType}". Allowed types: ${ALLOWED_BOOK_TYPES.join(', ')}`,
-        },
-        { status: 400 }
-      );
+    let normalizedBookType = String(bookType || 'auto').toLowerCase().trim();
+    if (normalizedBookType === 'cookbook') normalizedBookType = 'recipe';
+    if (normalizedBookType === 'other' || !ALLOWED_BOOK_TYPES.includes(normalizedBookType)) {
+      normalizedBookType = 'auto';
     }
 
     const normalizedLanguage = String(language).toLowerCase().trim();

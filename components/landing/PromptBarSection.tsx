@@ -45,7 +45,7 @@ export function PromptBarSection() {
       samplePrompt: 'A step-by-step field guide to sustainable urban gardening and balcony herbs for beginners...',
     },
     {
-      id: 'cookbook',
+      id: 'recipe',
       name: 'Cookbook',
       icon: '🍳',
       samplePrompt: 'An artisanal cookbook with 25 wholesome Mediterranean dinners made in under 30 minutes...',
@@ -63,7 +63,7 @@ export function PromptBarSection() {
       samplePrompt: 'A guided mindfulness and evening reflection journal with calm intentional prompts...',
     },
     {
-      id: 'other',
+      id: 'auto',
       name: 'Other',
       icon: '💬',
       samplePrompt: 'An illustrated botanical field guide exploring native mountain wildflowers and their folklore...',
