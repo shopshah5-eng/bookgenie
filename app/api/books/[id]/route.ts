@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GenerationPipeline } from '@/lib/ai/pipeline';
 import type { BookDocument } from '@/lib/book/types';
-import { getOceanWondersDemoBook } from '@/lib/book/demo-book';
+import { getDemoBook, getOceanWondersDemoBook } from '@/lib/book/demo-book';
 
 export { getOceanWondersDemoBook };
 
@@ -11,6 +11,11 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
+
+    const demoBook = getDemoBook(id);
+    if (demoBook) {
+      return NextResponse.json(demoBook);
+    }
 
     if (id === 'ocean-wonders' || id === 'demo-ocean-wonders') {
       return NextResponse.json(getOceanWondersDemoBook());

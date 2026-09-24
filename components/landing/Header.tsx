@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/components/auth/AuthContext';
 import { Button } from '@/components/ui/Button';
-import { BookOpen, Moon, Sun, Menu, X, ArrowRight, LogOut, Sparkles } from 'lucide-react';
+import { Search, Moon, Sun, Menu, X, ArrowRight, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export function Header() {
@@ -14,89 +14,113 @@ export function Header() {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const router = useRouter();
 
+  // Synchronize state with current HTML class on mount (default to minimal white)
+  useEffect(() => {
+    try {
+      const savedTheme = localStorage.getItem('bookgenie_theme_v2');
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+        setIsDark(true);
+      } else {
+        document.documentElement.classList.remove('dark');
+        setIsDark(false);
+      }
+    } catch (_) {
+      setIsDark(false);
+    }
+  }, []);
+
   const toggleTheme = () => {
-    setIsDark(!isDark);
-    if (!isDark) {
+    const nextDark = !isDark;
+    setIsDark(nextDark);
+    if (nextDark) {
       document.documentElement.classList.add('dark');
+      try {
+        localStorage.setItem('bookgenie_theme_v2', 'dark');
+      } catch (_) {}
     } else {
       document.documentElement.classList.remove('dark');
+      try {
+        localStorage.setItem('bookgenie_theme_v2', 'light');
+      } catch (_) {}
     }
   };
 
-
   const navLinks = [
-    { label: 'Create', href: '/create' },
-    { label: 'Explore', href: '/examples' },
-    { label: 'How It Works', href: '/how-it-works' },
+    { label: 'How it works', href: '/how-it-works' },
+    { label: 'Examples', href: '/examples' },
+    { label: 'Templates', href: '/#studio' },
     { label: 'Pricing', href: '/pricing' },
-    { label: 'Resources', href: '/faq', hasDropdown: true },
+    { label: 'Blog', href: '/faq' },
   ];
 
   return (
-    <div className="sticky top-0 z-50 w-full transition-all bg-[#FDFBF7]/90 dark:bg-[#12100E]/90 backdrop-blur-md border-b border-[#EDE6DC]/80 dark:border-[#26221D]">
-      <header className="max-w-7xl mx-auto px-4 sm:px-8 h-18 sm:h-20 flex items-center justify-between transition-all">
-        {/* Brand Wordmark & Open Book Icon + Subline */}
-        <Link href="/" className="flex items-center gap-3 group select-none">
-          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-[#8C5F2E] text-white shadow-xs transition-transform group-hover:scale-105">
-            <BookOpen className="w-5 h-5 stroke-[2]" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-[#181511] dark:text-[#F5F2EB] leading-none">
-              BookGenie
-            </span>
-            <span className="text-[9px] font-sans uppercase tracking-[0.22em] text-[#8C5F2E] dark:text-[#C49B66] font-semibold mt-1">
-              Turn Ideas Into Books
-            </span>
-          </div>
+    <div className="sticky top-0 z-50 w-full transition-all editorial-glass-header">
+      <header className="max-w-7xl mx-auto px-4 sm:px-8 h-18 flex items-center justify-between transition-all">
+        {/* Brand Wordmark with Gold Sparkle (Exact to Reference) */}
+        <Link href="/" className="flex items-center gap-1.5 group select-none">
+          <span className="text-amber-600 dark:text-amber-400 text-lg font-serif leading-none select-none">✦</span>
+          <span className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-[#111111] dark:text-[#F5F5F5] leading-none">
+            BookGenie
+          </span>
         </Link>
 
-        {/* Desktop Editorial Navigation */}
-        <nav className="hidden md:flex items-center gap-8 text-[13px] font-medium text-[#5A5249] dark:text-[#B3AAA0]">
+        {/* Center Editorial Navigation */}
+        <nav className="hidden md:flex items-center gap-7 text-[13px] font-normal text-[#444444] dark:text-[#A0A0A0]">
           {navLinks.map((link) => (
             <Link
               key={link.label}
               href={link.href}
-              className="hover:text-[#181511] dark:hover:text-[#F5F2EB] transition-colors py-1 flex items-center gap-1 group/link"
+              className="hover:text-[#111111] dark:hover:text-[#FFFFFF] transition-colors py-1"
             >
               <span>{link.label}</span>
-              {link.hasDropdown && (
-                <span className="text-[10px] text-[#8C5F2E] opacity-70 group-hover/link:opacity-100 transition-opacity">
-                  ▾
-                </span>
-              )}
             </Link>
           ))}
         </nav>
 
-        {/* Right CTA / Auth controls */}
-        <div className="hidden sm:flex items-center gap-4">
-          {/* Theme Toggle */}
+        {/* Right CTA / Search / Auth controls */}
+        <div className="hidden sm:flex items-center gap-3">
+          {/* Search Trigger */}
+          <button
+            onClick={() => router.push('/examples')}
+            className="p-2 text-[#555555] dark:text-[#A0A0A0] hover:text-[#111111] dark:hover:text-white transition-colors cursor-pointer"
+            aria-label="Search library"
+          >
+            <Search className="w-4 h-4" />
+          </button>
+
+          {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-full text-[#746B60] hover:text-[#181511] hover:bg-[#F1ECE2] dark:hover:bg-[#1C1917] transition-colors"
+            className="p-2 rounded-full text-[#555555] dark:text-[#A0A0A0] hover:text-[#111111] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
             aria-label="Toggle theme"
+            title={isDark ? "Switch to white mode" : "Switch to black mode"}
           >
-            {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#746B60]" />}
+            {isDark ? (
+              <Sun className="w-4 h-4 text-amber-400" />
+            ) : (
+              <Moon className="w-4 h-4 text-[#555555]" />
+            )}
           </button>
 
           {user ? (
             <div className="relative">
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#E5DFD5] bg-white dark:bg-[#1A1816] text-xs sm:text-sm font-medium text-[#181511] dark:text-[#F5F2EB] hover:bg-[#F9F7F2] transition-all shadow-2xs"
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#E5E5E5] dark:border-[#2C2C2C] bg-white dark:bg-[#1A1A1A] text-xs sm:text-sm font-medium text-[#111111] dark:text-[#F5F5F5] hover:bg-[#F9F9F8] transition-all shadow-2xs"
               >
-                <div className="w-6 h-6 rounded-full bg-[#F7EFE4] dark:bg-[#2A241E] text-[#8C5F2E] dark:text-[#C49B66] flex items-center justify-center font-bold text-xs">
+                <div className="w-6 h-6 rounded-full bg-[#F0EBE1] dark:bg-[#2A241E] text-[#8C5F2E] dark:text-[#D4AF37] flex items-center justify-center font-bold text-xs">
                   {user.email?.charAt(0).toUpperCase() || 'U'}
                 </div>
                 <span className="max-w-[100px] truncate">{user.user_metadata?.full_name || user.email?.split('@')[0]}</span>
               </button>
 
               {userDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 rounded-2xl bg-white dark:bg-[#1A1816] border border-[#E5DFD5] dark:border-[#2C2721] shadow-xl py-1.5 z-50">
+                <div className="absolute right-0 mt-2 w-48 rounded-2xl bg-white dark:bg-[#1A1A1A] border border-[#E5E5E5] dark:border-[#2C2C2C] shadow-xl py-1.5 z-50">
                   <Link
                     href="/create"
                     onClick={() => setUserDropdownOpen(false)}
-                    className="block px-4 py-2 text-xs text-[#181511] dark:text-[#F5F2EB] hover:bg-[#FDFBF7] dark:hover:bg-[#23201C] font-medium"
+                    className="block px-4 py-2 text-xs text-[#111111] dark:text-[#F5F5F5] hover:bg-[#F9F9F8] dark:hover:bg-[#252525] font-medium"
                   >
                     + Create New Book
                   </Link>
@@ -105,7 +129,7 @@ export function Header() {
                       setUserDropdownOpen(false);
                       signOut();
                     }}
-                    className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 flex items-center gap-2 font-medium"
+                    className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 flex items-center gap-2 font-medium cursor-pointer"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     Sign out
@@ -117,34 +141,35 @@ export function Header() {
             <>
               <button
                 onClick={() => openAuthModal('signin')}
-                className="text-xs sm:text-[13px] font-semibold text-[#181511] dark:text-[#F5F2EB] hover:text-[#8C5F2E] px-3 py-1.5 transition-colors"
+                className="text-xs sm:text-[13px] font-medium text-[#222222] dark:text-[#D5D5D5] hover:text-[#111111] dark:hover:text-white px-2 py-1.5 transition-colors cursor-pointer"
               >
-                Log in
+                Sign in
               </button>
 
+              {/* Exact reference pill button: Create a book -> */}
               <button
                 onClick={() => openAuthModal('signup', '/create')}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs sm:text-[13px] font-semibold text-white bg-gradient-to-r from-[#A87B45] to-[#8C5F2E] hover:from-[#B5854C] hover:to-[#966733] shadow-[0_2px_10px_rgba(140,95,46,0.25)] hover:shadow-[0_4px_14px_rgba(140,95,46,0.35)] transition-all active:scale-[0.98]"
+                className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-[13px] font-semibold text-white bg-[#111111] hover:bg-black dark:bg-white dark:text-black dark:hover:bg-[#EAEAEA] transition-all active:scale-[0.98] shadow-xs cursor-pointer"
               >
-                <span>Start Creating</span>
+                <span>Create a book</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </>
           )}
         </div>
 
-        {/* Mobile menu trigger button */}
-        <div className="flex sm:hidden items-center gap-2">
+        {/* Mobile action bar */}
+        <div className="flex sm:hidden items-center gap-1.5">
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-full text-[#746B60]"
+            className="p-2 rounded-full text-[#555555] dark:text-[#A0A0A0]"
             aria-label="Toggle theme"
           >
-            {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+            {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#555555]" />}
           </button>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-xl text-[#181511] hover:bg-[#F1ECE2]"
+            className="p-2 rounded-xl text-[#111111] dark:text-[#F5F5F5]"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -154,20 +179,20 @@ export function Header() {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="sm:hidden px-6 py-5 bg-[#FDFBF7] dark:bg-[#161412] border-b border-[#EDE6DC] dark:border-[#26221D] space-y-4 shadow-xl">
+        <div className="sm:hidden px-6 py-5 bg-white/95 dark:bg-[#111111]/95 backdrop-blur-xl border-b border-[#EAEAEA] dark:border-[#262626] space-y-4 shadow-xl">
           <nav className="flex flex-col space-y-3">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-medium text-[#181511] dark:text-[#F5F2EB] py-1 hover:text-[#8C5F2E]"
+                className="text-sm font-medium text-[#222222] dark:text-[#E0E0E0] py-1.5 hover:text-black dark:hover:text-white"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
-          <div className="pt-3 border-t border-[#EDE6DC] dark:border-[#26221D] flex flex-col gap-2.5">
+          <div className="pt-3 border-t border-[#EAEAEA] dark:border-[#262626] flex flex-col gap-2.5">
             {user ? (
               <>
                 <Button
@@ -199,18 +224,18 @@ export function Header() {
                     setMobileMenuOpen(false);
                     openAuthModal('signin');
                   }}
-                  className="w-full"
+                  className="w-full font-medium"
                 >
-                  Log in
+                  Sign in
                 </Button>
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
                     openAuthModal('signup', '/create');
                   }}
-                  className="w-full py-2.5 rounded-full text-center text-sm font-semibold text-white bg-gradient-to-r from-[#A87B45] to-[#8C5F2E]"
+                  className="w-full py-3 rounded-full text-center text-sm font-semibold text-white bg-[#111111] dark:bg-white dark:text-black shadow-sm"
                 >
-                  Start Creating →
+                  Create a book →
                 </button>
               </>
             )}

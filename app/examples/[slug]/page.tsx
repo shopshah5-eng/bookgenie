@@ -2,7 +2,8 @@
 
 import React, { use } from 'react';
 import Link from 'next/link';
-import { getOceanWondersDemoBook } from '@/lib/book/demo-book';
+import Image from 'next/image';
+import { getDemoBook, getOceanWondersDemoBook } from '@/lib/book/demo-book';
 import { Button } from '@/components/ui/Button';
 import { BookOpen, ChevronLeft, ChevronRight, ArrowLeft, ArrowRight, Sparkles, Download } from 'lucide-react';
 
@@ -12,7 +13,7 @@ export default function ExampleBookPreview({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  const book = getOceanWondersDemoBook();
+  const book = getDemoBook(slug) || getOceanWondersDemoBook();
   const [currentPageIndex, setCurrentPageIndex] = React.useState(0);
 
   const activePage = book.pages[currentPageIndex] || book.pages[0];
@@ -26,10 +27,10 @@ export default function ExampleBookPreview({
           <span className="flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-amber-200" />
             <span>
-              Demonstration Book: <strong>{book.title}</strong> (Complete {totalPages}-Page Edition · Interactive Reader)
+              Real Book Preview: <strong>{book.title}</strong> ({book.pageCount}-Page Edition · Interactive Reader)
             </span>
           </span>
-          <Link href="/create?prompt=Create a children's book like Ocean Wonders">
+          <Link href={`/create?prompt=A book titled ${encodeURIComponent(book.title)}&type=${book.bookType}`}>
             <span className="underline font-bold hover:text-amber-200 cursor-pointer">
               Generate a book like this →
             </span>
@@ -49,7 +50,7 @@ export default function ExampleBookPreview({
 
         <div className="flex items-center gap-2">
           <a
-            href="/api/books/demo-ocean-wonders/export?format=pdf"
+            href={`/api/books/${book.id}/export?format=pdf`}
             download
             className="inline-flex items-center gap-1.5 text-xs font-semibold py-2 px-3 rounded-xl border border-[#EFECE6] bg-white hover:bg-[#FDFBF7] shadow-2xs"
           >
@@ -76,6 +77,17 @@ export default function ExampleBookPreview({
           </div>
 
           <div className="space-y-4 my-auto">
+            {activePage.pageType === 'cover' && book.coverUrl && (
+              <div className="relative aspect-[3/4] max-w-[240px] mx-auto rounded-xl overflow-hidden shadow-lg border border-[#E8DFC8] mb-6">
+                <Image
+                  src={book.coverUrl}
+                  alt={book.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+
             {activePage.title && (
               <h2 className="font-serif font-bold text-2xl text-[#1A1612]">
                 {activePage.title}

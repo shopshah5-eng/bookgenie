@@ -53,8 +53,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${jakarta.variable}`}>
-      <body className="antialiased selection:bg-[#9A6F3C]/20 selection:text-[#1A1612]">
+    <html lang="en" suppressHydrationWarning className={`${playfair.variable} ${jakarta.variable}`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const savedTheme = localStorage.getItem('bookgenie_theme_v2');
+                if (savedTheme === 'dark') {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (_) {}
+            `,
+          }}
+        />
+      </head>
+      <body className="antialiased selection:bg-[#9A6F3C]/20 selection:text-[#111111] dark:selection:text-white bg-white dark:bg-[#0A0A0A] text-[#111111] dark:text-[#F5F5F5] transition-colors duration-200">
         {children}
       </body>
     </html>

@@ -1,307 +1,127 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
 import {
-  Sparkles,
-  Upload,
   ArrowRight,
-  Check,
-  ChevronDown,
+  Play,
+  CheckCircle2,
+  Sparkles,
 } from 'lucide-react';
 
 export function HeroSection() {
   const router = useRouter();
   const { user, openAuthModal } = useAuth();
 
-  const [prompt, setPrompt] = useState(
-    "A whimsical children's book about a little fox named Barnaby who discovers an ancient clockwork tree that controls the forest seasons..."
-  );
-  const [selectedType, setSelectedType] = useState('children');
-  const [selectedLanguage, setSelectedLanguage] = useState('en');
-  const [selectedStyle, setSelectedStyle] = useState('whimsical');
-
-  const handleGenerateClick = (e: React.FormEvent) => {
-    e.preventDefault();
-    const finalPrompt = prompt.trim() || "A whimsical children's book about a little fox named Barnaby who discovers an ancient clockwork tree that controls the forest seasons...";
-    const targetUrl = `/create?prompt=${encodeURIComponent(finalPrompt)}&type=${selectedType}&style=${selectedStyle}`;
-
+  const handleStart = () => {
     if (!user) {
-      sessionStorage.setItem('bg_pending_prompt', finalPrompt);
-      sessionStorage.setItem('bg_pending_type', selectedType);
-      openAuthModal('signup', targetUrl);
+      openAuthModal('signup', '/create');
     } else {
-      router.push(targetUrl);
+      router.push('/create');
     }
   };
 
   return (
-    <section className="relative overflow-hidden pt-6 sm:pt-10 pb-16 lg:pt-12 lg:pb-20">
+    <section className="relative overflow-hidden pt-8 sm:pt-14 pb-12 sm:pb-16 bg-white dark:bg-[#0A0A0A] transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Main Hero Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           
-          {/* Left Column: Typography & Creation Card */}
+          {/* Left Column: Typography & CTAs (Exact match to reference) */}
           <div className="lg:col-span-6 xl:col-span-6 flex flex-col items-start text-left z-10">
             
             {/* Pill Eyebrow */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F3ECE0] dark:bg-[#231E18] text-[#8C5F2E] dark:text-[#C49B66] border border-[#E5D7C3] dark:border-[#382F24] text-[11px] font-semibold tracking-wider uppercase mb-6 shadow-2xs">
-              <Sparkles className="w-3.5 h-3.5 text-[#A87B45]" />
-              <span>AI Powered Publishing</span>
+            <div className="inline-flex items-center px-3.5 py-1 rounded-full bg-[#F3F3F1] dark:bg-[#1E1E1E] text-[#666666] dark:text-[#A0A0A0] text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase mb-5 border border-[#E5E5E5] dark:border-[#2C2C2C]">
+              AI PUBLISHING STUDIO
             </div>
 
-            {/* Main Headline with Serif Italic Emphasis */}
-            <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-serif font-bold text-[#181511] dark:text-[#F8F5EE] tracking-tight leading-[1.12] mb-5">
-              Your Ideas Deserve a{' '}
-              <span className="italic font-normal font-serif text-[#8C5F2E] dark:text-[#C49B66]">
-                Beautiful Book.
-              </span>
+            {/* Main Headline */}
+            <h1 className="text-4xl sm:text-5xl lg:text-[56px] font-serif font-bold text-[#111111] dark:text-[#F5F5F5] tracking-tight leading-[1.08] mb-5">
+              Turn an idea into<br className="hidden sm:inline" /> a finished book.
             </h1>
 
             {/* Editorial Subtitle */}
-            <p className="text-base sm:text-[17px] text-[#6B635B] dark:text-[#A8A199] leading-relaxed max-w-xl mb-8 font-sans">
-              Transform your ideas, memories, or expertise into a professionally written, designed, and bound book. Powered by intelligent generation.
+            <p className="text-base sm:text-lg text-[#555555] dark:text-[#A0A0A0] leading-relaxed max-w-xl mb-8 font-sans">
+              BookGenie writes, structures, designs, illustrates, and prepares your book for publication.
             </p>
 
-            {/* Crisp White Prompt Card (Exact match to reference) */}
-            <form
-              onSubmit={handleGenerateClick}
-              className="w-full bg-white dark:bg-[#1A1816] rounded-2xl border border-[#EDE6DC] dark:border-[#2C2721] p-5 sm:p-6 shadow-[0_12px_40px_-8px_rgba(24,21,17,0.08)] transition-all hover:border-[#8C5F2E]/40"
-            >
-              {/* Text Input Header */}
-              <div className="flex items-center justify-between text-[#746B60] dark:text-[#A8A199] mb-2 uppercase tracking-wider">
-                <label htmlFor="hero-book-prompt" className="text-[10px] font-bold cursor-pointer">
-                  Describe Your Book
-                </label>
-                <span className="text-[11px] text-[#A8A199] lowercase italic font-serif">or paste a synopsis</span>
-              </div>
-
-              {/* Text Input Area */}
-              <div className="relative mb-4">
-                <textarea
-                  id="hero-book-prompt"
-                  name="bookPrompt"
-                  aria-label="Describe your book or paste a synopsis"
-                  rows={3}
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="A whimsical children's book about a little fox named Barnaby who discovers an ancient clockwork tree that controls the forest seasons..."
-                  className="w-full text-sm sm:text-[15px] text-[#181511] dark:text-[#F5F2EB] placeholder:text-[#A8A199] bg-[#FDFBF7]/60 dark:bg-[#201D1A] rounded-xl p-3 border border-[#EFEBE3] dark:border-[#2C2721] focus:outline-none focus:border-[#8C5F2E] resize-none leading-relaxed font-sans"
-                />
-              </div>
-
-              {/* Selection Badges Row (Exact from reference) */}
-              <div className="flex flex-wrap items-center gap-2 mb-4">
-                <button
-                  type="button"
-                  onClick={() => router.push('/create')}
-                  aria-label="Upload reference document notes"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E5DFD5] dark:border-[#2C2721] bg-[#FAF8F5] dark:bg-[#23201C] text-xs font-medium text-[#5A5249] dark:text-[#B3AAA0] hover:bg-white transition-colors cursor-pointer"
-                >
-                  <Upload className="w-3.5 h-3.5 text-[#8C5F2E]" />
-                  <span>Upload</span>
-                </button>
-
-                {/* Category selector */}
-                <div className="relative">
-                  <label htmlFor="hero-book-category" className="sr-only">
-                    Book Category
-                  </label>
-                  <select
-                    id="hero-book-category"
-                    name="bookCategory"
-                    aria-label="Select book category"
-                    value={selectedType}
-                    onChange={(e) => setSelectedType(e.target.value)}
-                    className="appearance-none inline-flex items-center gap-1 px-3 py-1.5 pr-6 rounded-lg border border-[#E5DFD5] dark:border-[#2C2721] bg-[#FAF8F5] dark:bg-[#23201C] text-xs font-medium text-[#5A5249] dark:text-[#B3AAA0] cursor-pointer focus:outline-none"
-                  >
-                    <option value="children">Children's Book</option>
-                    <option value="novel">Literary Fiction</option>
-                    <option value="coloring">Coloring Book</option>
-                    <option value="course">Study Guide</option>
-                    <option value="recipe">Cookbook</option>
-                    <option value="journal">Personal Journal</option>
-                  </select>
-                  <ChevronDown className="w-3 h-3 text-[#746B60] absolute right-2 top-2.5 pointer-events-none" />
-                </div>
-
-                {/* Language selector */}
-                <div className="relative">
-                  <label htmlFor="hero-book-language" className="sr-only">
-                    Language
-                  </label>
-                  <select
-                    id="hero-book-language"
-                    name="bookLanguage"
-                    aria-label="Select language"
-                    value={selectedLanguage}
-                    onChange={(e) => setSelectedLanguage(e.target.value)}
-                    className="appearance-none inline-flex items-center gap-1 px-3 py-1.5 pr-6 rounded-lg border border-[#E5DFD5] dark:border-[#2C2721] bg-[#FAF8F5] dark:bg-[#23201C] text-xs font-medium text-[#5A5249] dark:text-[#B3AAA0] cursor-pointer focus:outline-none"
-                  >
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                    <option value="fr">Français</option>
-                    <option value="de">Deutsch</option>
-                  </select>
-                  <ChevronDown className="w-3 h-3 text-[#746B60] absolute right-2 top-2.5 pointer-events-none" />
-                </div>
-
-                {/* Style selector */}
-                <div className="relative">
-                  <label htmlFor="hero-book-style" className="sr-only">
-                    Visual Style
-                  </label>
-                  <select
-                    id="hero-book-style"
-                    name="bookStyle"
-                    aria-label="Select visual style"
-                    value={selectedStyle}
-                    onChange={(e) => setSelectedStyle(e.target.value)}
-                    className="appearance-none inline-flex items-center gap-1 px-3 py-1.5 pr-6 rounded-lg border border-[#E5DFD5] dark:border-[#2C2721] bg-[#FAF8F5] dark:bg-[#23201C] text-xs font-medium text-[#5A5249] dark:text-[#B3AAA0] cursor-pointer focus:outline-none"
-                  >
-                    <option value="whimsical">Whimsical</option>
-                    <option value="editorial">Editorial</option>
-                    <option value="minimal">Minimalist</option>
-                    <option value="vintage">Vintage</option>
-                  </select>
-                  <ChevronDown className="w-3 h-3 text-[#746B60] absolute right-2 top-2.5 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Full-width warm bronze action button */}
+            {/* CTA Buttons Row */}
+            <div className="flex flex-wrap items-center gap-3.5 mb-8 w-full sm:w-auto">
               <button
-                type="submit"
-                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#A87B45] via-[#9A6F3C] to-[#8C5F2E] hover:from-[#B5854C] hover:to-[#966733] shadow-[0_4px_16px_rgba(140,95,46,0.3)] hover:shadow-[0_6px_20px_rgba(140,95,46,0.4)] transition-all active:scale-[0.99]"
+                onClick={handleStart}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full text-xs sm:text-sm font-semibold text-white bg-[#111111] hover:bg-black dark:bg-white dark:text-black dark:hover:bg-[#EAEAEA] transition-all shadow-sm active:scale-[0.98] cursor-pointer w-full sm:w-auto"
               >
-                <span>Create My Book</span>
+                <span>Create your book</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
-            </form>
+
+              <button
+                onClick={() => router.push('/examples/ocean-wonders')}
+                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-full text-xs sm:text-sm font-medium text-[#111111] dark:text-[#F5F5F5] bg-white dark:bg-[#1A1A1A] border border-[#E5E5E5] dark:border-[#2C2C2C] hover:bg-[#F9F9F8] dark:hover:bg-[#222222] transition-all shadow-2xs cursor-pointer w-full sm:w-auto"
+              >
+                <Play className="w-3.5 h-3.5 fill-current text-[#111111] dark:text-white" />
+                <span>Watch demo</span>
+              </button>
+            </div>
 
             {/* 4 Micro Feature Checks (Exact match from reference) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full mt-5 text-[11px] font-medium text-[#5A5249] dark:text-[#A8A199]">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full text-[11px] sm:text-xs text-[#666666] dark:text-[#999999] font-medium pt-2 border-t border-[#F0F0EE] dark:border-[#1E1E1E]">
               <div className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-[#8C5F2E] shrink-0" />
-                <span>Print-Ready PDF</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#888888] dark:text-[#777777] shrink-0" />
+                <span>No design skills required</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-[#8C5F2E] shrink-0" />
-                <span>Reflowable EPUB</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#888888] dark:text-[#777777] shrink-0" />
+                <span>Commercial rights</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-[#8C5F2E] shrink-0" />
-                <span>Custom Artwork</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#888888] dark:text-[#777777] shrink-0" />
+                <span>PDF + EPUB</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-[#8C5F2E] shrink-0" />
-                <span>Commercial Rights</span>
+                <Sparkles className="w-3.5 h-3.5 text-[#888888] dark:text-[#777777] shrink-0" />
+                <span>AI-powered publishing</span>
               </div>
             </div>
 
           </div>
 
-          {/* Right Column: Physical Hardcover Volume & Open Spread Studio Still-Life */}
+          {/* Right Column: Physical Hardcover & Book Stack Still-Life */}
           <div className="lg:col-span-6 xl:col-span-6 relative flex flex-col items-center justify-center select-none">
             
-            {/* Visual Still Life Composition */}
-            <div className="relative w-full max-w-[560px] aspect-[16/11] sm:aspect-[16/10] flex items-center justify-center">
-              
-              {/* Back Layer: Open Book Spread (Small Steps Big Adventures) */}
-              <div className="absolute right-0 sm:right-4 top-2 sm:top-4 w-[76%] sm:w-[72%] aspect-[4/3] rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(24,21,17,0.18)] border border-[#E5DFD5] transform rotate-1 transition-transform hover:rotate-0">
-                <Image
-                  src="/images/small-steps-open-spread.jpg"
-                  alt="Open book spread - Small Steps Big Adventures"
-                  fill
-                  sizes="(max-width: 768px) 100vw, 400px"
-                  priority
-                  className="object-cover"
-                />
-              </div>
+            {/* Visual Still Life Composition - Seamless Blend to Background */}
+            <div className="relative w-full max-w-[560px] aspect-[4/3] overflow-hidden [mask-image:radial-gradient(ellipse_at_center,black_65%,transparent_100%)] dark:[mask-image:radial-gradient(ellipse_at_center,black_60%,transparent_100%)] transition-transform duration-500 hover:scale-[1.01]">
+              <Image
+                src="/images/hero-brighter-you.jpg"
+                alt="Artisanal hardcover book edition with stack of volumes"
+                fill
+                sizes="(max-width: 1024px) 100vw, 560px"
+                priority
+                className="object-cover object-center"
+              />
+            </div>
 
-              {/* Front Layer: Leaning Hardcover Book (The Little Explorer) */}
-              <div className="absolute left-2 sm:left-4 -bottom-4 sm:-bottom-2 w-[54%] sm:w-[50%] aspect-[3/4] rounded-lg overflow-hidden shadow-[0_24px_60px_-10px_rgba(24,21,17,0.32)] border border-[#E5DFD5] transform -rotate-3 transition-transform hover:-rotate-1 z-20">
-                <Image
-                  src="/images/the-little-explorer-cover.jpg"
-                  alt="The Little Explorer hardcover book"
-                  fill
-                  sizes="(max-width: 768px) 100vw, 320px"
-                  priority
-                  className="object-cover"
-                />
-                {/* Physical Hardcover Spine & Hinge Shadow overlay */}
-                <div className="absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-r from-black/40 via-transparent to-transparent pointer-events-none" />
-                <div className="absolute left-3 top-0 bottom-0 w-[1px] bg-white/25 pointer-events-none" />
-              </div>
-
-              {/* Handwritten Cursive Callout (From the reference image) */}
-              <div className="absolute -bottom-8 right-2 sm:right-8 z-30 transform rotate-[-2deg] hidden sm:block">
-                <p className="font-serif italic text-sm sm:text-base text-[#8C5F2E] dark:text-[#C49B66] drop-shadow-xs font-normal">
-                  "From your imagination to a beautiful book — in minutes."
-                </p>
-              </div>
-
+            {/* Handwritten Cursive Callout with Hand-drawn Arrow */}
+            <div className="absolute -top-4 right-1 sm:right-4 z-20 hidden sm:flex flex-col items-end transform -rotate-2 select-none pointer-events-none">
+              <span className="font-serif italic text-sm sm:text-base text-[#3A3530] dark:text-[#E8C28A] tracking-wide">
+                Your ideas deserve a beautiful home.
+              </span>
+              <svg className="w-14 h-8 text-[#554E46] dark:text-[#D4AF37] -mr-2 mt-0.5" viewBox="0 0 56 32" fill="none" stroke="currentColor" strokeWidth="1.2">
+                <path d="M4 4 C 18 10, 36 6, 44 24 M 38 20 L 44 24 L 46 16" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
 
           </div>
 
-        </div>
-
-        {/* Metrics Bar with Hairline Dividers (From the reference mockup) */}
-        <div className="mt-16 pt-8 border-t border-[#EDE6DC] dark:border-[#26221D]">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div className="flex flex-col items-center">
-              <span className="font-serif text-2xl sm:text-3xl font-bold text-[#181511] dark:text-[#F8F5EE]">
-                10K+
-              </span>
-              <span className="text-xs text-[#746B60] dark:text-[#A8A199] mt-1">
-                Books Created
-              </span>
-            </div>
-
-            <div className="flex flex-col items-center border-l border-[#EDE6DC] dark:border-[#26221D]">
-              <span className="font-serif text-2xl sm:text-3xl font-bold text-[#181511] dark:text-[#F8F5EE]">
-                98%
-              </span>
-              <span className="text-xs text-[#746B60] dark:text-[#A8A199] mt-1">
-                User Satisfaction
-              </span>
-            </div>
-
-            <div className="flex flex-col items-center border-l-0 md:border-l border-[#EDE6DC] dark:border-[#26221D]">
-              <span className="font-serif text-2xl sm:text-3xl font-bold text-[#181511] dark:text-[#F8F5EE]">
-                190+
-              </span>
-              <span className="text-xs text-[#746B60] dark:text-[#A8A199] mt-1">
-                Countries
-              </span>
-            </div>
-
-            <div className="flex flex-col items-center border-l border-[#EDE6DC] dark:border-[#26221D]">
-              <span className="font-serif text-2xl sm:text-3xl font-bold text-[#8C5F2E] dark:text-[#C49B66]">
-                ∞
-              </span>
-              <span className="text-xs text-[#746B60] dark:text-[#A8A199] mt-1">
-                Stories Yet to Tell
-              </span>
-            </div>
-          </div>
-
-          {/* Publishing Studio Center Rule */}
-          <div className="relative flex items-center justify-center my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#EDE6DC] dark:border-[#26221D]" />
-            </div>
-            <span className="relative bg-[#FDFBF7] dark:bg-[#12100E] px-4 text-[10px] sm:text-[11px] font-semibold tracking-[0.2em] uppercase text-[#8C5F2E] dark:text-[#C49B66]">
-              More than a platform — a publishing studio
-            </span>
-          </div>
         </div>
 
       </div>
     </section>
   );
 }
+
+
 

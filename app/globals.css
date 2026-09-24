@@ -2,24 +2,24 @@
 
 @layer base {
   :root {
-    --canvas: #F8F4EC;
-    --canvas-pure: #FDFBF7;
-    --canvas-subtle: #F1ECE2;
-    --canvas-sand: #E9E1D4;
+    --canvas: #FFFFFF;
+    --canvas-pure: #FFFFFF;
+    --canvas-subtle: #FAFAFA;
+    --canvas-sand: #F5F5F5;
 
-    --foreground: #181511;
-    --foreground-muted: #746B60;
-    --foreground-faint: #9E968E;
+    --foreground: #111111;
+    --foreground-muted: #555555;
+    --foreground-faint: #888888;
     
     --card: #FFFFFF;
-    --card-foreground: #181511;
-    --border: rgba(24, 21, 17, 0.09);
-    --border-subtle: rgba(24, 21, 17, 0.05);
+    --card-foreground: #111111;
+    --border: #EAEAEA;
+    --border-subtle: #F2F2F2;
 
     --gold-primary: #A47A45;
     --gold-hover: #8C5F2E;
-    --gold-light: #F7EFE4;
-    --gold-border: #E5D5C0;
+    --gold-light: #F9F7F4;
+    --gold-border: #E8E5DF;
     --gold-gradient: linear-gradient(135deg, #B88E56 0%, #8C5F2E 100%);
 
     --font-serif: var(--font-playfair), 'Cormorant Garamond', Georgia, serif;
@@ -27,24 +27,24 @@
   }
 
   .dark {
-    --canvas: #12100E;
-    --canvas-pure: #181512;
-    --canvas-subtle: #1C1917;
-    --canvas-sand: #25201C;
-    --foreground: #F5F2EB;
-    --foreground-muted: #A8A199;
-    --foreground-faint: #6A645D;
+    --canvas: #0A0A0A;
+    --canvas-pure: #000000;
+    --canvas-subtle: #141414;
+    --canvas-sand: #1C1C1C;
+    --foreground: #F5F5F5;
+    --foreground-muted: #A0A0A0;
+    --foreground-faint: #666666;
 
-    --card: #181512;
-    --card-foreground: #F5F2EB;
-    --border: rgba(245, 242, 235, 0.1);
-    --border-subtle: rgba(245, 242, 235, 0.05);
+    --card: #141414;
+    --card-foreground: #F5F5F5;
+    --border: rgba(255, 255, 255, 0.1);
+    --border-subtle: rgba(255, 255, 255, 0.05);
 
-    --gold-primary: #B2834A;
-    --gold-hover: #C8995E;
-    --gold-light: #252019;
-    --gold-border: #4A3E31;
-    --gold-gradient: linear-gradient(135deg, #B2834A 0%, #8C5F2E 100%);
+    --gold-primary: #D4AF37;
+    --gold-hover: #E5C07B;
+    --gold-light: #1F1B12;
+    --gold-border: #3A3222;
+    --gold-gradient: linear-gradient(135deg, #D4AF37 0%, #A47A45 100%);
   }
 
   * {
@@ -74,10 +74,37 @@
 
 /* Subtle Paper Texture & Atmosphere */
 .paper-atmosphere {
-  background-color: #F8F4EC;
+  background-color: var(--canvas);
   background-image: 
-    radial-gradient(ellipse at top left, rgba(255, 255, 255, 0.8) 0%, transparent 60%),
-    radial-gradient(ellipse at bottom right, rgba(233, 225, 212, 0.45) 0%, transparent 70%);
+    radial-gradient(ellipse at 15% 0%, rgba(200, 160, 100, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 100%, rgba(140, 95, 46, 0.06) 0%, transparent 60%);
+}
+
+.dark .paper-atmosphere {
+  background-color: var(--canvas);
+  background-image: 
+    radial-gradient(ellipse at 20% 0%, rgba(184, 142, 86, 0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(200, 153, 94, 0.04) 0%, transparent 60%);
+}
+
+/* Paper Grain Overlay disabled for clean minimal white background */
+.paper-grain-overlay {
+  display: none !important;
+}
+
+/* Sub-pixel Illuminated Edge & Luxury Depth */
+.subpixel-card {
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.75),
+    0 1px 2px rgba(24, 21, 17, 0.04),
+    0 12px 32px -8px rgba(24, 21, 17, 0.08);
+}
+
+.dark .subpixel-card {
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.09),
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 12px 32px -8px rgba(0, 0, 0, 0.6);
 }
 
 /* Subtle Book Float Animation */
@@ -115,6 +142,13 @@
     0 24px 48px -12px rgba(24, 21, 17, 0.12);
 }
 
+.dark .book-shadow {
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    0 16px 36px -6px rgba(0, 0, 0, 0.55),
+    0 32px 64px -12px rgba(0, 0, 0, 0.45);
+}
+
 .book-spine-shadow {
   box-shadow: inset -4px 0 8px -2px rgba(0, 0, 0, 0.35);
 }
@@ -131,23 +165,29 @@
   background: #D9D2C7;
   border-radius: 9999px;
 }
+.dark ::-webkit-scrollbar-thumb {
+  background: #3A322A;
+}
 ::-webkit-scrollbar-thumb:hover {
   background: #B8B0A2;
 }
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #52473D;
+}
 
-/* Editorial Floating Glass Header */
+/* Editorial Floating Glass Header: Truly Transparent with High Blur */
 .editorial-glass-header {
-  background: rgba(253, 251, 247, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(24, 21, 17, 0.08);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid #EAEAEA;
 }
 
 .dark .editorial-glass-header {
-  background: rgba(24, 21, 18, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(245, 242, 235, 0.1);
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .gold-gradient-bg {

@@ -3,7 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { GenerationPipeline } from '@/lib/ai/pipeline';
-import { getOceanWondersDemoBook } from '../route';
+import { getDemoBook, getOceanWondersDemoBook } from '@/lib/book/demo-book';
 import { generateBookPdfBuffer } from '@/lib/book/pdf-generator';
 import { escapeHtml, sanitizeFilename } from '@/lib/utils/sanitize';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
@@ -176,7 +176,8 @@ export async function GET(
     }
 
     let book: BookDocument | null = null;
-    const isPublicDemo = id === 'ocean-wonders' || id === 'demo-ocean-wonders';
+    const demoMatch = getDemoBook(id);
+    const isPublicDemo = Boolean(demoMatch) || id === 'ocean-wonders' || id === 'demo-ocean-wonders';
 
     // 2. Fetch from Supabase PostgreSQL
     try {
@@ -224,7 +225,9 @@ export async function GET(
     }
 
     if (!book) {
-      if (isPublicDemo) {
+      if (demoMatch) {
+        book = demoMatch;
+      } else if (isPublicDemo) {
         book = getOceanWondersDemoBook();
       } else {
         return NextResponse.json({ error: 'Book not found.' }, { status: 404 });

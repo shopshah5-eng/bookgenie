@@ -5,52 +5,52 @@ import { AuthProvider } from '@/components/auth/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { Header } from '@/components/landing/Header';
 import { HeroSection } from '@/components/landing/HeroSection';
-import { WhatCanYouCreate } from '@/components/landing/WhatCanYouCreate';
+import { PromptBarSection } from '@/components/landing/PromptBarSection';
 import { PromptToPageShowcase } from '@/components/landing/PromptToPageShowcase';
-import { ExportShareSection } from '@/components/landing/ExportShareSection';
 import { BookShowcase } from '@/components/landing/BookShowcase';
+import { StudioAndCategoriesSection } from '@/components/landing/StudioAndCategoriesSection';
 import { Testimonials } from '@/components/landing/Testimonials';
-import { MyEbookShelf } from '@/components/landing/MyEbookShelf';
 import { CallToActionBanner } from '@/components/landing/CallToActionBanner';
 import { Footer } from '@/components/landing/Footer';
 
 export default function HomePage() {
   return (
     <AuthProvider>
-      <div className="min-h-screen flex flex-col bg-[#FDFBF7] dark:bg-[#12100E] text-[#181511] dark:text-[#F8F5EE]">
-        {/* 01 Seamless Luxury Studio Header */}
+      <div className="min-h-screen flex flex-col bg-white dark:bg-[#000000] text-neutral-900 dark:text-neutral-50 transition-colors duration-300">
+        {/* 01 Sticky Editorial Glass Header with Theme Switcher */}
         <Header />
 
-        {/* Main Publishing Studio Flow */}
+        {/* Main Landing Page Flow */}
         <main className="flex-1">
-          {/* 02 Cinematic Hero: Manuscript Card + Standing Book Still Life + Metrics */}
+          {/* 02 Editorial Hero: AI Publishing Studio + Standing Book Mockup */}
           <HeroSection />
 
-          {/* 03 Create Anything Worth Reading: Realistic Standing Hardcover Shelf */}
-          <div id="what-can-you-create">
-            <WhatCanYouCreate />
+          {/* 03 What do you want to create today? Standalone Prompt & Category Pills */}
+          <PromptBarSection />
+
+          {/* 04 From blank page to bound book: 6-Step Workflow */}
+          <div id="workflow">
+            <PromptToPageShowcase />
           </div>
 
-          {/* 04 From Prompt to Pages: Visual 6-Step Studio Workflow */}
-          <PromptToPageShowcase />
+          {/* 05 Made with BookGenie: 4-Book Showcase */}
+          <div id="examples">
+            <BookShowcase />
+          </div>
 
-          {/* 05 Export, Share, Inspire: Open Spread & 3 Action Pills */}
-          <ExportShareSection />
+          {/* 06 Meet your publishing studio + One studio. Every kind of book. */}
+          <div id="studio">
+            <StudioAndCategoriesSection />
+          </div>
 
-          {/* 06 The BookGenie Library: Curated Digital Bookstore */}
-          <BookShowcase />
-
-          {/* 07 From Idea to Publication: Spotlights & Testimonials */}
+          {/* 07 Your work stays yours: 5 Trust Badges + Priya S. Testimonial */}
           <Testimonials />
 
-          {/* 08 Authentic User Library Shelf */}
-          <MyEbookShelf />
-
-          {/* 09 Final Studio Invitation CTA */}
+          {/* 08 Pre-Footer Call to Action Banner + Book Spine Still Life */}
           <CallToActionBanner />
         </main>
 
-        {/* 10 Editorial Footer */}
+        {/* 09 Minimalist Footer */}
         <Footer />
 
         {/* Centered Backdrop-Blur Authentication Modal */}
@@ -59,3 +59,4 @@ export default function HomePage() {
     </AuthProvider>
   );
 }
+

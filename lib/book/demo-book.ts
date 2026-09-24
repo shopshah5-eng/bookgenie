@@ -1,5 +1,314 @@
 import type { BookDocument } from '@/lib/book/types';
 
+export function getStarExplorerDemoBook(): BookDocument {
+  return {
+    schemaVersion: 1,
+    id: 'star-explorer',
+    userId: 'public-demo-user',
+    title: 'The Little Star Explorer',
+    subtitle: 'A Bedtime Journey Through Starlit Nebulae & Distant Moons',
+    bookType: 'children',
+    language: 'English',
+    style: 'Storybook Illustration',
+    pageCount: 28,
+    coverUrl: '/images/cover-star-explorer.jpg',
+    versionNumber: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    blueprint: {
+      title: 'The Little Star Explorer',
+      subtitle: 'A Bedtime Journey Through Starlit Nebulae & Distant Moons',
+      bookType: 'children',
+      audience: 'Young Explorers (Ages 4-8)',
+      language: 'English',
+      style: 'Vibrant Storybook Watercolor',
+      pageTarget: 28,
+      chapters: [
+        { index: 1, title: 'The Starlight Pocket', summary: 'Leo finds a tiny luminous star sleeping inside his telescope.', allocatedPages: 7 },
+        { index: 2, title: 'Sailing the Milky Stream', summary: 'Building a cardboard rocket powered by bedtime giggles.', allocatedPages: 7 },
+        { index: 3, title: 'The Cloud of Whispering Comets', summary: 'Friendly comets playing hide-and-seek among Saturn rings.', allocatedPages: 7 },
+        { index: 4, title: 'Safe Return to the Moonbeam Cradle', summary: 'Tucking the little star into bed beneath starry quilts.', allocatedPages: 7 },
+      ],
+      visualPlan: [
+        { pageNumber: 1, visualType: 'cover', promptSpec: 'Little astronaut boy smiling among golden stars and swirl galaxy.', layout: 'full-bleed' },
+        { pageNumber: 2, visualType: 'illustration', promptSpec: 'Leo gazing through a brass telescope on his bedroom balcony at dusk.', layout: 'image-right' },
+        { pageNumber: 5, visualType: 'illustration', promptSpec: 'A glowing baby star illuminating Leo’s hands with warm golden light.', layout: 'image-top' },
+      ],
+      characterBible: {
+        protagonist: 'Leo: A curious 6-year-old in a soft astronaut suit with a heart for cosmic bedtime adventures.',
+      },
+    },
+    pages: [
+      {
+        pageNumber: 1,
+        chapterIndex: 1,
+        title: 'Title Page',
+        pageType: 'cover',
+        layout: 'full-bleed',
+        blocks: [
+          { id: 'se-1', type: 'heading', level: 1, text: 'The Little Star Explorer' },
+          { id: 'se-2', type: 'paragraph', text: 'Written & Illustrated by Sarah J. Jenkins • BookGenie Edition' },
+        ],
+      },
+      {
+        pageNumber: 2,
+        chapterIndex: 1,
+        title: 'The Rooftop Telescope',
+        pageType: 'chapter_header',
+        layout: 'image-right',
+        blocks: [
+          { id: 'se-3', type: 'heading', level: 1, text: 'Chapter 1: The Starlight Pocket' },
+          { id: 'se-4', type: 'paragraph', text: 'When the evening lamps turned violet across the valley, Leo climbed to the attic window with his silver helmet tucked under his arm.' },
+          { id: 'se-5', type: 'paragraph', text: '“Tonight,” he whispered to his toy bear Astro, “the constellation of the Silver Bear is awake.”' },
+        ],
+      },
+      {
+        pageNumber: 3,
+        chapterIndex: 1,
+        title: 'A Sparkle in the Lens',
+        pageType: 'content',
+        layout: 'standard',
+        blocks: [
+          { id: 'se-6', type: 'paragraph', text: 'He peered into the glass lens. Far beyond the pine trees, something flickered—not like a distant star, but like a firefly trapped in spun sugar.' },
+          { id: 'se-7', type: 'quote', text: '“Even the smallest spark can light up the deepest night.”' },
+          { id: 'se-8', type: 'paragraph', text: 'Suddenly, with a soft chime like a silver bell, a pocket of stardust floated straight through the open window and settled in Leo’s palm.' },
+        ],
+      },
+      {
+        pageNumber: 4,
+        chapterIndex: 2,
+        title: 'The Cardboard Voyage',
+        pageType: 'chapter_header',
+        layout: 'standard',
+        blocks: [
+          { id: 'se-9', type: 'heading', level: 1, text: 'Chapter 2: Sailing the Milky Stream' },
+          { id: 'se-10', type: 'paragraph', text: 'With wings cut from cereal boxes and thrusters powered by imagination, Leo’s bed began to levitate above the wooden floorboards, drifting softly out into the indigo expanse.' },
+        ],
+      },
+    ],
+  };
+}
+
+export function getMindfulMorningDemoBook(): BookDocument {
+  return {
+    schemaVersion: 1,
+    id: 'mindful-morning',
+    userId: 'public-demo-user',
+    title: 'The Mindful Morning',
+    subtitle: 'A Gentle Guide to Intentional Living & Daily Wellness',
+    bookType: 'guide',
+    language: 'English',
+    style: 'Minimal Editorial',
+    pageCount: 64,
+    coverUrl: '/images/cover-mindful-morning.jpg',
+    versionNumber: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    blueprint: {
+      title: 'The Mindful Morning',
+      subtitle: 'A Gentle Guide to Intentional Living & Daily Wellness',
+      bookType: 'guide',
+      audience: 'Creative Professionals & Wellness Seekers',
+      language: 'English',
+      style: 'Minimal Swiss Editorial',
+      pageTarget: 64,
+      chapters: [
+        { index: 1, title: 'The Architecture of Dawn', summary: 'Understanding cortisol waking rhythms and circadian alignment.', allocatedPages: 16 },
+        { index: 2, title: 'The First 30 Minutes', summary: 'Digital sanctuary, tactile stillness, and hydration rituals.', allocatedPages: 16 },
+        { index: 3, title: 'Clarity Before Noise', summary: 'Morning pages, three priorities rule, and focused breathing.', allocatedPages: 16 },
+        { index: 4, title: 'Sustaining the Signal', summary: 'Transitioning calm focus into creative execution.', allocatedPages: 16 },
+      ],
+      visualPlan: [
+        { pageNumber: 1, visualType: 'cover', promptSpec: 'Sunrise over misty mountain ridge, serene and minimal.', layout: 'full-bleed' },
+      ],
+    },
+    pages: [
+      {
+        pageNumber: 1,
+        chapterIndex: 1,
+        title: 'Title Page',
+        pageType: 'cover',
+        layout: 'full-bleed',
+        blocks: [
+          { id: 'mm-1', type: 'heading', level: 1, text: 'The Mindful Morning' },
+          { id: 'mm-2', type: 'paragraph', text: 'By Eliza Reed • 21 Days to Intentional Living' },
+        ],
+      },
+      {
+        pageNumber: 2,
+        chapterIndex: 1,
+        title: 'The Architecture of Dawn',
+        pageType: 'chapter_header',
+        layout: 'standard',
+        blocks: [
+          { id: 'mm-3', type: 'heading', level: 1, text: 'Part I: The Architecture of Dawn' },
+          { id: 'mm-4', type: 'paragraph', text: 'How you meet the dawn determines how you inhabit the rest of the day. In the stillness before notifications arrive, your nervous system is open, malleable, and waiting for an anchor.' },
+        ],
+      },
+      {
+        pageNumber: 3,
+        chapterIndex: 1,
+        title: 'Three Principles of Gentle Awakening',
+        pageType: 'content',
+        layout: 'standard',
+        blocks: [
+          { id: 'mm-5', type: 'heading', level: 2, text: 'The Core Tenet' },
+          { id: 'mm-6', type: 'quote', text: '“Do not consume someone else’s urgency before you have honored your own stillness.”' },
+          {
+            id: 'mm-7',
+            type: 'list',
+            items: [
+              'Natural Light Priming: 5 to 10 minutes of direct morning sunlight to signal dopamine release.',
+              'Cellular Hydration: Warm mineral water with sea salt and lemon before caffeine.',
+              'Unmediated Thought: Keeping the phone in another room until your primary intention is set.',
+            ],
+          },
+        ],
+      },
+    ],
+  };
+}
+
+export function getFlavoursOfHomeDemoBook(): BookDocument {
+  return {
+    schemaVersion: 1,
+    id: 'flavours-home',
+    userId: 'public-demo-user',
+    title: 'Flavours of Home',
+    subtitle: 'Mediterranean Recipes for Comforting Meals',
+    bookType: 'recipe',
+    language: 'English',
+    style: 'Artisanal Culinary',
+    pageCount: 72,
+    coverUrl: '/images/cover-flavours-home.jpg',
+    versionNumber: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    blueprint: {
+      title: 'Flavours of Home',
+      subtitle: 'Mediterranean Recipes for Comforting Meals',
+      bookType: 'recipe',
+      audience: 'Home Cooks & Food Lovers',
+      language: 'English',
+      style: 'Warm Linen & Ceramic Photography',
+      pageTarget: 72,
+      chapters: [
+        { index: 1, title: 'The Olive Grove Pantry', summary: 'Extra virgin olive oils, wild oregano, flaky salt, and crusty sourdough.', allocatedPages: 18 },
+        { index: 2, title: 'Sun-Drenched Garden Starters', summary: 'Roasted peppers, whipped feta, marinated olives, and warm focaccia.', allocatedPages: 18 },
+        { index: 3, title: 'Slow-Simmered Hearth Mains', summary: 'Orecchiette with blistered cherry tomatoes, braised sea bass, and lemon chicken.', allocatedPages: 18 },
+        { index: 4, title: 'Sweet Fig & Almond Evenings', summary: 'Honey cakes, roasted figs with thyme, and espresso.', allocatedPages: 18 },
+      ],
+      visualPlan: [],
+    },
+    pages: [
+      {
+        pageNumber: 1,
+        chapterIndex: 1,
+        title: 'Title Page',
+        pageType: 'cover',
+        layout: 'full-bleed',
+        blocks: [
+          { id: 'fh-1', type: 'heading', level: 1, text: 'Flavours of Home' },
+          { id: 'fh-2', type: 'paragraph', text: 'By Elena Pappas • Heritage Recipes for the Modern Table' },
+        ],
+      },
+      {
+        pageNumber: 2,
+        chapterIndex: 1,
+        title: 'Blistered Tomato & Ricotta Orecchiette',
+        pageType: 'content',
+        layout: 'standard',
+        blocks: [
+          { id: 'fh-3', type: 'heading', level: 1, text: 'Orecchiette with Blistered Summer Tomatoes' },
+          { id: 'fh-4', type: 'paragraph', text: 'Preparation Time: 15 mins • Cooking Time: 20 mins • Servings: 4' },
+          {
+            id: 'fh-5',
+            type: 'list',
+            items: [
+              '400g Artisanal dried orecchiette pasta',
+              '500g Sweet cherry tomatoes on the vine',
+              '4 cloves Garlic, thinly shaved',
+              '1/3 cup First cold-pressed extra virgin olive oil',
+              '200g Fresh sheep’s milk ricotta or aged feta',
+              'Handful fresh basil leaves, torn',
+            ],
+          },
+          { id: 'fh-6', type: 'paragraph', text: 'Heat oil in a wide cast iron skillet until shimmering. Drop the garlic and tomatoes together, allowing the skins to blister and burst into fragrant sweet juices...' },
+        ],
+      },
+    ],
+  };
+}
+
+export function getSilentPathDemoBook(): BookDocument {
+  return {
+    schemaVersion: 1,
+    id: 'silent-path',
+    userId: 'public-demo-user',
+    title: 'The Silent Path',
+    subtitle: 'A Novel of Memory, Mist, and Mountain Solitude',
+    bookType: 'novel',
+    language: 'English',
+    style: 'Classic Literary',
+    pageCount: 320,
+    coverUrl: '/images/cover-silent-path.jpg',
+    versionNumber: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    blueprint: {
+      title: 'The Silent Path',
+      subtitle: 'A Novel of Memory, Mist, and Mountain Solitude',
+      bookType: 'novel',
+      audience: 'Literary Fiction Readers',
+      language: 'English',
+      style: 'Atmospheric Northern Gothic',
+      pageTarget: 320,
+      chapters: [
+        { index: 1, title: 'The Bell of St. Jude', summary: 'An old postman arrives at an abandoned alpine observatory.', allocatedPages: 80 },
+        { index: 2, title: 'Frost on the Barometer', summary: 'Deciphering handwritten weather journals from the winter of 1924.', allocatedPages: 80 },
+        { index: 3, title: 'The Echo Across the Pass', summary: 'A single lantern moving through the midnight blizzard.', allocatedPages: 80 },
+        { index: 4, title: 'Return of the Thaw', summary: 'Discovering what was buried beneath sixty feet of silence.', allocatedPages: 80 },
+      ],
+      visualPlan: [],
+    },
+    pages: [
+      {
+        pageNumber: 1,
+        chapterIndex: 1,
+        title: 'Title Page',
+        pageType: 'cover',
+        layout: 'full-bleed',
+        blocks: [
+          { id: 'sp-1', type: 'heading', level: 1, text: 'The Silent Path' },
+          { id: 'sp-2', type: 'paragraph', text: 'A Novel by Clara Vance • Harper Collins Edition' },
+        ],
+      },
+      {
+        pageNumber: 2,
+        chapterIndex: 1,
+        title: 'Chapter 1: The Bell of St. Jude',
+        pageType: 'chapter_header',
+        layout: 'standard',
+        blocks: [
+          { id: 'sp-3', type: 'heading', level: 1, text: 'Chapter 1: The Bell of St. Jude' },
+          { id: 'sp-4', type: 'paragraph', text: 'The road ended where the pine trees turned grey with lichen. Beyond that lay only the scree slopes of Monte Corvo and the low, unrelenting hum of wind shearing against quartzite.' },
+          { id: 'sp-5', type: 'paragraph', text: 'Julian pulled the collar of his wool greatcoat up against the salt mist. In his leather rucksack rested three letters that had taken forty years to arrive.' },
+        ],
+      },
+    ],
+  };
+}
+
+export function getDemoBook(slug: string): BookDocument | null {
+  const normalized = slug.toLowerCase().replace(/^(demo-)/, '');
+  if (normalized === 'ocean-wonders') return getOceanWondersDemoBook();
+  if (normalized === 'star-explorer' || normalized === 'the-little-star-explorer') return getStarExplorerDemoBook();
+  if (normalized === 'mindful-morning' || normalized === 'the-mindful-morning') return getMindfulMorningDemoBook();
+  if (normalized === 'flavours-home' || normalized === 'flavours-of-home') return getFlavoursOfHomeDemoBook();
+  if (normalized === 'silent-path' || normalized === 'the-silent-path') return getSilentPathDemoBook();
+  return null;
+}
+
 export function getOceanWondersDemoBook(): BookDocument {
   return {
     schemaVersion: 1,
