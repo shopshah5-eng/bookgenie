@@ -73,9 +73,6 @@ export function BookShowcase() {
         {/* Section Header */}
         <div className="flex flex-row items-baseline justify-between mb-8 sm:mb-10">
           <div>
-            <div className="inline-flex items-center px-3 py-0.5 rounded-full bg-[#F3F3F1] dark:bg-[#1E1E1E] text-[#666666] dark:text-[#A0A0A0] text-[10px] font-semibold tracking-wider uppercase mb-2 border border-[#E5E5E5] dark:border-[#2C2C2C]">
-              SHOWCASE LIBRARY
-            </div>
             <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#111111] dark:text-[#F5F5F5] tracking-tight">
               Explore the BookGenie Library
             </h2>

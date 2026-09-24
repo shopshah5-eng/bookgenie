@@ -27,10 +27,6 @@ export function Testimonials() {
           
           {/* Left Column: Heading & 5 Trust Badges */}
           <div className="lg:col-span-7 flex flex-col items-start">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#F3F3F1] dark:bg-[#1E1E1E] text-[#666666] dark:text-[#A0A0A0] text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase mb-3 border border-[#E5E5E5] dark:border-[#2C2C2C]">
-              INTELLECTUAL PROPERTY &amp; SECURITY
-            </div>
-
             <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#111111] dark:text-[#F5F5F5] tracking-tight mb-3">
               Your work stays yours. Private by design.
             </h2>

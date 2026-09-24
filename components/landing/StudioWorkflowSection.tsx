@@ -36,9 +36,6 @@ export function StudioWorkflowSection() {
         
         {/* Section Header */}
         <div className="max-w-3xl mb-8 sm:mb-12">
-          <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#F3F3F1] dark:bg-[#1E1E1E] text-[#666666] dark:text-[#A0A0A0] text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase mb-3 border border-[#E5E5E5] dark:border-[#2C2C2C]">
-            STUDIO WORKSPACE
-          </div>
           <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#111111] dark:text-[#F5F5F5] tracking-tight">
             Meet your publishing studio.
           </h2>
