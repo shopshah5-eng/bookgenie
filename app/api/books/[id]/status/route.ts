@@ -120,9 +120,9 @@ export async function GET(
       },
       { status: 404 }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     return NextResponse.json(
-      { error: err.message || 'Failed to fetch status.' },
+      { error: err instanceof Error ? err.message : 'Failed to fetch status.' },
       { status: 500 }
     );
   }

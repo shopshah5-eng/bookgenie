@@ -2,7 +2,6 @@
 
 import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/components/auth/AuthContext';
 import {
   ArrowRight,
   Upload,
@@ -22,7 +21,6 @@ interface CategoryPreset {
 
 export function PromptBarSection() {
   const router = useRouter();
-  const { user, openAuthModal } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const categories: CategoryPreset[] = [
@@ -141,7 +139,7 @@ export function PromptBarSection() {
       sessionStorage.setItem('bg_pending_type', activeCategory);
       sessionStorage.setItem('bg_pending_lang', selectedLanguage);
       sessionStorage.setItem('bg_pending_style', selectedStyle);
-    } catch (_) {}
+    } catch {}
 
     router.push(targetUrl);
   };

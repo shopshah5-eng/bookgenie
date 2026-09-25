@@ -4,8 +4,7 @@
 import { OpenRouterTextProvider } from './openrouter';
 import { GeminiImageProvider } from './gemini';
 import { PollinationsImageProvider } from './pollinations';
-import { AICostController } from './cost-controller';
-import type { BookBlueprint, BookDocument, BookPageDocument, BookType } from '@/lib/book/types';
+import type { BookDocument, BookPageDocument, BookType } from '@/lib/book/types';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 // In-memory store for local dev when Supabase keys are placeholder
@@ -168,7 +167,7 @@ export class GenerationPipeline {
 
     // Helper timeout guard for third-party model latency
     const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number, fallback: T): Promise<T> => {
-      let timeoutHandle: any;
+      let timeoutHandle: ReturnType<typeof setTimeout>;
       const timeoutPromise = new Promise<T>((resolve) => {
         timeoutHandle = setTimeout(() => resolve(fallback), timeoutMs);
       });
@@ -310,7 +309,7 @@ export class GenerationPipeline {
             status: 'completed',
             progress: 100,
             page_count: canonicalPages.length,
-            blueprint: blueprint as any,
+            blueprint: JSON.parse(JSON.stringify(blueprint)),
           })
           .eq('id', bookId);
 
@@ -332,7 +331,7 @@ export class GenerationPipeline {
         await supabase.from('book_versions').insert({
           book_id: bookId,
           version_number: 1,
-          document_snapshot: finalDocument as any,
+          document_snapshot: JSON.parse(JSON.stringify(finalDocument)),
           change_instruction: 'Initial Generation',
         });
       } catch (persistErr) {
@@ -345,12 +344,12 @@ export class GenerationPipeline {
         progress: 100,
         step: 'Your Book Is Ready',
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Pipeline job failed:', err);
       await updateJob({
         status: 'failed',
         stage: 'failed',
-        error: err.message || 'Generation failed during processing.',
+        error: err instanceof Error ? err.message : 'Generation failed during processing.',
       });
     }
   }

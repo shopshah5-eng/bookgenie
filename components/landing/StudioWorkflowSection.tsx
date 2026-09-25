@@ -90,7 +90,7 @@ export function StudioWorkflowSection() {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as 'blueprint' | 'writing' | 'visuals' | 'design' | 'verify' | 'export')}
                   className={`flex items-center gap-2 py-3.5 text-xs font-medium transition-all border-b-2 cursor-pointer whitespace-nowrap ${
                     isActive
                       ? 'border-[#111111] dark:border-white text-[#111111] dark:text-white font-semibold'

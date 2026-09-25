@@ -7,7 +7,7 @@ import { Footer } from '@/components/landing/Footer';
 import { AuthProvider } from '@/components/auth/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { Button } from '@/components/ui/Button';
-import { ChevronDown, Sparkles, ShieldCheck, Lock, CheckCircle2 } from 'lucide-react';
+import { ChevronDown, Sparkles, ShieldCheck } from 'lucide-react';
 
 export default function FAQPage() {
   const faqs = [

@@ -2,14 +2,11 @@
 
 import React from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FileDown, BookOpen, Share2, Sparkles, Check, ArrowRight } from 'lucide-react';
-import { useAuth } from '@/components/auth/AuthContext';
 
 export function ExportShareSection() {
   const router = useRouter();
-  const { user, openAuthModal } = useAuth();
 
   const handleAction = (type: string) => {
     if (type === 'share' || type === 'read') {

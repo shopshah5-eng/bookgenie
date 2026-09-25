@@ -62,9 +62,9 @@ export async function POST(
       shareUrl: `${req.nextUrl.origin}/shared/${shareToken}`,
       isShared: true,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     return NextResponse.json(
-      { error: err.message || 'Failed to generate share link.' },
+      { error: err instanceof Error ? err.message : 'Failed to generate share link.' },
       { status: 500 }
     );
   }

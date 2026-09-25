@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/components/auth/AuthContext';
 import { Button } from '@/components/ui/Button';
@@ -9,28 +9,24 @@ import { useRouter } from 'next/navigation';
 
 export function Header() {
   const { user, openAuthModal, signOut } = useAuth();
-  const [isDark, setIsDark] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        return localStorage.getItem('bookgenie_theme_v2') === 'dark';
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  });
+  const mounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const router = useRouter();
-
-  // Synchronize state with current HTML class on mount (default to minimal white)
-  useEffect(() => {
-    setMounted(true);
-    try {
-      const savedTheme = localStorage.getItem('bookgenie_theme_v2');
-      if (savedTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-        setIsDark(true);
-      } else {
-        document.documentElement.classList.remove('dark');
-        setIsDark(false);
-      }
-    } catch (_) {
-      setIsDark(false);
-    }
-  }, []);
 
   const toggleTheme = () => {
     const nextDark = !isDark;
@@ -39,12 +35,12 @@ export function Header() {
       document.documentElement.classList.add('dark');
       try {
         localStorage.setItem('bookgenie_theme_v2', 'dark');
-      } catch (_) {}
+      } catch {}
     } else {
       document.documentElement.classList.remove('dark');
       try {
         localStorage.setItem('bookgenie_theme_v2', 'light');
-      } catch (_) {}
+      } catch {}
     }
   };
 

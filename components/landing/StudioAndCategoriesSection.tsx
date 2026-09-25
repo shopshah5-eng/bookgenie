@@ -12,7 +12,6 @@ import {
   LayoutGrid,
   Library,
   Settings,
-  Check,
 } from 'lucide-react';
 
 export function StudioAndCategoriesSection() {

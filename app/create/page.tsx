@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { AuthProvider, useAuth } from '@/components/auth/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
-import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { GenerationProgressModal } from '@/components/create/GenerationProgressModal';
 import {
@@ -18,7 +17,6 @@ import {
   Palette,
   FileText,
   X,
-  CheckCircle,
 } from 'lucide-react';
 
 function SearchParamsSync({
@@ -51,7 +49,6 @@ function SearchParamsSync({
 }
 
 function CreatePageContent() {
-  const router = useRouter();
   const { user, openAuthModal } = useAuth();
 
   const [prompt, setPrompt] = useState('');
@@ -196,8 +193,8 @@ function CreatePageContent() {
       setActiveBookId(data.bookId);
       setActiveJobId(data.jobId);
       setIsGenerating(true);
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during submission.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An error occurred during submission.');
     } finally {
       setIsSubmitting(false);
     }

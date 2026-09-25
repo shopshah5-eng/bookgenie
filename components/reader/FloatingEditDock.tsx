@@ -26,9 +26,11 @@ export function FloatingEditDock({
   const [justUpdated, setJustUpdated] = useState(false);
 
   // Sync active page when user flips pages
-  React.useEffect(() => {
+  const [prevPageNumber, setPrevPageNumber] = useState(currentPageNumber);
+  if (currentPageNumber !== prevPageNumber) {
+    setPrevPageNumber(currentPageNumber);
     setPageTarget(currentPageNumber.toString());
-  }, [currentPageNumber]);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

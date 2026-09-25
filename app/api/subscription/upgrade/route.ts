@@ -6,9 +6,9 @@ import { createAdminClient } from '@/lib/supabase/admin';
 export async function POST(req: NextRequest) {
   const supabaseAdmin = createAdminClient();
   try {
-    let body: any;
+    let body: Record<string, unknown>;
     try {
-      body = await req.json();
+      body = (await req.json()) as Record<string, unknown>;
     } catch {
       return NextResponse.json(
         { error: 'Invalid JSON body. Please provide a valid payload.' },
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { tier } = body || {};
+    const tier = typeof body?.tier === 'string' ? body.tier : undefined;
     const validTiers = ['free', 'creator', 'pro'];
 
     if (!tier || !validTiers.includes(tier)) {
@@ -85,10 +85,10 @@ export async function POST(req: NextRequest) {
       message: `Your subscription has been updated to the ${tier.toUpperCase()} plan.`,
       profile: updatedProfile,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[Subscription Upgrade Handler Error]:', err);
     return NextResponse.json(
-      { error: 'An unexpected error occurred while processing subscription upgrade.' },
+      { error: err instanceof Error ? err.message : 'An unexpected error occurred while processing subscription upgrade.' },
       { status: 500 }
     );
   }

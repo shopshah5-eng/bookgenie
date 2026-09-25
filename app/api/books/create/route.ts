@@ -45,9 +45,9 @@ const ALLOWED_STYLES: string[] = [
 export async function POST(req: NextRequest) {
   try {
     // 1. Safe JSON parsing (handles malformed JSON / null body with 400 instead of 500)
-    let body: any;
+    let body: Record<string, unknown>;
     try {
-      body = await req.json();
+      body = (await req.json()) as Record<string, unknown>;
     } catch {
       return NextResponse.json(
         { error: 'INVALID_JSON', message: 'Malformed JSON payload.' },
@@ -180,10 +180,10 @@ export async function POST(req: NextRequest) {
       status: 'planning',
       message: 'Generation job successfully queued.',
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Create book API error:', err);
     return NextResponse.json(
-      { error: 'SERVER_ERROR', message: err.message || 'Failed to initiate book generation.' },
+      { error: 'SERVER_ERROR', message: err instanceof Error ? err.message : 'Failed to initiate book generation.' },
       { status: 500 }
     );
   }

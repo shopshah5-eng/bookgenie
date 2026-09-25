@@ -34,9 +34,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let body: any;
+    let body: Record<string, unknown>;
     try {
-      body = await req.json();
+      body = (await req.json()) as Record<string, unknown>;
     } catch {
       return NextResponse.json(
         { error: 'INVALID_JSON', message: 'Malformed JSON payload.' },
@@ -52,7 +52,9 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const { email, website, audienceSize = '1k-10k' } = body || {};
+    const email = body?.email;
+    const website = body?.website;
+    const audienceSize = body?.audienceSize ?? '1k-10k';
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || typeof email !== 'string' || !emailRegex.test(email.trim()) || email.length > 150) {
@@ -99,10 +101,10 @@ export async function POST(req: NextRequest) {
       success: true,
       message: 'Application received. We will review your channel and email your custom referral link within 24 hours.',
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Affiliate application error:', err);
     return NextResponse.json(
-      { error: 'INTERNAL_ERROR', message: 'Failed to process application. Please try again later.' },
+      { error: 'INTERNAL_ERROR', message: err instanceof Error ? err.message : 'Failed to process application. Please try again later.' },
       { status: 500 }
     );
   }
