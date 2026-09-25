@@ -113,8 +113,8 @@ function PricingContent() {
       setSuccessMessage(
         `Your account has been upgraded to ${planId.toUpperCase()} Plan (Beta Access)! You now have unlocked commercial rights and expanded quotas.`
       );
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Something went wrong while upgrading plan.');
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : 'Something went wrong while upgrading plan.');
     } finally {
       setUpgradingTier(null);
     }

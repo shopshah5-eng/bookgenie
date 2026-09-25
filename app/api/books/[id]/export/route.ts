@@ -288,10 +288,10 @@ export async function GET(
         'X-Content-Type-Options': 'nosniff',
       },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Export compilation error:', err);
     return NextResponse.json(
-      { error: err.message || 'Export compilation failed.' },
+      { error: err instanceof Error ? err.message : 'Export compilation failed.' },
       { status: 500 }
     );
   }

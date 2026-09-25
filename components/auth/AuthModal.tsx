@@ -70,8 +70,8 @@ export function AuthModal() {
         if (resetError) throw resetError;
         setSuccessMessage('Password reset link sent to your email.');
       }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during authentication.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An error occurred during authentication.');
     } finally {
       setIsLoading(false);
     }
@@ -94,8 +94,8 @@ export function AuthModal() {
       if (oauthError) {
         throw oauthError;
       }
-    } catch (err: any) {
-      setError(err.message || 'Could not connect with Google.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Could not connect with Google.');
       setIsLoading(false);
     }
   };

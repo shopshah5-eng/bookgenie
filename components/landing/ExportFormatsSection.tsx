@@ -8,7 +8,6 @@ import {
   Share2,
   Check,
   ArrowRight,
-  ExternalLink,
 } from 'lucide-react';
 
 export function ExportFormatsSection() {

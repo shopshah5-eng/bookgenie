@@ -297,7 +297,8 @@ export function BookReaderClient({ initialBook, bookId }: BookReaderClientProps)
                     );
                   }
                   if (block.type === 'image') {
-                    const imgUrl = (block as any).url || (block as any).imageUrl || (activePage.pageType === 'cover' ? book.coverUrl : undefined);
+                    const blockObj = block as unknown as { url?: string; imageUrl?: string; caption?: string };
+                    const imgUrl = blockObj.url || blockObj.imageUrl || (activePage.pageType === 'cover' ? book.coverUrl : undefined);
                     return (
                       <div
                         key={block.id}

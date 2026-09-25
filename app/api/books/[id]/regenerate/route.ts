@@ -39,7 +39,6 @@ export async function POST(
 
     // 2. Fetch current book from Supabase
     let book: BookDocument | null = null;
-    let dbBookRecord: any = null;
 
     try {
       const { data: dbBook } = await admin
@@ -49,7 +48,6 @@ export async function POST(
         .single();
 
       if (dbBook) {
-        dbBookRecord = dbBook;
         if (currentUserId && dbBook.user_id !== currentUserId) {
           return NextResponse.json(
             { error: 'Unauthorized. You cannot modify publications belonging to another creator.' },
@@ -117,7 +115,7 @@ export async function POST(
       await admin.from('book_versions').insert({
         book_id: book.id,
         version_number: previousVersion,
-        document_snapshot: book as any,
+        document_snapshot: JSON.parse(JSON.stringify(book)),
         change_instruction: instruction,
       });
     } catch (snapshotErr) {
@@ -188,10 +186,10 @@ export async function POST(
       versionNumber: newVersion,
       message: `Version ${newVersion} successfully compiled.`,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Regenerate error:', err);
     return NextResponse.json(
-      { error: err.message || 'Failed to apply editorial revision.' },
+      { error: err instanceof Error ? err.message : 'Failed to apply editorial revision.' },
       { status: 500 }
     );
   }

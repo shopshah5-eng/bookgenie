@@ -7,7 +7,7 @@ import { Footer } from '@/components/landing/Footer';
 import { AuthProvider } from '@/components/auth/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { Button } from '@/components/ui/Button';
-import { BookOpen, Sparkles, ArrowRight, Eye } from 'lucide-react';
+import { Sparkles, Eye } from 'lucide-react';
 
 export default function ExamplesPage() {
   const [filter, setFilter] = useState('all');

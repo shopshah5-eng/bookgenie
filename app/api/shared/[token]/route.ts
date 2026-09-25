@@ -76,9 +76,9 @@ export async function GET(
       { error: 'Shared publication not found or private.' },
       { status: 404 }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     return NextResponse.json(
-      { error: err.message || 'Failed to retrieve shared publication.' },
+      { error: err instanceof Error ? err.message : 'Failed to retrieve shared publication.' },
       { status: 500 }
     );
   }

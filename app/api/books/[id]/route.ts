@@ -115,9 +115,9 @@ export async function GET(
       { error: 'Book not found.' },
       { status: 404 }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     return NextResponse.json(
-      { error: err.message || 'Book not found.' },
+      { error: err instanceof Error ? err.message : 'Book not found.' },
       { status: 404 }
     );
   }

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { BookOpen, CheckCircle2, Loader2, Sparkles, ArrowRight, Download, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
