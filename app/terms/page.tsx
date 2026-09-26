@@ -29,8 +29,8 @@ export default function TermsPage() {
               <p>BookGenie is an AI-assisted publishing platform that processes user prompts and uploaded source materials to generate structured book blueprints, written text, illustrations, and downloadable formats (PDF and EPUB).</p>
             </section>
             <section>
-              <h2 className="text-lg font-serif font-bold text-[#1A1612] mb-2">3. Intellectual Property & Commercial Rights</h2>
-              <p>You retain full ownership of the prompts and source materials you provide. Creators on active paid tiers (Creator and Pro) receive full commercial rights to publish, distribute, and monetize books generated through their accounts, subject to applicable AI regulations and third-party foundation model terms.</p>
+              <h2 className="text-lg font-serif font-bold text-[#1A1612] dark:text-white mb-2">3. Intellectual Property & Commercial Rights</h2>
+              <p>You retain full ownership of the prompts and source materials you provide. Creators on active paid tiers (Author Single, Studio Atelier, and Boutique Press) receive full commercial rights to publish, distribute, and monetize books generated through their accounts, subject to applicable AI regulations and third-party foundation model terms.</p>
             </section>
             <section>
               <h2 className="text-lg font-serif font-bold text-[#1A1612] mb-2">4. User Conduct & Acceptable Use</h2>

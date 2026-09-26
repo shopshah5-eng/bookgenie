@@ -95,11 +95,14 @@ export function PromptToPageShowcase() {
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
             <div>
               <span className="font-label-caps text-label-caps uppercase tracking-widest text-secondary dark:text-[#fcba64] block mb-2">
-                Live Typesetting Comparison
+                Editorial &amp; Typographic Composition
               </span>
               <h2 className="font-headline-lg text-headline-lg text-primary dark:text-[#f1effa] tracking-tight">
                 The Alchemical Transformation
               </h2>
+              <p className="font-body-sm text-xs sm:text-sm text-on-surface-variant dark:text-neutral-400 mt-1">
+                Comparing raw LLM prose output against autonomous multi-pass editorial enhancement and master book typesetting.
+              </p>
             </div>
 
             {/* Mode Switcher */}

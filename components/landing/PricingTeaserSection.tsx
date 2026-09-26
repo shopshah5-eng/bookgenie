@@ -18,38 +18,42 @@ export function PricingTeaserSection() {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
-          {/* Single Book Tier */}
+          {/* Author Single Tier */}
           <div className="bg-surface-container-low dark:bg-[#1a1b22] p-8 rounded-xl border border-surface-container-highest dark:border-white/10 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
             <div>
               <div className="flex items-baseline justify-between mb-4">
                 <h3 className="font-headline-sm text-headline-sm text-primary dark:text-[#f1effa]">
-                  Creator Edition
+                  Author Single
                 </h3>
                 <div className="font-headline-lg text-headline-lg text-primary dark:text-[#f1effa]">
                   $49
                 </div>
               </div>
               <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-400 mb-6">
-                Complete autonomous synthesis and master proofing for a single finished volume.
+                Complete autonomous synthesis and master proofing for a single collector-grade volume.
               </p>
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center gap-3 font-body-sm text-body-sm text-on-surface dark:text-[#f1effa]">
                   <span className="material-symbols-outlined text-[18px] text-secondary dark:text-[#fcba64]">check</span>
-                  <span>Print-Ready CMYK PDF (Interior + Spine)</span>
+                  <span>1 Finished Book Pipeline (Up to 60k Words)</span>
                 </li>
                 <li className="flex items-center gap-3 font-body-sm text-body-sm text-on-surface dark:text-[#f1effa]">
                   <span className="material-symbols-outlined text-[18px] text-secondary dark:text-[#fcba64]">check</span>
-                  <span>EPUB3 Standard Validation</span>
+                  <span>20 Style-Consistent Illustrated Plates</span>
                 </li>
                 <li className="flex items-center gap-3 font-body-sm text-body-sm text-on-surface dark:text-[#f1effa]">
                   <span className="material-symbols-outlined text-[18px] text-secondary dark:text-[#fcba64]">check</span>
-                  <span>24 Style-Consistent Illustrated Plates</span>
+                  <span>Print-Ready CMYK PDF + Validated EPUB3</span>
+                </li>
+                <li className="flex items-center gap-3 font-body-sm text-body-sm text-on-surface dark:text-[#f1effa]">
+                  <span className="material-symbols-outlined text-[18px] text-secondary dark:text-[#fcba64]">check</span>
+                  <span>100% Commercial Rights &amp; Retained Copyright</span>
                 </li>
               </ul>
             </div>
             <Link
               href="/create"
-              className="w-full py-3 rounded-full bg-surface-container dark:bg-white/10 text-on-surface dark:text-[#f1effa] hover:bg-surface-variant dark:hover:bg-white/15 font-label-ui text-label-ui transition-colors text-center inline-block"
+              className="w-full py-3 rounded-full bg-surface-container dark:bg-white/10 text-on-surface dark:text-[#f1effa] hover:bg-surface-variant dark:hover:bg-white/15 font-label-ui text-label-ui transition-colors text-center inline-block font-semibold"
             >
               Synthesize Single Book
             </Link>
@@ -64,8 +68,8 @@ export function PricingTeaserSection() {
                   <h3 className="font-headline-sm text-headline-sm text-white">
                     Studio Atelier
                   </h3>
-                  <span className="px-2.5 py-0.5 rounded-full bg-secondary text-white font-label-caps text-[10px] uppercase tracking-wider">
-                    Unrestricted
+                  <span className="px-2.5 py-0.5 rounded-full bg-secondary text-white font-label-caps text-[10px] uppercase tracking-wider font-semibold">
+                    Most Popular
                   </span>
                 </div>
                 <div className="font-headline-lg text-headline-lg text-white">
@@ -78,25 +82,39 @@ export function PricingTeaserSection() {
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center gap-3 font-body-sm text-body-sm text-white">
                   <span className="material-symbols-outlined text-[18px] text-[#fcba64]">check</span>
-                  <span>Unlimited Folio Syntheses &amp; Re-typesetting</span>
+                  <span><strong>5 Complete Books</strong> Produced Per Month</span>
                 </li>
                 <li className="flex items-center gap-3 font-body-sm text-body-sm text-white">
                   <span className="material-symbols-outlined text-[18px] text-[#fcba64]">check</span>
-                  <span>Custom Font License Ingestion &amp; OpenType ligatures</span>
+                  <span>Unlimited Retypesetting &amp; Revisions</span>
                 </li>
                 <li className="flex items-center gap-3 font-body-sm text-body-sm text-white">
                   <span className="material-symbols-outlined text-[18px] text-[#fcba64]">check</span>
-                  <span>IngramSpark Direct Automated Submission API</span>
+                  <span>Custom Font License Ingestion &amp; Ligatures</span>
+                </li>
+                <li className="flex items-center gap-3 font-body-sm text-body-sm text-white">
+                  <span className="material-symbols-outlined text-[18px] text-[#fcba64]">check</span>
+                  <span>Direct KDP &amp; IngramSpark Print Standards</span>
                 </li>
               </ul>
             </div>
             <Link
-              href="/create"
-              className="w-full py-3 rounded-full bg-white text-black hover:bg-neutral-100 font-label-ui text-label-ui transition-colors text-center inline-block"
+              href="/pricing"
+              className="w-full py-3 rounded-full bg-white text-black hover:bg-neutral-100 font-label-ui text-label-ui transition-colors text-center inline-block font-semibold"
             >
               Join Studio Atelier
             </Link>
           </div>
+        </div>
+
+        <div className="mt-10 text-center">
+          <Link
+            href="/pricing"
+            className="font-label-ui text-sm text-secondary dark:text-[#fcba64] hover:underline inline-flex items-center gap-1.5 font-medium"
+          >
+            <span>Need more volume? Compare all tiers including Boutique Press ($349/mo)</span>
+            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </Link>
         </div>
 
         {/* Assurance note */}

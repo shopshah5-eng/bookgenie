@@ -83,29 +83,60 @@ function CreatePageContent() {
     [title]
   );
 
+  // Restore full saved draft if returning from auth
+  useEffect(() => {
+    try {
+      const savedDraft = sessionStorage.getItem('bg_pending_draft');
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft);
+        if (parsed.title) setTitle(parsed.title);
+        if (parsed.prompt) setPrompt(parsed.prompt);
+        if (parsed.bookType) setBookType(parsed.bookType);
+        if (parsed.language) setLanguage(parsed.language);
+        if (parsed.voiceTone) setVoiceTone(parsed.voiceTone);
+        if (parsed.chapterScale) setChapterScale(parsed.chapterScale);
+        if (parsed.uploadedFiles && Array.isArray(parsed.uploadedFiles)) {
+          setUploadedFiles(parsed.uploadedFiles);
+        }
+        sessionStorage.removeItem('bg_pending_draft');
+      }
+    } catch (_) {}
+  }, []);
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
-    const parsedFiles = await Promise.all(
-      files.map(async (f) => {
-        let textContent = '';
-        try {
-          if (f.name.endsWith('.txt') || f.name.endsWith('.md') || f.type.startsWith('text/')) {
-            textContent = await f.text();
-          } else {
-            textContent = `[Attached Document: ${f.name}, Size: ${(f.size / 1024).toFixed(1)} KB]`;
-          }
-        } catch {
-          textContent = `[Attached Document: ${f.name}]`;
+    const parsedFiles: Array<{ name: string; size: string; content: string }> = [];
+
+    for (const f of files) {
+      if (f.size > 10 * 1024 * 1024) {
+        setError(`File "${f.name}" exceeds the 10MB limit. Please upload a smaller file.`);
+        continue;
+      }
+      let textContent = '';
+      try {
+        if (f.name.endsWith('.txt') || f.name.endsWith('.md') || f.type.startsWith('text/')) {
+          textContent = await f.text();
+        } else {
+          textContent = `[Attached Document Reference: ${f.name}, Size: ${(f.size / 1024).toFixed(1)} KB]`;
         }
-        return {
-          name: f.name,
-          size: `${(f.size / (1024 * 1024)).toFixed(1)} MB`,
-          content: textContent.slice(0, 10000),
-        };
-      })
-    );
-    setUploadedFiles((prev) => [...prev, ...parsedFiles]);
+      } catch {
+        textContent = `[Attached Document Reference: ${f.name}]`;
+      }
+      parsedFiles.push({
+        name: f.name,
+        size: `${(f.size / (1024 * 1024)).toFixed(1)} MB`,
+        content: textContent.slice(0, 10000),
+      });
+    }
+
+    if (parsedFiles.length > 0) {
+      setUploadedFiles((prev) => [...prev, ...parsedFiles]);
+    }
+  };
+
+  const handleRemoveFile = (indexToRemove: number) => {
+    setUploadedFiles((prev) => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
   const handleGenerate = async (e: React.FormEvent) => {
@@ -116,8 +147,18 @@ function CreatePageContent() {
       return;
     }
 
-    // Auth gate: if unauthenticated, save prompt & trigger AuthModal
+    // Auth gate: if unauthenticated, save entire draft & trigger AuthModal
     if (!user) {
+      const draft = {
+        title,
+        prompt,
+        bookType,
+        language,
+        voiceTone,
+        chapterScale,
+        uploadedFiles,
+      };
+      sessionStorage.setItem('bg_pending_draft', JSON.stringify(draft));
       sessionStorage.setItem('bg_pending_prompt', finalPrompt);
       sessionStorage.setItem('bg_pending_type', bookType);
       openAuthModal('signup', '/create');
@@ -308,7 +349,7 @@ function CreatePageContent() {
                   </span>
                   <span className="h-px flex-1 bg-surface-container-highest dark:border-white/10" />
                   <span className="font-code-spec text-code-spec text-on-surface-variant dark:text-neutral-400">
-                    Step 01 / 04
+                    Milestone 01 / 04: Narrative Setup
                   </span>
                 </div>
                 <h1 className="font-headline-md text-headline-md text-on-surface dark:text-[#f1effa] tracking-tight">
@@ -551,6 +592,7 @@ function CreatePageContent() {
                   type="file"
                   id="studio-file-upload"
                   multiple
+                  accept=".txt,.md,.pdf,.docx,text/plain"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
@@ -562,20 +604,34 @@ function CreatePageContent() {
                     cloud_upload
                   </span>
                   <span className="font-label-ui text-label-ui text-on-surface dark:text-[#f1effa] font-medium">
-                    Upload Research Notes, Outlines, or Manuscript (.txt, .md, .pdf)
+                    Upload Research Notes, Outlines, or Manuscript (.txt, .md, .pdf, .docx)
                   </span>
                   <span className="font-body-sm text-[12px] text-on-surface-variant dark:text-neutral-400 mt-1">
-                    AI synthesizes and structures your attached knowledge deterministically.
+                    Plain text &amp; Markdown are directly ingested; PDF &amp; DOCX files are registered as project references (max 10MB each).
                   </span>
                 </label>
                 {uploadedFiles.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="mt-3 flex flex-wrap gap-2 w-full justify-center">
                     {uploadedFiles.map((file, idx) => (
                       <span
                         key={idx}
-                        className="px-2.5 py-1 rounded bg-surface-container dark:bg-white/10 font-code-spec text-xs text-on-surface dark:text-[#f1effa]"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container dark:bg-white/10 font-code-spec text-xs text-on-surface dark:text-[#f1effa] border border-surface-container-highest dark:border-white/10"
                       >
-                        {file.name} ({file.size})
+                        <span>{file.name}</span>
+                        <span className="text-[10px] text-on-surface-variant dark:text-neutral-400">({file.size})</span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleRemoveFile(idx);
+                          }}
+                          className="hover:text-red-500 transition-colors ml-1 p-0.5 rounded cursor-pointer"
+                          aria-label={`Remove ${file.name}`}
+                          title="Remove file"
+                        >
+                          ✕
+                        </button>
                       </span>
                     ))}
                   </div>

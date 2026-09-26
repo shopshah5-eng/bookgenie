@@ -29,16 +29,16 @@ export function ExportFormatsSection() {
     },
     {
       title: 'Reflowable EPUB 3',
-      badge: 'Validated EPUB3',
+      badge: 'Reflowable EPUB 3.0',
       icon: BookOpen,
-      headline: 'Global e-reader standard for Kindle, Apple Books, and Kobo.',
+      headline: 'Global e-reader standard for Kindle, Apple Books, and Kobo (sample export provided as structural edition).',
       features: [
         'Valid W3C EPUB 3.0 packaging & schema',
         'Fluid reflowable typography across all screens',
         'Embedded cover and interior metadata',
         'Dynamic navigational Table of Contents',
       ],
-      ctaText: 'Download sample EPUB',
+      ctaText: 'Download sample EPUB (Text Proof)',
       ctaUrl: '/api/books/ocean-wonders/export?format=epub',
     },
     {

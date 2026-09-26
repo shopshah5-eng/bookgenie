@@ -5,13 +5,16 @@ const isDev = process.env.NODE_ENV !== 'production';
 const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""};
+  script-src-attr 'none';
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com data:;
   img-src 'self' data: blob: https://image.pollinations.ai https://images.unsplash.com https://*.supabase.co;
   connect-src 'self' https://*.supabase.co ws: wss:;
-  frame-ancestors 'none';
+  object-src 'none';
   base-uri 'self';
   form-action 'self';
+  frame-ancestors 'none';
+  upgrade-insecure-requests;
 `.replace(/\s{2,}/g, ' ').trim();
 
 const nextConfig: NextConfig = {

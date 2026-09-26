@@ -27,19 +27,25 @@ export default function PrivacyPage() {
           <div className="space-y-8 font-body-md text-sm sm:text-base text-on-surface-variant dark:text-[#c4c7c5] leading-relaxed">
             <section className="p-6 rounded-2xl bg-surface-container-low dark:bg-[#1a1b22] border border-outline-variant/20 dark:border-white/5">
               <h2 className="font-title-editorial text-lg text-on-surface dark:text-white mb-2">1. Information We Collect</h2>
-              <p>We collect your email address, account name, user-submitted prompts, uploaded document files, and generation history solely to provide you with the BookGenie publishing experience.</p>
+              <p>We collect your email address, account identifier, prompts, attached manuscript notes, generated chapter prose, and book artifacts solely to render and maintain your private library.</p>
             </section>
             <section className="p-6 rounded-2xl bg-surface-container-low dark:bg-[#1a1b22] border border-outline-variant/20 dark:border-white/5">
-              <h2 className="font-title-editorial text-lg text-on-surface dark:text-white mb-2">2. How Your Content Is Processed</h2>
-              <p>Uploaded documents and prompts are transmitted to our server-side AI processing pipeline via secure HTTPS encryption. Your uploaded source materials are stored in private, isolated storage buckets and are never used to train public machine learning models.</p>
+              <h2 className="font-title-editorial text-lg text-on-surface dark:text-white mb-2">2. AI Sub-Processors &amp; Zero-Training Guarantee</h2>
+              <p>
+                Prompts and chapter blueprints are routed securely to our AI inferencing providers—primarily OpenRouter and Google Cloud Gemini API—exclusively for synchronous generation. Under commercial API developer terms, customer prompts and generated outputs are <strong>not used to train or refine public frontier models</strong>.
+              </p>
             </section>
             <section className="p-6 rounded-2xl bg-surface-container-low dark:bg-[#1a1b22] border border-outline-variant/20 dark:border-white/5">
-              <h2 className="font-title-editorial text-lg text-on-surface dark:text-white mb-2">3. Storage & Data Security</h2>
-              <p>We implement Row Level Security (RLS) policies within our PostgreSQL database so that only your authenticated account can view, modify, or export your books and assets.</p>
+              <h2 className="font-title-editorial text-lg text-on-surface dark:text-white mb-2">3. Data Retention &amp; Storage Architecture</h2>
+              <p>
+                All account data, book blueprints, and generated pages are persisted in managed PostgreSQL databases configured with Row Level Security (RLS) policies. Completed user books remain available as long as your account remains active. Temporary synthesis scratch files and uncompleted generation jobs are automatically purged after 30 days.
+              </p>
             </section>
             <section className="p-6 rounded-2xl bg-surface-container-low dark:bg-[#1a1b22] border border-outline-variant/20 dark:border-white/5">
-              <h2 className="font-title-editorial text-lg text-on-surface dark:text-white mb-2">4. Your Data Rights</h2>
-              <p>You have the right to request deletion of your account, generated books, and all associated file uploads at any time through our contact channels.</p>
+              <h2 className="font-title-editorial text-lg text-on-surface dark:text-white mb-2">4. Deletion Rights &amp; Privacy Contact</h2>
+              <p>
+                You retain complete control of your data. You may delete individual books directly from your library, or submit a full data deletion request by emailing our privacy team at <a href="mailto:privacy@bookgenie.ai" className="text-secondary dark:text-[#fcba64] underline">privacy@bookgenie.ai</a>. All account records and associated storage buckets are purged within 14 business days of verified request.
+              </p>
             </section>
           </div>
         </main>

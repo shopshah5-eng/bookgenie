@@ -15,7 +15,7 @@ export default function FAQPage() {
     },
     {
       q: 'Can I upload my own notes, drafts, or PDFs as source material?',
-      a: 'Yes. On the Create studio page, you can attach PDF, DOCX, TXT, Markdown, or image files. BookGenie extracts your notes, outlines, and research, using them as primary source material to structure chapters and write content while preserving your voice and key factual details.',
+      a: 'Yes. On the Create studio page, you can attach text files (.txt, .md) and document references (.pdf, .docx). Plain text and Markdown are extracted directly into the generation context, while document files provide reference structures for chapter synthesis and factual grounding.',
     },
     {
       q: 'Are my books, uploads, and data strictly private?',
@@ -27,7 +27,7 @@ export default function FAQPage() {
     },
     {
       q: 'Can I commercially publish and sell the generated books on Amazon KDP or Gumroad?',
-      a: 'Yes! Subscribers on our Creator and Pro plans receive 100% full commercial rights and intellectual property ownership over all generated text, layouts, and illustrations. You can distribute your books as digital ebooks (EPUB), sell physical paperbacks via Amazon KDP or IngramSpark (using our print-ready PDF), or sell directly to your audience.',
+      a: 'Yes! Subscribers on all paid tiers (Author Single, Studio Atelier, and Boutique Press) retain 100% commercial rights and intellectual property ownership over all generated text, layouts, and illustrations. You can distribute your books as digital ebooks (EPUB), sell physical paperbacks via Amazon KDP or IngramSpark (using our print-ready PDF), or sell directly to your audience.',
     },
     {
       q: 'How long does book generation take?',
