@@ -5,19 +5,57 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
 
+import { GenerationProgressModal } from '@/components/create/GenerationProgressModal';
+
 export function HeroSection() {
   const router = useRouter();
   const { user, openAuthModal } = useAuth();
   const [prompt, setPrompt] = useState('');
   const [isSynthesizing, setIsSynthesizing] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [activeBookId, setActiveBookId] = useState<string | null>(null);
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleSynthesize = (e: React.FormEvent) => {
+  const handleSynthesize = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) return;
+
+    if (!user) {
+      sessionStorage.setItem('bg_pending_prompt', prompt.trim());
+      openAuthModal('signup', '/');
+      return;
+    }
+
     setIsSynthesizing(true);
-    setTimeout(() => {
-      router.push(`/create?prompt=${encodeURIComponent(prompt.trim())}`);
-    }, 400);
+    setErrorMsg(null);
+
+    try {
+      const response = await fetch('/api/books/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: prompt.trim(),
+          bookType: 'auto',
+          language: 'english',
+          style: 'modern',
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || errorData.error || 'Failed to start book generation.');
+      }
+
+      const data = await response.json();
+      setActiveBookId(data.bookId);
+      setActiveJobId(data.jobId);
+      setIsGenerating(true);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Error initiating synthesis.');
+    } finally {
+      setIsSynthesizing(false);
+    }
   };
 
   const handleOpenStudio = () => {
@@ -128,6 +166,23 @@ export function HeroSection() {
         </div>
 
       </div>
+
+      {/* Real-Time Circular Clockwise Generation Progress Modal */}
+      {isGenerating && activeBookId && activeJobId && (
+        <GenerationProgressModal
+          isOpen={isGenerating}
+          bookId={activeBookId}
+          jobId={activeJobId}
+          onClose={() => setIsGenerating(false)}
+        />
+      )}
+
+      {errorMsg && (
+        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-xl bg-red-600 text-white shadow-xl text-sm font-label-ui flex items-center gap-2">
+          <span>{errorMsg}</span>
+          <button onClick={() => setErrorMsg(null)} className="ml-2 font-bold hover:opacity-80">✕</button>
+        </div>
+      )}
     </section>
   );
 }

@@ -27,6 +27,23 @@ export function GenerationProgressModal({
     'Analyzing prompt & creative tone',
   ]);
   const [error, setError] = useState<string | null>(null);
+  const [secondsElapsed, setSecondsElapsed] = useState(0);
+  const [currentActivity, setCurrentActivity] = useState('Conducting deep research & structuring chapter outlines...');
+
+  // Live stopwatch timer
+  useEffect(() => {
+    if (!isOpen || status === 'completed') return;
+    const timer = setInterval(() => {
+      setSecondsElapsed((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isOpen, status]);
+
+  const formatTime = (secs: number) => {
+    const mins = Math.floor(secs / 60);
+    const remainder = secs % 60;
+    return `${mins}:${remainder.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     if (!isOpen || !jobId) return;
@@ -40,6 +57,18 @@ export function GenerationProgressModal({
         setProgress(data.progress || 15);
         setStage(data.stage || 'planning');
         setStatus(data.status || 'processing');
+
+        if (data.stage === 'planning') {
+          setCurrentActivity('Synthesizing research, thesis statement & chapter outlines...');
+        } else if (data.stage === 'writing') {
+          setCurrentActivity(`Authoring narrative chapter prose & educational sections (${data.progress}%)...`);
+        } else if (data.stage === 'generating_visuals') {
+          setCurrentActivity('Generating high-resolution book cover & interior illustration plates...');
+        } else if (data.stage === 'designing') {
+          setCurrentActivity('Typesetting dual-page galley proofs & running headers...');
+        } else if (data.status === 'completed') {
+          setCurrentActivity('Compilation complete! Master book edition ready.');
+        }
 
         if (data.stepsCompleted && data.stepsCompleted.length > 0) {
           setStepsCompleted(data.stepsCompleted);
@@ -98,61 +127,81 @@ export function GenerationProgressModal({
       >
         {status !== 'completed' ? (
           <>
-            {/* Animated Book Studio Icon */}
-            <div className="relative mx-auto mb-5">
-              <motion.div
-                animate={{
-                  rotate: [0, -3, 3, 0],
-                  y: [0, -3, 0],
-                }}
-                transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
-                className="w-16 h-16 rounded-2xl bg-secondary-container/30 text-secondary dark:text-secondary-fixed border border-secondary/20 flex items-center justify-center shadow-sm"
-              >
-                <BookOpen className="w-8 h-8 stroke-[1.8]" />
-              </motion.div>
-              <div className="absolute -top-1.5 -right-1.5">
-                <span className="flex h-4 w-4 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary-fixed opacity-75" />
-                  <span className="relative inline-flex rounded-full h-4 w-4 bg-secondary" />
+            {/* Animated Clockwise Circular Progress Ring (0-100%) */}
+            <div className="relative mx-auto my-6 flex items-center justify-center">
+              {/* Outer pulsing glow */}
+              <div className="absolute w-44 h-44 rounded-full bg-secondary/10 dark:bg-[#fcba64]/10 blur-xl animate-pulse" />
+
+              <svg className="w-40 h-40 transform -rotate-90">
+                {/* Background Ring Track */}
+                <circle
+                  cx="80"
+                  cy="80"
+                  r="68"
+                  className="stroke-surface-container dark:stroke-white/10"
+                  strokeWidth="8"
+                  fill="transparent"
+                />
+                {/* Animated Clockwise Progress Ring */}
+                <circle
+                  cx="80"
+                  cy="80"
+                  r="68"
+                  className="stroke-secondary dark:stroke-[#fcba64] transition-all duration-700 ease-out"
+                  strokeWidth="8"
+                  strokeDasharray={427.26}
+                  strokeDashoffset={427.26 - (427.26 * Math.min(progress, 100)) / 100}
+                  strokeLinecap="round"
+                  fill="transparent"
+                />
+              </svg>
+
+              {/* Inside Circle: Percentage & Stopwatch Elapsed Timer */}
+              <div className="absolute flex flex-col items-center justify-center select-none">
+                <span className="font-display-hero text-3xl sm:text-4xl font-bold text-primary dark:text-[#f1effa] font-title-editorial">
+                  {Math.round(progress)}%
                 </span>
+                <div className="flex items-center gap-1.5 mt-1 px-2.5 py-0.5 rounded-full bg-surface-container dark:bg-white/10 border border-surface-container-highest dark:border-white/10 text-[11px] font-code-spec text-on-surface-variant dark:text-neutral-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-secondary dark:bg-[#fcba64] animate-ping" />
+                  <span>{formatTime(secondsElapsed)} elapsed</span>
+                </div>
               </div>
             </div>
 
-            <span className="font-label-caps text-xs uppercase tracking-widest text-secondary dark:text-secondary-fixed mb-1 block">
-              Atelier Publishing Engine
+            <span className="font-label-caps text-xs uppercase tracking-widest text-secondary dark:text-[#fcba64] mb-1.5 block">
+              Autonomous Creation Studio • Live Synthesis
             </span>
 
             <h3 className="font-headline-sm text-2xl text-on-surface dark:text-[#f3f0f7] tracking-tight mb-2">
               {stage === 'planning'
-                ? 'Crafting Folio Blueprint'
+                ? 'Deep Research & Narrative Blueprinting'
                 : stage === 'writing'
-                ? 'Composing Editorial Chapters'
+                ? 'Authoring High-Fidelity Prose & Chapters'
                 : stage === 'generating_visuals'
-                ? 'Synthesizing Archival Plates'
+                ? 'Synthesizing Cover Art & Visual Plates'
                 : stage === 'designing'
-                ? 'Typesetting Galley Proofs'
-                : 'Publishing Master Edition'}
+                ? 'Typesetting Archival Spreads & Galley Proofs'
+                : 'Finalizing Master Publication Package'}
             </h3>
 
-            <p className="font-body-md text-xs sm:text-sm text-on-surface-variant dark:text-[#c4c7c5] mb-6 min-h-[40px] flex items-center justify-center">
-              {stageDescriptions[stage] || stageDescriptions.planning}
-            </p>
-
-            {/* Editorial Gold Progress Bar */}
-            <div className="w-full bg-surface-container rounded-full h-2.5 mb-6 overflow-hidden p-0.5 border border-outline-variant/30">
-              <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-secondary-container to-secondary"
-                initial={{ width: '10%' }}
-                animate={{ width: `${progress}%` }}
-                transition={{ ease: 'easeOut', duration: 0.5 }}
-              />
+            {/* What AI Is Doing Now - Animated Pill */}
+            <div className="mx-auto mb-6 px-4 py-2 rounded-xl bg-surface-container-low dark:bg-white/5 border border-surface-container-highest dark:border-white/10 flex items-center justify-center gap-2 max-w-md shadow-xs">
+              <Sparkles className="w-4 h-4 text-secondary dark:text-[#fcba64] animate-spin" />
+              <p className="font-body-md text-xs sm:text-sm text-on-surface dark:text-[#f1effa] font-medium truncate">
+                {currentActivity || stageDescriptions[stage] || stageDescriptions.planning}
+              </p>
             </div>
 
-            {/* Live Real-time Steps Feedback */}
-            <div className="w-full bg-surface-container-low dark:bg-[#12131a] rounded-2xl border border-outline-variant/30 p-4 text-left max-h-40 overflow-y-auto space-y-2">
-              <span className="font-label-caps text-[10px] uppercase tracking-wider text-outline block mb-2">
-                Live Studio Progress
-              </span>
+            {/* Live Step-by-Step Production Log */}
+            <div className="w-full bg-surface-container-low dark:bg-[#12131a] rounded-2xl border border-outline-variant/30 dark:border-white/10 p-4 text-left max-h-44 overflow-y-auto space-y-2">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-label-caps text-[10px] uppercase tracking-wider text-outline dark:text-neutral-400 block font-semibold">
+                  Live Studio Execution Pipeline
+                </span>
+                <span className="text-[10px] font-code-spec text-secondary dark:text-[#fcba64]">
+                  Step {stepsCompleted.length} of 5
+                </span>
+              </div>
               {stepsCompleted.map((step, idx) => (
                 <div
                   key={idx}
@@ -163,9 +212,9 @@ export function GenerationProgressModal({
                 </div>
               ))}
               {status === 'processing' && (
-                <div className="flex items-center gap-2.5 text-xs text-secondary dark:text-secondary-fixed font-medium animate-pulse">
+                <div className="flex items-center gap-2.5 text-xs text-secondary dark:text-[#fcba64] font-medium animate-pulse">
                   <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
-                  <span>Typesetting next folio section...</span>
+                  <span className="truncate">{currentActivity || 'Processing next editorial pipeline task...'}</span>
                 </div>
               )}
             </div>

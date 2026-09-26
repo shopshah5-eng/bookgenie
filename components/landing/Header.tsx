@@ -50,10 +50,9 @@ export function Header() {
   };
 
   const navLinks = [
-    { label: 'Studio', href: '/create' },
-    { label: 'Reader', href: '/examples' },
+    { label: 'Home', href: '/' },
+    { label: 'Create Studio', href: '/create' },
     { label: 'Showcase', href: '/#showcase' },
-    { label: 'How It Works', href: '/how-it-works' },
     { label: 'Pricing', href: '/#pricing' },
   ];
 

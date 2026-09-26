@@ -29,23 +29,18 @@ export function Footer() {
             </span>
             <ul className="space-y-2.5">
               <li>
+                <Link href="/" className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-400 hover:text-on-surface dark:hover:text-white transition-colors">
+                  Home Studio
+                </Link>
+              </li>
+              <li>
                 <Link href="/create" className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-400 hover:text-on-surface dark:hover:text-white transition-colors">
-                  Atelier Studio
+                  Book Creation Studio
                 </Link>
               </li>
               <li>
-                <Link href="/examples" className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-400 hover:text-on-surface dark:hover:text-white transition-colors">
-                  Reader Folio
-                </Link>
-              </li>
-              <li>
-                <Link href="/how-it-works" className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-400 hover:text-on-surface dark:hover:text-white transition-colors">
-                  Typesetting Engine
-                </Link>
-              </li>
-              <li>
-                <Link href="/pricing" className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-400 hover:text-on-surface dark:hover:text-white transition-colors">
-                  Editions &amp; Pricing
+                <Link href="/#pricing" className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-400 hover:text-on-surface dark:hover:text-white transition-colors">
+                  Creator Plans
                 </Link>
               </li>
             </ul>
