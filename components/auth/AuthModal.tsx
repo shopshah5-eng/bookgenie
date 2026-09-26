@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { useAuth } from '@/components/auth/AuthContext';
 import { createClient } from '@/lib/supabase/client';
 import { Mail, Lock, User as UserIcon, Eye, EyeOff, BookOpen } from 'lucide-react';
+import { MonogramLogo } from '@/components/brand/MonogramLogo';
 import { useRouter } from 'next/navigation';
 
 export function AuthModal() {
@@ -103,41 +104,41 @@ export function AuthModal() {
   return (
     <Modal isOpen={isAuthModalOpen} onClose={closeAuthModal} className="max-w-[440px]">
       <div className="flex flex-col items-center text-center">
-        {/* BookGenie Logo Icon */}
-        <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-[#F8F3EA] text-[#8C5F2E] border border-[#E8DCCB] mb-3 shadow-2xs">
-          <BookOpen className="w-6 h-6 stroke-[2.2]" />
+        {/* BookGenie Atelier Monogram */}
+        <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-secondary-container/20 dark:bg-white/5 text-secondary dark:text-secondary-fixed border border-secondary/20 mb-3 shadow-xs">
+          <MonogramLogo size={28} iconOnly />
         </div>
 
-        <div className="text-xl font-serif font-bold text-[#1A1612] tracking-tight">
-          BookGenie
+        <div className="font-headline-sm text-xl text-on-surface dark:text-white tracking-tight">
+          BookGenie Atelier
         </div>
-        <p className="text-[11px] uppercase tracking-widest text-[#9E968E] font-medium mb-3">
-          Ideas into Beautiful Books
+        <p className="font-label-caps text-[10px] uppercase tracking-widest text-outline mb-3">
+          Autonomous Craft & Architecture
         </p>
 
-        <h2 className="text-2xl font-serif font-bold text-[#1A1612] tracking-tight mb-1.5">
+        <h2 className="font-headline-sm text-2xl text-on-surface dark:text-white tracking-tight mb-1.5">
           {authView === 'signup'
             ? 'Create your account'
             : authView === 'signin'
             ? 'Welcome back'
             : 'Reset your password'}
         </h2>
-        <p className="text-xs sm:text-sm text-[#6B635B] mb-6">
+        <p className="font-body-md text-xs sm:text-sm text-on-surface-variant dark:text-[#c4c7c5] mb-6">
           {authView === 'signup'
-            ? 'Start turning your ideas into beautiful books.'
+            ? 'Start turning your ideas into masterwork folios.'
             : authView === 'signin'
-            ? 'Sign in to continue creating and reading your books.'
-            : 'Enter your email address to receive a reset link.'}
+            ? 'Sign in to access your atelier workbench and library.'
+            : 'Enter your email address to receive a secure reset link.'}
         </p>
 
         {error && (
-          <div className="w-full mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 text-left">
+          <div className="w-full mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-600 dark:text-red-400 text-left font-medium">
             {error}
           </div>
         )}
 
         {successMessage && (
-          <div className="w-full mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-700 text-left">
+          <div className="w-full mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-600 dark:text-emerald-400 text-left font-medium">
             {successMessage}
           </div>
         )}
@@ -149,7 +150,7 @@ export function AuthModal() {
               type="button"
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl border border-[#EFECE6] bg-white hover:bg-[#FDFBF7] text-sm font-semibold text-[#1A1612] transition-all shadow-2xs hover:shadow-xs active:scale-[0.98] disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl border border-outline-variant/30 bg-surface-container-low hover:bg-surface-container text-sm font-semibold text-on-surface dark:text-white transition-all shadow-xs active:scale-[0.98] disabled:opacity-60"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path
@@ -173,11 +174,11 @@ export function AuthModal() {
             </button>
 
             <div className="w-full flex items-center my-4">
-              <div className="flex-1 h-px bg-[#EFECE6]" />
-              <span className="px-3 text-xs text-[#9E968E] uppercase tracking-wider font-medium">
+              <div className="flex-1 h-px bg-outline-variant/30" />
+              <span className="px-3 text-xs text-outline uppercase tracking-wider font-label-caps">
                 or
               </span>
-              <div className="flex-1 h-px bg-[#EFECE6]" />
+              <div className="flex-1 h-px bg-outline-variant/30" />
             </div>
           </>
         )}

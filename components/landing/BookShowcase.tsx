@@ -1,176 +1,133 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
-interface BookItem {
+interface EditionItem {
   id: string;
   title: string;
-  category: string;
-  specs: string;
+  genre: string;
+  badge: string;
+  format: string;
+  description: string;
   image: string;
-  demoUrl: string;
-  typeParam: string;
+  href: string;
 }
 
 export function BookShowcase() {
-  const books: BookItem[] = [
+  const router = useRouter();
+
+  const editions: EditionItem[] = [
     {
-      id: 'ocean-wonders',
-      title: 'Ocean Wonders',
-      category: "Children's Storybook",
-      specs: '16 pages • Full Color • CMYK',
-      image: '/images/the-little-explorer-cover.jpg',
-      demoUrl: '/examples/ocean-wonders',
-      typeParam: 'children',
-    },
-    {
-      id: 'silent-path',
-      title: 'The Silent Path',
-      category: 'Contemporary Fiction',
-      specs: '320 pages • Literary Typeset',
+      id: 'silent-cartographer',
+      title: 'The Silent Cartographer',
+      genre: 'Speculative Fiction',
+      badge: 'Hardcover • 342 pp',
+      format: 'Royal Octavo (6 × 9″)',
+      description: 'A planetary survey team traces ghost radio signals across deep glacial trenches. Features 18 generated topographic plates.',
       image: '/images/cover-silent-path.jpg',
-      demoUrl: '/examples/silent-path',
-      typeParam: 'novel',
+      href: '/examples/ocean-wonders',
     },
     {
-      id: 'flavours-home',
-      title: 'Flavours of Home',
-      category: 'Artisan Culinary Collection',
-      specs: '72 pages • High-Res Photos',
-      image: '/images/cover-flavours-home.jpg',
-      demoUrl: '/examples/flavours-home',
-      typeParam: 'cookbook',
+      id: 'botanica-obscura',
+      title: 'Botanica Obscura',
+      genre: 'Fine Art Monographs',
+      badge: 'Coffee Table Folio • 210 pp',
+      format: 'Crown Quarto (7.5 × 10″)',
+      description: 'Taxonomy of bioluminescent and subterranean flora. Printed on French uncoated 170 GSM stock with dual-toned lithography.',
+      image: '/images/the-little-explorer-cover.jpg',
+      href: '/examples/ocean-wonders',
     },
     {
-      id: 'mindful-morning',
-      title: 'The Mindful Morning',
-      category: 'Self-Help & Personal Growth',
-      specs: '64 pages • Editorial Typography',
+      id: 'zero-to-ipo',
+      title: 'Zero to IPO: The Playbook',
+      genre: 'Business • Playbook',
+      badge: 'Executive Edition • 288 pp',
+      format: 'Demy Octavo (5.5 × 8.5″)',
+      description: 'Algorithmic synthesis of 40 venture transcripts turned into an actionable field manual with algorithmic data schematics.',
       image: '/images/cover-mindful-morning.jpg',
-      demoUrl: '/examples/mindful-morning',
-      typeParam: 'guide',
+      href: '/examples/ocean-wonders',
     },
-  ];
-
-  const [startIndex, setStartIndex] = useState(0);
-
-  const prev = () => setStartIndex((curr) => (curr > 0 ? curr - 1 : books.length - 1));
-  const next = () => setStartIndex((curr) => (curr < books.length - 1 ? curr + 1 : 0));
-
-  // Circular view for carousel wrapping
-  const displayedBooks = [
-    ...books.slice(startIndex),
-    ...books.slice(0, startIndex),
   ];
 
   return (
-    <section className="py-12 sm:py-16 bg-white dark:bg-[#0A0A0A] border-b border-[#F0F0EE] dark:border-[#1E1E1E] transition-colors relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Section Header */}
-        <div className="flex flex-row items-baseline justify-between mb-8 sm:mb-10">
+    <section className="w-full py-20 bg-surface-container-low dark:bg-[#1a1b22]/50 border-b border-surface-container-highest dark:border-white/10" id="showcase">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row items-baseline justify-between mb-14">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#111111] dark:text-[#F5F5F5] tracking-tight">
-              Explore the BookGenie Library
+            <span className="font-label-caps text-label-caps uppercase tracking-widest text-secondary dark:text-[#fcba64] block mb-2">
+              Curated Gallery
+            </span>
+            <h2 className="font-headline-lg text-headline-lg text-primary dark:text-[#f1effa] tracking-tight">
+              Editions Synthesized in Atelier
             </h2>
-            <p className="text-xs sm:text-sm text-[#666666] dark:text-[#999999] mt-0.5">
-              Production blueprints, typography layouts, and complete working editions.
-            </p>
           </div>
-
           <Link
             href="/examples"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-[#111111] dark:text-[#F5F5F5] hover:text-[#9A6F3C] dark:hover:text-[#E8C28A] transition-colors group shrink-0"
+            className="mt-4 md:mt-0 font-label-ui text-label-ui text-primary dark:text-[#f1effa] inline-flex items-center gap-1 hover:underline group"
           >
-            <span>View full library</span>
-            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            <span>View complete archive</span>
+            <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              north_east
+            </span>
           </Link>
         </div>
 
-        {/* Carousel Container with Left/Right Chevrons */}
-        <div className="relative group/carousel">
-          
-          {/* Left Arrow Button */}
-          <button
-            onClick={prev}
-            aria-label="Previous book"
-            className="absolute -left-3 sm:-left-5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full border border-[#E5E5E5] dark:border-[#2C2C2C] bg-white dark:bg-[#181818] hover:bg-[#F5F5F3] dark:hover:bg-[#222222] shadow-xs flex items-center justify-center text-[#444444] dark:text-[#CCCCCC] transition-all cursor-pointer"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-
-          {/* 4 Books Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-6 items-center">
-            {displayedBooks.map((book) => (
-              <div
-                key={book.id}
-                className="flex items-center gap-3 sm:gap-4 p-3 rounded-2xl border border-transparent hover:border-[#EAEAEA] dark:hover:border-[#262626] hover:bg-[#FAFAFA] dark:hover:bg-[#141414] group hover:-translate-y-1 transition-all duration-300"
-              >
-                {/* 3D Hardcover Book Mockup */}
-                <Link
-                  href={book.demoUrl}
-                  className="relative w-[110px] sm:w-[125px] aspect-[1/1.4] shrink-0 rounded-r-md rounded-l-xs overflow-hidden shadow-[4px_6px_16px_rgba(0,0,0,0.18)] dark:shadow-[4px_6px_20px_rgba(0,0,0,0.6)] border-l-2 border-l-white/60 dark:border-l-white/20 transition-all group-hover:shadow-[6px_10px_24px_rgba(0,0,0,0.22)]"
-                >
+        {/* 3 Master Edition Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {editions.map((edition) => (
+            <div
+              key={edition.id}
+              className="group bg-surface-container-lowest dark:bg-[#121217] p-6 rounded-xl border border-surface-container-highest dark:border-white/10 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+            >
+              <div>
+                {/* 3:4 Optical Cover with Spine Hinge Shadow */}
+                <div className="w-full aspect-[3/4] bg-surface-container-high dark:bg-[#1f1f28] rounded-lg overflow-hidden shadow-md mb-6 relative select-none">
                   <Image
-                    src={book.image}
-                    alt={book.title}
+                    src={edition.image}
+                    alt={edition.title}
                     fill
-                    sizes="(max-width: 640px) 110px, 125px"
-                    className="object-cover object-center"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  {/* Subtle Spine Crease Highlight */}
-                  <div className="absolute inset-y-0 left-0 w-2 bg-gradient-to-r from-black/25 via-white/20 to-transparent pointer-events-none" />
-                </Link>
-
-                {/* Metadata Column next to book */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-serif font-bold text-sm sm:text-base text-[#111111] dark:text-[#F5F5F5] leading-snug line-clamp-2">
-                    {book.title}
-                  </h3>
-                  <div className="text-[11px] font-medium text-[#9A6F3C] dark:text-[#D4AF37] mt-0.5">
-                    {book.category}
-                  </div>
-                  <div className="text-[10px] text-[#888888] dark:text-[#777777] mt-0.5">
-                    {book.specs}
-                  </div>
-
-                  <div className="flex flex-col gap-1.5 mt-2.5">
-                    <Link
-                      href={book.demoUrl}
-                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#111111] dark:text-white hover:text-[#9A6F3C] dark:hover:text-[#E8C28A] transition-colors cursor-pointer"
-                    >
-                      <span>Read preview</span>
-                      <ArrowRight className="w-3 h-3 stroke-[2]" />
-                    </Link>
-
-                    <Link
-                      href={`/create?type=${book.typeParam}`}
-                      className="inline-flex items-center gap-1 text-[10px] text-[#666666] dark:text-[#A0A0A0] hover:text-[#111111] dark:hover:text-white transition-colors"
-                    >
-                      <span>Create similar →</span>
-                    </Link>
+                  {/* Subtle Book Spine Shadow */}
+                  <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-black/25 via-black/10 to-transparent pointer-events-none" />
+                  
+                  {/* Edition Tag */}
+                  <div className="absolute top-3 left-3 bg-surface-container-lowest/90 dark:bg-[#1a1b22]/90 backdrop-blur-xs px-2.5 py-0.5 rounded text-[10px] font-label-caps uppercase tracking-wider text-on-surface dark:text-[#f1effa] border border-surface-container-highest/60 dark:border-white/10">
+                    {edition.badge}
                   </div>
                 </div>
+
+                <span className="font-label-caps text-label-caps text-secondary dark:text-[#fcba64] uppercase tracking-widest block mb-1">
+                  {edition.genre}
+                </span>
+                <h3 className="font-headline-sm text-headline-sm text-primary dark:text-[#f1effa] mb-2">
+                  {edition.title}
+                </h3>
+                <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-300 line-clamp-2 mb-4 leading-relaxed">
+                  {edition.description}
+                </p>
               </div>
-            ))}
-          </div>
 
-          {/* Right Arrow Button */}
-          <button
-            onClick={next}
-            aria-label="Next book"
-            className="absolute -right-3 sm:-right-5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full border border-[#E5E5E5] dark:border-[#2C2C2C] bg-white dark:bg-[#181818] hover:bg-[#F5F5F3] dark:hover:bg-[#222222] shadow-xs flex items-center justify-center text-[#444444] dark:text-[#CCCCCC] transition-all cursor-pointer"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-
+              <div className="pt-4 flex items-center justify-between border-t border-surface-container-highest dark:border-white/10">
+                <span className="font-code-spec text-code-spec text-on-surface-variant dark:text-neutral-400">
+                  {edition.format}
+                </span>
+                <button
+                  onClick={() => router.push(edition.href)}
+                  className="font-label-ui text-label-ui text-primary dark:text-[#fcba64] hover:text-secondary inline-flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Inspect Spread</span>
+                  <span className="material-symbols-outlined text-sm">visibility</span>
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-
       </div>
     </section>
   );
 }
-

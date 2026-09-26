@@ -9,11 +9,9 @@ import {
   ChevronRight,
   Download,
   Share2,
-  Sparkles,
-  ArrowRight,
   Check,
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { MonogramLogo } from '@/components/brand/MonogramLogo';
 import type { BookDocument, BookPageDocument } from '@/lib/book/types';
 
 interface SharedBookReaderClientProps {
@@ -26,6 +24,8 @@ export function SharedBookReaderClient({ initialBook, token }: SharedBookReaderC
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [copySuccess, setCopySuccess] = useState(false);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [paperTheme, setPaperTheme] = useState<'ivory' | 'linen' | 'charcoal'>('ivory');
+  const [fontFamily, setFontFamily] = useState<'garamond' | 'modern'>('garamond');
 
   // Keyboard navigation: ArrowLeft / ArrowRight
   useEffect(() => {
@@ -90,138 +90,178 @@ export function SharedBookReaderClient({ initialBook, token }: SharedBookReaderC
   const activePage: BookPageDocument = book.pages[currentPageIndex] || book.pages[0];
   const totalPages = book.pages.length;
 
+  const paperClasses = {
+    ivory: 'bg-[#FAF7F0] text-[#1A1612] border-[#E8DFC8]',
+    linen: 'bg-[#FCFBF9] text-[#18181B] border-[#E5E5EA]',
+    charcoal: 'bg-[#1E1E24] text-[#E4E1E6] border-[#33333F]',
+  }[paperTheme];
+
   return (
     <div
-      className="min-h-screen flex flex-col bg-[#F8F5EE] text-[#1A1612] relative overflow-x-hidden"
+      className="min-h-screen flex flex-col bg-surface-container dark:bg-[#0e0e14] text-on-surface dark:text-[#f1effa] relative overflow-x-hidden"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Brand Header */}
-      <header className="sticky top-0 z-30 w-full bg-[#FDFBF7]/95 backdrop-blur-md border-b border-[#EFECE6] px-4 sm:px-8 h-18 flex items-center justify-between shadow-2xs">
-        <div className="flex items-center gap-3 sm:gap-4">
-          <Link href="/" className="flex items-center gap-2 group">
-            <span className="font-serif text-lg sm:text-xl font-bold tracking-tight text-[#1A1612]">
-              Book<span className="text-[#9A6F3C]">Genie</span>
-            </span>
-            <span className="hidden sm:inline-block text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-[#F8F3EA] text-[#8C5F2E] border border-[#E8DCCB]">
-              Shared Edition
-            </span>
+      {/* Atelier Shared Header */}
+      <header className="sticky top-0 z-30 w-full bg-surface-container-lowest/95 dark:bg-[#121217]/95 backdrop-blur-md border-b border-surface-container-highest dark:border-white/10 px-4 sm:px-8 h-16 flex items-center justify-between shadow-xs">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+          <Link href="/">
+            <MonogramLogo showStudioBadge={false} />
           </Link>
 
-          <div className="hidden md:flex flex-col border-l border-[#EFECE6] pl-4">
-            <h1 className="text-sm font-bold font-serif text-[#1A1612] truncate max-w-xs">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-2 h-2 rounded-full bg-secondary dark:bg-[#fcba64] shrink-0" />
+            <h1 className="font-headline-sm text-[15px] sm:text-[16px] text-primary dark:text-[#f1effa] truncate max-w-[140px] sm:max-w-xs">
               {book.title}
             </h1>
-            <span className="text-[10px] text-[#9E968E]">
-              {book.bookType} • {totalPages} pages
+            <span className="hidden md:inline-block px-2.5 py-0.5 rounded-full bg-surface-container dark:bg-white/10 font-label-caps text-[10px] text-secondary dark:text-[#fcba64] uppercase tracking-wider">
+              Public Reader
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Paper Substrate Switcher */}
+          <div className="hidden sm:flex items-center bg-surface-container dark:bg-white/5 rounded-full p-1 gap-1 border border-surface-container-highest dark:border-white/10">
+            <button
+              onClick={() => setPaperTheme('ivory')}
+              className={`w-5 h-5 rounded-full bg-[#FAF7F0] shadow-2xs transition-all ${
+                paperTheme === 'ivory' ? 'ring-2 ring-secondary dark:ring-[#fcba64] scale-110' : ''
+              }`}
+              title="Crisp Ivory Paper"
+            />
+            <button
+              onClick={() => setPaperTheme('linen')}
+              className={`w-5 h-5 rounded-full bg-[#FCFBF9] shadow-2xs transition-all ${
+                paperTheme === 'linen' ? 'ring-2 ring-secondary dark:ring-[#fcba64] scale-110' : ''
+              }`}
+              title="Linen White Paper"
+            />
+            <button
+              onClick={() => setPaperTheme('charcoal')}
+              className={`w-5 h-5 rounded-full bg-[#1E1E24] shadow-2xs transition-all ${
+                paperTheme === 'charcoal' ? 'ring-2 ring-secondary dark:ring-[#fcba64] scale-110' : ''
+              }`}
+              title="Muted Charcoal Paper"
+            />
+          </div>
+
+          {/* Share */}
           <button
             onClick={handleShare}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#EFECE6] bg-white hover:bg-[#FDFBF7] text-xs font-semibold text-[#1A1612] transition-all shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-surface-container-highest dark:border-white/10 bg-surface-container-lowest dark:bg-white/5 hover:bg-surface-container dark:hover:bg-white/10 text-xs font-label-ui text-on-surface dark:text-[#f1effa] transition-all shadow-xs cursor-pointer"
           >
             {copySuccess ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="text-emerald-700">Link Copied!</span>
+                <span className="text-emerald-600 font-medium">Copied!</span>
               </>
             ) : (
               <>
-                <Share2 className="w-3.5 h-3.5 text-[#9A6F3C]" />
+                <Share2 className="w-3.5 h-3.5 text-secondary dark:text-[#fcba64]" />
                 <span className="hidden sm:inline">Share</span>
               </>
             )}
           </button>
 
+          {/* PDF Download */}
           <a
             href={`/api/books/${book.id || token}/export?format=pdf`}
             download
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#EFECE6] bg-white hover:bg-[#FDFBF7] text-xs font-semibold text-[#1A1612] transition-all shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-surface-container-highest dark:border-white/10 bg-surface-container-lowest dark:bg-white/5 hover:bg-surface-container dark:hover:bg-white/10 text-xs font-label-ui text-on-surface dark:text-[#f1effa] transition-all shadow-xs"
           >
-            <Download className="w-3.5 h-3.5 text-[#9A6F3C]" />
+            <Download className="w-3.5 h-3.5 text-secondary dark:text-[#fcba64]" />
             <span className="hidden sm:inline">Download</span> PDF
           </a>
 
-          <Link href="/create">
-            <Button variant="primary" size="sm" className="shadow-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5 mr-1" />
-              <span className="hidden sm:inline">Create Your Book</span>
-              <span className="sm:hidden">Create</span>
-            </Button>
+          {/* Create with BookGenie CTA */}
+          <Link
+            href="/create"
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary dark:bg-white text-on-primary dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-label-ui font-semibold shadow-xs transition-all"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#fcba64]"></span>
+            <span>Create Book</span>
           </Link>
         </div>
       </header>
 
       {/* Main Digital Reader Arena */}
-      <main className="flex-1 flex flex-col items-center justify-between p-4 sm:p-8 max-w-4xl mx-auto w-full">
-        <div className="md:hidden text-center mb-4">
-          <h2 className="text-base font-serif font-bold text-[#1A1612]">
-            {book.title}
-          </h2>
-          <span className="text-xs text-[#9E968E]">
-            {book.bookType} • {totalPages} pages
-          </span>
-        </div>
-
-        <div className="relative w-full max-w-2xl min-h-[520px] sm:min-h-[580px] bg-white rounded-3xl border border-[#E8DFC8] shadow-[0_16px_50px_rgba(45,38,32,0.06)] p-6 sm:p-12 flex flex-col justify-between my-auto transition-all">
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#9A6F3C]/40 via-[#9A6F3C]/80 to-[#9A6F3C]/40 rounded-t-3xl" />
-
+      <main className="flex-1 flex flex-col items-center justify-between p-4 sm:p-8 max-w-5xl mx-auto w-full">
+        {/* Folio Leaf Container */}
+        <div
+          className={`relative w-full max-w-3xl min-h-[580px] sm:min-h-[640px] rounded-2xl border shadow-2xl p-6 sm:p-14 flex flex-col justify-between my-auto transition-all ${paperClasses} ${
+            fontFamily === 'garamond' ? 'font-serif' : 'font-sans'
+          }`}
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={activePage.pageNumber}
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.2 }}
               className="flex-1 flex flex-col justify-between"
             >
-              <div className="flex items-center justify-between pb-3 border-b border-[#F4F1EA] mb-6 text-xs text-[#9E968E]">
-                <span className="font-serif italic text-[#8C5F2E]">
-                  {book.title}
+              {/* Top Running Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10 mb-8 font-code-spec text-[11px] opacity-75 uppercase tracking-widest">
+                <span className="truncate max-w-[200px]">
+                  {book.title} • {activePage.pageType === 'cover' ? 'Frontispiece' : `Chapter ${activePage.chapterIndex || 1}`}
                 </span>
-                <span className="font-mono text-[11px]">
-                  Page {activePage.pageNumber}
-                </span>
+                <span className="font-semibold">Folio {activePage.pageNumber}</span>
               </div>
 
-              <div className="space-y-4 my-auto">
+              {/* Main Reading Flow */}
+              <div className="space-y-5 my-auto">
                 {activePage.title && (
-                  <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#1A1612] leading-tight">
-                    {activePage.title}
-                  </h3>
+                  <div className="text-center mb-8">
+                    <span className="font-label-caps text-label-caps text-secondary dark:text-[#fcba64] uppercase tracking-widest block mb-1">
+                      {activePage.pageType === 'cover' ? 'Master Edition' : `Chapter ${activePage.chapterIndex || 1}`}
+                    </span>
+                    <h2 className="font-headline-md text-headline-md tracking-tight leading-tight">
+                      {activePage.title}
+                    </h2>
+                  </div>
                 )}
 
-                {activePage.blocks.map((block) => {
+                {activePage.blocks.map((block, bIdx) => {
                   if (block.type === 'heading') {
                     return (
-                      <h4
+                      <h3
                         key={block.id}
-                        className="font-serif font-bold text-lg sm:text-xl text-[#1A1612] mt-4 mb-2"
+                        className="font-headline-sm text-headline-sm mt-6 mb-3 tracking-tight"
                       >
                         {block.text}
-                      </h4>
+                      </h3>
                     );
                   }
                   if (block.type === 'quote') {
                     return (
                       <blockquote
                         key={block.id}
-                        className="border-l-3 border-[#9A6F3C] pl-4 py-1 my-3 text-sm sm:text-base font-serif italic text-[#6B635B] bg-[#FBF9F4] rounded-r-xl"
+                        className="border-l-2 border-secondary dark:border-[#fcba64] pl-5 py-2 my-4 text-base italic opacity-90"
                       >
                         {block.text}
                       </blockquote>
                     );
                   }
                   if (block.type === 'paragraph') {
+                    const text = block.text || '';
+                    const isFirstParagraph = bIdx === 0 || (bIdx === 1 && activePage.title);
                     return (
                       <p
                         key={block.id}
-                        className="text-sm sm:text-base text-[#2D2620] leading-relaxed font-normal"
+                        className="text-[16px] sm:text-[17px] leading-[29px] text-justify tracking-[-0.005em]"
                       >
-                        {block.text}
+                        {isFirstParagraph && text.length > 20 ? (
+                          <>
+                            <span className="float-left text-[52px] leading-[44px] pt-1 pr-3 font-serif font-medium text-primary dark:text-[#fcba64] select-none">
+                              {text.charAt(0)}
+                            </span>
+                            <span>{text.slice(1)}</span>
+                          </>
+                        ) : (
+                          text
+                        )}
                       </p>
                     );
                   }
@@ -229,11 +269,11 @@ export function SharedBookReaderClient({ initialBook, token }: SharedBookReaderC
                     return (
                       <ul
                         key={block.id}
-                        className="space-y-2 text-xs sm:text-sm text-[#2D2620] my-3 pl-2"
+                        className="space-y-2 text-sm sm:text-base my-4 pl-4"
                       >
                         {block.items.map((item, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <span className="text-[#9A6F3C] font-bold">•</span>
+                          <li key={i} className="flex items-start gap-2.5">
+                            <span className="text-secondary dark:text-[#fcba64] font-bold">•</span>
                             <span>{item}</span>
                           </li>
                         ))}
@@ -241,31 +281,34 @@ export function SharedBookReaderClient({ initialBook, token }: SharedBookReaderC
                     );
                   }
                   if (block.type === 'image') {
-                    const imgUrl = (block as any).url || (block as any).imageUrl || (activePage.pageType === 'cover' ? book.coverUrl : undefined);
+                    const imgUrl =
+                      (block as any).url ||
+                      (block as any).imageUrl ||
+                      (activePage.pageType === 'cover' ? book.coverUrl : undefined);
                     return (
                       <div
                         key={block.id}
-                        className="my-5 p-3 sm:p-4 rounded-2xl bg-[#F8F4EC] border border-[#EAE1D0] flex flex-col items-center text-center overflow-hidden"
+                        className="my-6 p-3 sm:p-4 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex flex-col items-center text-center overflow-hidden"
                       >
                         {imgUrl ? (
-                          <div className="w-full rounded-xl overflow-hidden mb-2 max-h-72 sm:max-h-80 flex items-center justify-center bg-stone-100">
+                          <div className="w-full rounded-lg overflow-hidden mb-2 max-h-72 sm:max-h-84 flex items-center justify-center bg-black/5 dark:bg-white/5">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={imgUrl}
-                              alt={block.caption || 'Book illustration'}
-                              className="w-full h-full object-cover rounded-xl"
+                              alt={block.caption || 'Plate Illustration'}
+                              className="w-full h-full object-cover rounded-lg"
                             />
                           </div>
                         ) : (
-                          <div className="w-10 h-10 rounded-full bg-white text-[#8C5F2E] flex items-center justify-center mb-2 shadow-2xs">
+                          <div className="w-10 h-10 rounded-full bg-white dark:bg-neutral-800 text-secondary dark:text-[#fcba64] flex items-center justify-center mb-2 shadow-2xs">
                             <BookOpen className="w-5 h-5 stroke-[1.8]" />
                           </div>
                         )}
-                        <span className="text-xs font-semibold text-[#8C5F2E] mb-0.5">
-                          {block.caption ? 'Illustration' : 'Illustrated Artwork'}
+                        <span className="font-label-caps text-label-caps text-secondary dark:text-[#fcba64] uppercase tracking-wider mb-0.5">
+                          {block.caption ? 'Illustrated Plate' : 'Editorial Plate'}
                         </span>
-                        <p className="text-[11px] text-[#6B635B] italic max-w-sm">
-                          {block.caption || 'Scene artwork generated for this publication'}
+                        <p className="font-body-sm text-[12px] opacity-80 italic max-w-sm">
+                          {block.caption || 'Archival plate synthesized for this leaf'}
                         </p>
                       </div>
                     );
@@ -274,58 +317,43 @@ export function SharedBookReaderClient({ initialBook, token }: SharedBookReaderC
                 })}
               </div>
 
-              <div className="pt-4 border-t border-[#F4F1EA] flex items-center justify-between text-xs text-[#9E968E]">
-                <span>Chapter {activePage.chapterIndex || 1}</span>
-                <span className="font-serif italic text-[#8C5F2E]">
-                  BookGenie Publishing
+              {/* Bottom Archival Folio Guide */}
+              <div className="pt-6 border-t border-black/10 dark:border-white/10 flex items-center justify-between font-code-spec text-[11px] opacity-75">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-secondary dark:bg-[#fcba64]" />
+                  <span>Knuth-Plass Balanced</span>
                 </span>
+                <span>Signature A • Sheet {activePage.pageNumber}</span>
               </div>
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* Paginated Navigation Controls */}
+        {/* Clean Center Paginated Navigation Controls */}
         <div className="flex items-center gap-6 mt-6 pb-12 select-none">
           <button
             onClick={handlePrevPage}
             disabled={currentPageIndex === 0}
             aria-label="Previous page"
-            className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#1A1612] disabled:text-[#C5BEB3] disabled:cursor-not-allowed hover:text-[#9A6F3C] transition-colors min-h-[44px] min-w-[44px] justify-center cursor-pointer"
+            className="flex items-center gap-1.5 text-xs sm:text-sm font-label-ui font-semibold text-on-surface dark:text-[#f1effa] disabled:opacity-30 disabled:cursor-not-allowed hover:text-secondary dark:hover:text-[#fcba64] transition-colors min-h-[44px] min-w-[44px] justify-center cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
             <span>Previous</span>
           </button>
 
-          <span className="text-xs sm:text-sm font-semibold text-[#6B635B] px-3 py-1 bg-white rounded-full border border-[#EFECE6] shadow-2xs">
-            Page {activePage.pageNumber} of {totalPages}
+          <span className="font-code-spec text-code-spec text-on-surface-variant dark:text-neutral-300 px-4 py-1.5 bg-surface-container-lowest dark:bg-[#1a1b22] rounded-full border border-surface-container-highest dark:border-white/10 shadow-xs">
+            Folio {activePage.pageNumber} of {totalPages}
           </span>
 
           <button
             onClick={handleNextPage}
             disabled={currentPageIndex === totalPages - 1}
             aria-label="Next page"
-            className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#1A1612] disabled:text-[#C5BEB3] disabled:cursor-not-allowed hover:text-[#9A6F3C] transition-colors min-h-[44px] min-w-[44px] justify-center cursor-pointer"
+            className="flex items-center gap-1.5 text-xs sm:text-sm font-label-ui font-semibold text-on-surface dark:text-[#f1effa] disabled:opacity-30 disabled:cursor-not-allowed hover:text-secondary dark:hover:text-[#fcba64] transition-colors min-h-[44px] min-w-[44px] justify-center cursor-pointer"
           >
             <span>Next</span>
             <ChevronRight className="w-4 h-4" />
           </button>
-        </div>
-
-        {/* Viral Reader CTA Bar */}
-        <div className="w-full max-w-2xl p-4 sm:p-5 rounded-2xl bg-[#F8F3EA] border border-[#E8DCCB] flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left mb-8">
-          <div>
-            <span className="text-xs font-serif font-bold text-[#1A1612] block mb-0.5">
-              Loved reading this publication?
-            </span>
-            <span className="text-xs text-[#6B635B]">
-              Create your own illustrated ebook or guide with BookGenie AI in minutes.
-            </span>
-          </div>
-          <Link href="/create" className="shrink-0">
-            <Button variant="primary" size="sm" className="font-semibold shadow-xs">
-              Start Creating Free <ArrowRight className="w-3.5 h-3.5 ml-1" />
-            </Button>
-          </Link>
         </div>
       </main>
     </div>

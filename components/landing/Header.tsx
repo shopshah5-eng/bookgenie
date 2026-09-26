@@ -6,6 +6,7 @@ import { useAuth } from '@/components/auth/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Search, Moon, Sun, Menu, X, ArrowRight, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { MonogramLogo } from '@/components/brand/MonogramLogo';
 
 export function Header() {
   const { user, openAuthModal, signOut } = useAuth();
@@ -49,31 +50,28 @@ export function Header() {
   };
 
   const navLinks = [
-    { label: 'How it works', href: '/how-it-works' },
-    { label: 'Showcase', href: '/examples' },
-    { label: 'Studio', href: '/#studio' },
-    { label: 'Pricing', href: '/pricing' },
-    { label: 'FAQ', href: '/faq' },
+    { label: 'Studio', href: '/create' },
+    { label: 'Reader', href: '/examples' },
+    { label: 'Showcase', href: '/#showcase' },
+    { label: 'How It Works', href: '/how-it-works' },
+    { label: 'Pricing', href: '/#pricing' },
   ];
 
   return (
-    <div className="sticky top-0 z-50 w-full transition-all editorial-glass-header">
-      <header className="max-w-7xl mx-auto px-4 sm:px-8 h-18 flex items-center justify-between transition-all">
-        {/* Brand Wordmark with Gold Sparkle (Exact to Reference) */}
-        <Link href="/" className="flex items-center gap-1.5 group select-none">
-          <span className="text-amber-600 dark:text-amber-400 text-lg font-serif leading-none select-none">✦</span>
-          <span className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-[#111111] dark:text-[#F5F5F5] leading-none">
-            BookGenie
-          </span>
+    <div className="sticky top-0 z-50 w-full transition-all bg-surface-container-lowest/95 dark:bg-[#121217]/95 backdrop-blur-md border-b border-surface-container-highest dark:border-white/10 shadow-[0_1px_8px_rgba(0,0,0,0.03)]">
+      <header className="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between transition-all">
+        {/* Atelier Monogram Logo */}
+        <Link href="/" className="flex items-center group select-none">
+          <MonogramLogo />
         </Link>
 
         {/* Center Editorial Navigation */}
-        <nav className="hidden md:flex items-center gap-7 text-[13px] font-normal text-[#444444] dark:text-[#A0A0A0]">
+        <nav className="hidden md:flex items-center gap-8 text-[13px] font-label-ui text-on-surface-variant dark:text-neutral-400">
           {navLinks.map((link) => (
             <Link
               key={link.label}
               href={link.href}
-              className="hover:text-[#111111] dark:hover:text-[#FFFFFF] transition-colors py-1"
+              className="hover:text-primary dark:hover:text-white transition-colors py-1 font-medium tracking-wide"
             >
               <span>{link.label}</span>
             </Link>
@@ -85,7 +83,7 @@ export function Header() {
           {/* Search Trigger */}
           <button
             onClick={() => router.push('/examples')}
-            className="p-2 text-[#555555] dark:text-[#A0A0A0] hover:text-[#111111] dark:hover:text-white transition-colors cursor-pointer"
+            className="p-2 text-on-surface-variant dark:text-neutral-400 hover:text-primary dark:hover:text-white transition-colors cursor-pointer"
             aria-label="Search library"
           >
             <Search className="w-4 h-4" />
@@ -94,7 +92,7 @@ export function Header() {
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-full text-[#555555] dark:text-[#A0A0A0] hover:text-[#111111] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+            className="p-2 rounded-full text-on-surface-variant dark:text-neutral-400 hover:text-primary dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
             aria-label="Toggle theme"
             title={mounted && isDark ? "Switch to white mode" : "Switch to dark mode"}
           >
@@ -109,20 +107,20 @@ export function Header() {
             <div className="relative">
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#E5E5E5] dark:border-[#2C2C2C] bg-white dark:bg-[#1A1A1A] text-xs sm:text-sm font-medium text-[#111111] dark:text-[#F5F5F5] hover:bg-[#F9F9F8] transition-all shadow-2xs"
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-surface-container-highest dark:border-white/10 bg-surface-container-lowest dark:bg-[#1a1b22] text-xs font-label-ui text-on-surface dark:text-[#f1effa] hover:bg-surface-container-low transition-all shadow-xs"
               >
-                <div className="w-6 h-6 rounded-full bg-[#F0EBE1] dark:bg-[#2A241E] text-[#8C5F2E] dark:text-[#D4AF37] flex items-center justify-center font-bold text-xs">
+                <div className="w-6 h-6 rounded-full bg-secondary-container dark:bg-amber-950 text-secondary dark:text-amber-300 flex items-center justify-center font-bold text-xs">
                   {user.email?.charAt(0).toUpperCase() || 'U'}
                 </div>
                 <span className="max-w-[100px] truncate">{user.user_metadata?.full_name || user.email?.split('@')[0]}</span>
               </button>
 
               {userDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 rounded-2xl bg-white dark:bg-[#1A1A1A] border border-[#E5E5E5] dark:border-[#2C2C2C] shadow-xl py-1.5 z-50">
+                <div className="absolute right-0 mt-2 w-48 rounded-xl bg-surface-container-lowest dark:bg-[#1a1b22] border border-surface-container-highest dark:border-white/10 shadow-xl py-1.5 z-50">
                   <Link
                     href="/create"
                     onClick={() => setUserDropdownOpen(false)}
-                    className="block px-4 py-2 text-xs text-[#111111] dark:text-[#F5F5F5] hover:bg-[#F9F9F8] dark:hover:bg-[#252525] font-medium"
+                    className="block px-4 py-2 text-xs text-on-surface dark:text-[#f1effa] hover:bg-surface-container-low dark:hover:bg-white/5 font-medium"
                   >
                     + Create New Book
                   </Link>
@@ -143,19 +141,19 @@ export function Header() {
             <>
               <button
                 onClick={() => openAuthModal('signin')}
-                className="text-xs sm:text-[13px] font-medium text-[#222222] dark:text-[#D5D5D5] hover:text-[#111111] dark:hover:text-white px-2 py-1.5 transition-colors cursor-pointer"
+                className="font-label-ui text-label-ui text-on-surface-variant dark:text-neutral-300 hover:text-on-surface dark:hover:text-white px-2 py-1.5 transition-colors cursor-pointer"
               >
                 Sign in
               </button>
 
-              {/* Exact reference pill button: Create a book -> */}
-              <button
-                onClick={() => openAuthModal('signup', '/create')}
-                className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-[13px] font-semibold text-white bg-[#111111] hover:bg-black dark:bg-white dark:text-black dark:hover:bg-[#EAEAEA] transition-all active:scale-[0.98] shadow-xs cursor-pointer"
+              {/* Atelier Start Creating Button with Gold Indicator */}
+              <Link
+                href="/create"
+                className="inline-flex items-center gap-2 bg-primary dark:bg-white text-on-primary dark:text-black hover:bg-on-surface-variant dark:hover:bg-neutral-200 transition-colors px-4 py-2 rounded-full font-label-ui text-label-ui tracking-wide shadow-sm hover:shadow-[0_0_12px_rgba(252,186,100,0.35)]"
               >
-                <span>Create a book</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#fcba64]"></span>
+                <span>Start Creating</span>
+              </Link>
             </>
           )}
         </div>

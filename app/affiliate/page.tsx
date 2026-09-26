@@ -61,18 +61,18 @@ export default function AffiliatePage() {
 
   return (
     <AuthProvider>
-      <div className="min-h-screen flex flex-col bg-[#FDFBF7] text-[#1A1612]">
+      <div className="min-h-screen flex flex-col bg-surface dark:bg-[#0f1015] text-on-surface dark:text-[#f3f0f7] transition-colors">
         <Header />
 
         <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F8F3EA] text-[#8C5F2E] border border-[#E8DCCB] text-[11px] font-semibold uppercase tracking-wider mb-3">
-              <Sparkles className="w-3.5 h-3.5" /> Affiliate Program
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/30 text-secondary dark:text-secondary-fixed border border-secondary/20 text-xs font-label-caps tracking-widest uppercase mb-4">
+              <Sparkles className="w-3.5 h-3.5" /> Affiliate Atelier
             </span>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#1A1612] tracking-tight mb-4">
+            <h1 className="font-headline-lg text-3xl sm:text-4xl lg:text-5xl text-on-surface dark:text-[#f3f0f7] tracking-tight mb-4">
               Earn with BookGenie
             </h1>
-            <p className="text-sm sm:text-base text-[#6B635B]">
+            <p className="font-body-md text-sm sm:text-base text-on-surface-variant dark:text-[#c4c7c5]">
               Partner with the leading luxury AI publishing platform. Share BookGenie with your audience and build recurring monthly revenue.
             </p>
           </div>
@@ -82,16 +82,16 @@ export default function AffiliatePage() {
             {benefits.map((b) => (
               <div
                 key={b.title}
-                className="p-8 rounded-3xl bg-white border border-[#EFECE6] shadow-xs flex flex-col justify-between"
+                className="p-8 rounded-3xl bg-surface-container-low dark:bg-[#1a1b22] border border-outline-variant/20 dark:border-white/5 shadow-xs flex flex-col justify-between"
               >
                 <div>
-                  <div className="w-12 h-12 rounded-2xl bg-[#F8F3EA] flex items-center justify-center border border-[#E8DCCB] mb-5">
+                  <div className="w-12 h-12 rounded-2xl bg-secondary-container/20 dark:bg-white/5 flex items-center justify-center border border-secondary/20 mb-5">
                     {b.icon}
                   </div>
-                  <h3 className="text-lg font-serif font-bold text-[#1A1612] mb-2">
+                  <h3 className="font-title-editorial text-lg text-on-surface dark:text-white mb-2">
                     {b.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#6B635B] leading-relaxed">
+                  <p className="font-body-md text-xs sm:text-sm text-on-surface-variant dark:text-[#c4c7c5] leading-relaxed">
                     {b.desc}
                   </p>
                 </div>
@@ -100,30 +100,30 @@ export default function AffiliatePage() {
           </div>
 
           {/* Application Form Card */}
-          <div className="max-w-xl mx-auto rounded-3xl bg-white border border-[#EFECE6] p-8 sm:p-10 shadow-lg text-center">
+          <div className="max-w-xl mx-auto rounded-3xl bg-surface-container-low dark:bg-[#1a1b22] border border-outline-variant/20 dark:border-white/5 p-8 sm:p-10 shadow-lg text-center">
             {applied ? (
               <div className="py-8 space-y-3">
-                <div className="w-12 h-12 mx-auto rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <div className="w-12 h-12 mx-auto rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-serif font-bold text-[#1A1612]">
+                <h3 className="font-headline-sm text-xl text-on-surface dark:text-white">
                   Application Received!
                 </h3>
-                <p className="text-xs sm:text-sm text-[#6B635B] max-w-md mx-auto">
+                <p className="font-body-md text-xs sm:text-sm text-on-surface-variant dark:text-[#c4c7c5] max-w-md mx-auto">
                   Thank you for applying to the BookGenie Partner Program. Our team will review your application and email your custom referral link within 24 hours.
                 </p>
               </div>
             ) : (
               <>
-                <h2 className="text-2xl font-serif font-bold text-[#1A1612] mb-2">
+                <h2 className="font-headline-sm text-2xl text-on-surface dark:text-white mb-2">
                   Apply to Become an Affiliate Partner
                 </h2>
-                <p className="text-xs sm:text-sm text-[#6B635B] mb-6">
+                <p className="font-body-md text-xs sm:text-sm text-on-surface-variant dark:text-[#c4c7c5] mb-6">
                   Fill out the form below to receive your unique referral link and promotional toolkit.
                 </p>
 
                 {error && (
-                  <div className="p-3.5 mb-4 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-xl">
+                  <div className="p-3.5 mb-4 text-xs font-medium text-red-600 dark:text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl">
                     {error}
                   </div>
                 )}
@@ -140,7 +140,7 @@ export default function AffiliatePage() {
                   />
 
                   <div>
-                    <label htmlFor="affiliate-email" className="block text-xs font-semibold text-[#111111] mb-1.5">
+                    <label htmlFor="affiliate-email" className="block text-xs font-semibold text-on-surface dark:text-white mb-1.5 font-label-caps">
                       Your Email Address
                     </label>
                     <Input
@@ -156,7 +156,7 @@ export default function AffiliatePage() {
                   </div>
 
                   <div>
-                    <label htmlFor="affiliate-website" className="block text-xs font-semibold text-[#111111] mb-1.5">
+                    <label htmlFor="affiliate-website" className="block text-xs font-semibold text-on-surface dark:text-white mb-1.5 font-label-caps">
                       Website or Primary Social Channel
                     </label>
                     <Input
@@ -175,7 +175,7 @@ export default function AffiliatePage() {
                     type="submit" 
                     variant="primary" 
                     size="lg" 
-                    className="w-full mt-2 font-semibold"
+                    className="w-full mt-2 font-semibold bg-primary hover:bg-primary-hover text-on-primary shadow-sm"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? 'Submitting Application...' : (

@@ -9,19 +9,19 @@ import { AuthModal } from '@/components/auth/AuthModal';
 export default function TermsPage() {
   return (
     <AuthProvider>
-      <div className="min-h-screen flex flex-col bg-[#FDFBF7] text-[#1A1612]">
+      <div className="min-h-screen flex flex-col bg-surface-container-lowest dark:bg-[#121217] text-on-surface dark:text-[#f1effa] transition-colors">
         <Header />
         <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
-          <h1 className="text-3xl sm:text-4xl font-serif font-bold text-[#1A1612] mb-3">
+          <h1 className="font-display-hero text-display-hero-mobile md:text-headline-lg text-primary dark:text-[#f1effa] mb-3">
             Terms of Service
           </h1>
-          <p className="text-xs text-[#9E968E] mb-8 pb-4 border-b border-[#EFECE6]">
+          <p className="font-code-spec text-xs text-on-surface-variant dark:text-neutral-400 mb-8 pb-4 border-b border-surface-container-highest dark:border-white/10">
             Last Updated: July 2026
           </p>
 
-          <div className="prose max-w-none text-xs sm:text-sm text-[#4A4036] space-y-6 leading-relaxed">
+          <div className="prose max-w-none font-body-sm text-xs sm:text-sm text-on-surface-variant dark:text-neutral-300 space-y-6 leading-relaxed">
             <section>
-              <h2 className="text-lg font-serif font-bold text-[#1A1612] mb-2">1. Acceptance of Terms</h2>
+              <h2 className="font-headline-sm text-lg font-bold text-primary dark:text-[#f1effa] mb-2">1. Acceptance of Terms</h2>
               <p>By accessing or using BookGenie, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you may not access or use the service.</p>
             </section>
             <section>

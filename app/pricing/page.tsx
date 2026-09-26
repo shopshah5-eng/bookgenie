@@ -7,81 +7,14 @@ import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 import { AuthProvider, useAuth } from '@/components/auth/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
-import { Button } from '@/components/ui/Button';
-import { Sparkles, Check, ArrowRight, CheckCircle2, Info } from 'lucide-react';
 
 function PricingContent() {
   const router = useRouter();
   const { user, openAuthModal } = useAuth();
-  const [currency, setCurrency] = useState<'INR' | 'USD'>('INR');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
   const [upgradingTier, setUpgradingTier] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const plans = [
-    {
-      id: 'free',
-      name: 'Starter',
-      badge: 'Always Free',
-      priceINR: '₹0',
-      priceUSD: '$0',
-      period: 'forever',
-      description: 'Test the power of AI publishing with complete core features.',
-      features: [
-        '3 generated books per month',
-        'Up to 16 pages per book',
-        'Standard cover artwork',
-        'Digital interactive reader',
-        'Basic natural-language revisions',
-        'Watermarked sample exports',
-      ],
-      cta: 'Start Free',
-      variant: 'secondary' as const,
-      isPopular: false,
-    },
-    {
-      id: 'creator',
-      name: 'Creator',
-      badge: 'Most Popular • Beta Access',
-      priceINR: '₹999',
-      priceUSD: '$19',
-      period: 'per month',
-      description: 'For educators, authors, and entrepreneurs publishing regularly. Free during beta.',
-      features: [
-        '20 generated books per month',
-        'Up to 60 pages per book',
-        'High-resolution Gemini illustrations',
-        'Full PDF & EPUB downloads (No watermark)',
-        'Commercial publishing rights',
-        'Unlimited AI revisions & versioning',
-        'Character consistency bibles',
-      ],
-      cta: 'Activate Creator (Beta)',
-      variant: 'primary' as const,
-      isPopular: true,
-    },
-    {
-      id: 'pro',
-      name: 'Pro Publisher',
-      badge: 'Power Authors',
-      priceINR: '₹2,499',
-      priceUSD: '$49',
-      period: 'per month',
-      description: 'Maximum generation volume, high-capacity pages, and priority AI queue.',
-      features: [
-        '60 generated books per month',
-        'Up to 150 pages per book',
-        '50 high-res illustrations / month',
-        'Priority server-side generation queue',
-        'Full PDF & EPUB with custom print CSS',
-        'Full commercial and distribution rights',
-        'Early access to KDP export templates',
-      ],
-      cta: 'Activate Pro (Beta)',
-      variant: 'secondary' as const,
-      isPopular: false,
-    },
-  ];
 
   const handleSelectPlan = async (planId: string) => {
     setSuccessMessage(null);
@@ -92,173 +25,317 @@ function PricingContent() {
       return;
     }
 
-    if (planId === 'free') {
+    if (planId === 'author-single') {
       router.push('/create');
       return;
     }
 
     setUpgradingTier(planId);
+
     try {
-      const res = await fetch('/api/subscription/upgrade', {
+      const response = await fetch('/api/subscription/upgrade', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tier: planId }),
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to update subscription.');
-      }
+      const data = await response.json();
 
-      setSuccessMessage(
-        `Your account has been upgraded to ${planId.toUpperCase()} Plan (Beta Access)! You now have unlocked commercial rights and expanded quotas.`
-      );
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Something went wrong while upgrading plan.');
+      if (response.ok) {
+        setSuccessMessage(`Plan successfully upgraded to ${data.subscriptionTier.toUpperCase()}!`);
+      } else {
+        setErrorMessage(data.error || 'Upgrade failed. Please try again.');
+      }
+    } catch {
+      setErrorMessage('Network connection error.');
     } finally {
       setUpgradingTier(null);
     }
   };
 
+  const atelierPrice = billingCycle === 'annual' ? '$129' : '$159';
+  const boutiquePrice = billingCycle === 'annual' ? '$349' : '$399';
+
   return (
-    <div className="min-h-screen flex flex-col bg-white text-[#111111]">
+    <div className="min-h-screen flex flex-col bg-surface-container-lowest dark:bg-[#121217] text-on-surface dark:text-[#f1effa] transition-colors">
       <Header />
 
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F5F5F3] text-[#111111] border border-[#E5E5E5] text-[11px] font-semibold uppercase tracking-wider mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-amber-600" /> Transparent Pricing • Public Beta
-          </span>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#111111] tracking-tight mb-4">
-            Simple, Transparent Publishing
-          </h1>
-          <p className="text-sm sm:text-base text-[#666666] mb-6">
-            Explore our planned tiers. During our public beta, creators can activate Creator or Pro features directly with no billing commitment.
-          </p>
+      <main className="flex-1 w-full pt-10 pb-20">
+        {/* Architectural Ambient Gradient */}
+        <div className="relative w-full overflow-hidden">
+          <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[980px] h-[480px] bg-gradient-to-b from-secondary/10 via-surface-container-low/40 to-transparent blur-3xl pointer-events-none -z-10" />
 
-          {/* Currency Switcher */}
-          <div className="inline-flex items-center p-1 rounded-xl bg-white border border-[#E5E5E5] shadow-2xs">
-            <button
-              type="button"
-              onClick={() => setCurrency('INR')}
-              className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
-                currency === 'INR'
-                  ? 'bg-[#111111] text-white shadow-2xs'
-                  : 'text-[#666666] hover:text-[#111111]'
-              }`}
-            >
-              ₹ INR (India)
-            </button>
-            <button
-              type="button"
-              onClick={() => setCurrency('USD')}
-              className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
-                currency === 'USD'
-                  ? 'bg-[#111111] text-white shadow-2xs'
-                  : 'text-[#666666] hover:text-[#111111]'
-              }`}
-            >
-              $ USD (Global)
-            </button>
+          {/* Editorial Header Section */}
+          <div className="max-w-6xl mx-auto px-6 lg:px-12 pt-8 pb-14 text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container dark:bg-white/5 border border-surface-container-highest dark:border-white/10 text-on-surface-variant dark:text-neutral-400 mb-6 shadow-xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-secondary dark:bg-[#fcba64]" />
+              <span className="font-label-caps text-label-caps tracking-widest text-on-surface dark:text-[#f1effa]">
+                TRANSPARENT ATELIER PRICING
+              </span>
+            </div>
+
+            <h1 className="font-display-hero text-display-hero-mobile md:text-display-hero text-primary dark:text-[#f1effa] tracking-tight max-w-4xl mx-auto mb-6">
+              Unrestricted Authorship.<br />
+              <span className="italic font-title-editorial text-secondary dark:text-[#fcba64]">
+                No Royalty Traps.
+              </span>
+            </h1>
+
+            <p className="font-body-lg text-body-lg text-on-surface-variant dark:text-neutral-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+              You retain 100% of your copyright, royalties, and generated master files. Transparent plans for independent novelists, boutique imprints, and creative studios.
+            </p>
+
+            {/* Billing Cycle Toggle Switch */}
+            <div className="inline-flex items-center gap-2 p-1.5 rounded-full bg-surface-container dark:bg-white/5 shadow-xs border border-surface-container-highest dark:border-white/10">
+              <button
+                onClick={() => setBillingCycle('monthly')}
+                className={`px-5 py-2 rounded-full font-label-ui text-label-ui transition-all cursor-pointer ${
+                  billingCycle === 'monthly'
+                    ? 'bg-primary dark:bg-white text-on-primary dark:text-black shadow-xs font-semibold'
+                    : 'text-on-surface-variant dark:text-neutral-400 hover:text-primary dark:hover:text-white'
+                }`}
+              >
+                Monthly Billing
+              </button>
+              <button
+                onClick={() => setBillingCycle('annual')}
+                className={`px-5 py-2 rounded-full font-label-ui text-label-ui transition-all flex items-center gap-2 cursor-pointer ${
+                  billingCycle === 'annual'
+                    ? 'bg-primary dark:bg-white text-on-primary dark:text-black shadow-xs font-semibold'
+                    : 'text-on-surface-variant dark:text-neutral-400 hover:text-primary dark:hover:text-white'
+                }`}
+              >
+                <span>Annual Billing</span>
+                <span className="font-label-caps text-label-caps bg-secondary-container dark:bg-amber-950 text-secondary dark:text-amber-300 px-2 py-0.5 rounded-full">
+                  Save 20%
+                </span>
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Beta Notice Banner */}
-        <div className="max-w-2xl mx-auto mb-10 p-4 bg-[#FAF9F5] border border-[#EFECE6] rounded-2xl flex items-start gap-3 text-xs text-[#555555]">
-          <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-          <div>
-            <strong className="text-[#111111]">Early Access Beta:</strong> Automated Stripe/Razorpay payments will be introduced at production launch. You can activate Creator or Pro perks right now on your account without any credit card.
-          </div>
-        </div>
-
-        {/* Status Alerts */}
-        {successMessage && (
-          <div className="max-w-2xl mx-auto mb-8 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3 text-emerald-900 shadow-xs">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-            <div className="flex-1 text-xs sm:text-sm">
-              <span className="font-semibold block">Beta Access Active!</span>
+          {/* Notifications */}
+          {successMessage && (
+            <div className="max-w-2xl mx-auto mb-8 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-center font-label-ui text-sm">
               {successMessage}
             </div>
-            <Link href="/create">
-              <Button size="sm" variant="primary" className="text-xs bg-[#111111] text-white">
-                Create Now
-              </Button>
-            </Link>
-          </div>
-        )}
+          )}
+          {errorMessage && (
+            <div className="max-w-2xl mx-auto mb-8 p-4 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 text-center font-label-ui text-sm">
+              {errorMessage}
+            </div>
+          )}
 
-        {errorMessage && (
-          <div className="max-w-2xl mx-auto mb-8 p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 text-xs sm:text-sm">
-            {errorMessage}
-          </div>
-        )}
-
-        {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 items-stretch">
-          {plans.map((plan) => (
-            <div
-              key={plan.id}
-              className={`relative rounded-2xl p-8 flex flex-col justify-between transition-all duration-200 ${
-                plan.isPopular
-                  ? 'bg-white border-2 border-[#111111] shadow-lg transform md:-translate-y-1'
-                  : 'bg-white border border-[#E5E5E5] shadow-xs hover:border-[#CCCCCC]'
-              }`}
-            >
-              {plan.isPopular && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#111111] text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full shadow-xs">
-                  Most Popular
-                </span>
-              )}
-
-              <div>
-                <div className="text-xs uppercase tracking-wider font-semibold text-[#8C5F2E] mb-2">
-                  {plan.badge}
-                </div>
-                <h3 className="text-2xl font-serif font-bold text-[#111111] mb-2">
-                  {plan.name}
-                </h3>
-                <p className="text-xs text-[#666666] mb-6 leading-relaxed">
-                  {plan.description}
-                </p>
-
-                <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-[#F0F0EE]">
-                  <span className="text-4xl font-serif font-bold text-[#111111]">
-                    {currency === 'INR' ? plan.priceINR : plan.priceUSD}
-                  </span>
-                  <span className="text-xs text-[#888888]">/ {plan.period}</span>
-                </div>
-
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feat, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-[#333333]">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>{feat}</span>
+          {/* Pricing Cards Grid */}
+          <div className="max-w-7xl mx-auto px-6 lg:px-12 pb-24">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+              
+              {/* Card 1: Author Single */}
+              <div className="flex flex-col justify-between rounded-xl bg-surface-container-lowest dark:bg-[#181820] border border-surface-container-highest dark:border-white/10 p-8 lg:p-10 shadow-xs transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="font-code-spec text-code-spec text-on-surface-variant dark:text-neutral-400 uppercase tracking-wider">
+                      Folio / Single Volume
+                    </span>
+                    <span className="material-symbols-outlined text-outline">menu_book</span>
+                  </div>
+                  <h3 className="font-headline-md text-headline-md text-primary dark:text-[#f1effa] mb-2">
+                    Author Single
+                  </h3>
+                  <p className="font-body-md text-body-md text-on-surface-variant dark:text-neutral-400 mb-6 leading-relaxed">
+                    Perfect for independent authors crafting a single collector&apos;s volume with print-grade integrity.
+                  </p>
+                  <div className="flex items-baseline gap-1.5 mb-8 pb-8 border-b border-surface-container-highest dark:border-white/10">
+                    <span className="font-display-hero text-display-hero-mobile sm:text-display-hero text-primary dark:text-[#f1effa] font-title-editorial">
+                      $49
+                    </span>
+                    <span className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-400">
+                      / single book
+                    </span>
+                  </div>
+                  <p className="font-label-caps text-label-caps text-on-surface-variant dark:text-neutral-400 uppercase mb-4 tracking-wider font-semibold">
+                    Included Specifications
+                  </p>
+                  <ul className="space-y-4 mb-8">
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
+                      <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
+                        <strong>1 Complete Book Pipeline</strong> (up to 60k words)
+                      </span>
                     </li>
-                  ))}
-                </ul>
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
+                      <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
+                        20 Style-Consistent Illustrated Plates
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
+                      <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
+                        Print-Ready CMYK PDF + Validated EPUB3
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
+                      <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
+                        Full Archival Typography &amp; Hyphenation
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
+                      <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
+                        100% Retained Intellectual &amp; Commercial Rights
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+                <button
+                  onClick={() => handleSelectPlan('author-single')}
+                  className="w-full py-3.5 px-6 rounded-lg text-center font-label-ui text-label-ui text-primary dark:text-black bg-surface-container-low dark:bg-white hover:bg-surface-container-high transition-colors font-semibold active:scale-[0.99] cursor-pointer"
+                >
+                  Synthesize Single Book
+                </button>
               </div>
 
-              <Button
-                variant={plan.variant}
-                size="lg"
-                className={`w-full shadow-xs font-semibold ${
-                  plan.isPopular
-                    ? 'bg-[#111111] hover:bg-[#222222] text-white'
-                    : 'bg-white border border-[#E5E5E5] text-[#111111] hover:bg-[#F9F9F8]'
-                }`}
-                disabled={upgradingTier === plan.id}
-                onClick={() => handleSelectPlan(plan.id)}
-              >
-                {upgradingTier === plan.id ? 'Activating...' : (
-                  <>{plan.cta} <ArrowRight className="w-4 h-4 ml-1" /></>
-                )}
-              </Button>
-            </div>
-          ))}
-        </div>
+              {/* Card 2: Studio Atelier (Featured Obsidian Elevation) */}
+              <div className="relative flex flex-col justify-between rounded-xl bg-primary dark:bg-[#000000] text-on-primary border border-secondary/30 dark:border-white/20 p-8 lg:p-10 shadow-2xl transition-all duration-300 hover:-translate-y-1.5 overflow-hidden">
+                {/* Ambient Gold Foil Halo Effect */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#fcba64] to-transparent" />
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="font-label-caps text-label-caps px-3 py-1 rounded-full bg-secondary-container text-secondary dark:bg-amber-950 dark:text-amber-300 font-semibold tracking-wider">
+                      MOST POPULAR ATELIER
+                    </span>
+                    <span className="material-symbols-outlined text-[#fcba64]">auto_awesome</span>
+                  </div>
+                  <h3 className="font-headline-md text-headline-md text-white mb-2">
+                    Studio Atelier
+                  </h3>
+                  <p className="font-body-md text-body-md text-neutral-300 mb-6 leading-relaxed">
+                    For prolific writers, series creators, and professional publishing stylists demanding perfection.
+                  </p>
+                  <div className="flex items-baseline gap-1.5 mb-8 pb-8 border-b border-white/10">
+                    <span className="font-display-hero text-display-hero-mobile sm:text-display-hero text-white font-title-editorial">
+                      {atelierPrice}
+                    </span>
+                    <span className="font-body-sm text-body-sm text-neutral-400">
+                      / month {billingCycle === 'annual' ? 'billed annually' : 'billed monthly'}
+                    </span>
+                  </div>
+                  <p className="font-label-caps text-label-caps text-[#fcba64] uppercase mb-4 tracking-wider font-semibold">
+                    Atelier Core Privileges
+                  </p>
+                  <ul className="space-y-4 mb-8">
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-[#fcba64] text-[20px] shrink-0">verified</span>
+                      <span className="font-body-md text-body-md text-white">
+                        <strong>5 Complete Books</strong> produced per month
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-[#fcba64] text-[20px] shrink-0">verified</span>
+                      <span className="font-body-md text-body-md text-white">
+                        Unlimited AI Latent Visual Plates &amp; Dust Jackets
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-[#fcba64] text-[20px] shrink-0">verified</span>
+                      <span className="font-body-md text-body-md text-white">
+                        Custom Font License Ingestion &amp; OpenType ligatures
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-[#fcba64] text-[20px] shrink-0">verified</span>
+                      <span className="font-body-md text-body-md text-white">
+                        Interactive Web Flipbook Reader on Custom Domains
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-[#fcba64] text-[20px] shrink-0">verified</span>
+                      <span className="font-body-md text-body-md text-white">
+                        IngramSpark &amp; KDP Direct Automated Submission API
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-[#fcba64] text-[20px] shrink-0">verified</span>
+                      <span className="font-body-md text-body-md text-white">
+                        Priority OpenRouter Claude 3.5 &amp; Gemini Pro Models
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+                <button
+                  onClick={() => handleSelectPlan('creator')}
+                  disabled={upgradingTier === 'creator'}
+                  className="w-full py-3.5 px-6 rounded-lg text-center font-label-ui text-label-ui text-black bg-[#fcba64] hover:bg-[#ffddb6] transition-all shadow-md font-semibold active:scale-[0.99] cursor-pointer"
+                >
+                  {upgradingTier === 'creator' ? 'Activating...' : 'Join Studio Atelier'}
+                </button>
+              </div>
 
-        <div className="text-center text-xs text-[#888888]">
-          Public Beta Evaluation Edition • No credit card required • Commercial rights included during beta testing.
+              {/* Card 3: Boutique Press */}
+              <div className="flex flex-col justify-between rounded-xl bg-surface-container-lowest dark:bg-[#181820] border border-surface-container-highest dark:border-white/10 p-8 lg:p-10 shadow-xs transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="font-code-spec text-code-spec text-on-surface-variant dark:text-neutral-400 uppercase tracking-wider">
+                      Enterprise &amp; Imprints
+                    </span>
+                    <span className="material-symbols-outlined text-outline">domain</span>
+                  </div>
+                  <h3 className="font-headline-md text-headline-md text-primary dark:text-[#f1effa] mb-2">
+                    Boutique Press
+                  </h3>
+                  <p className="font-body-md text-body-md text-on-surface-variant dark:text-neutral-400 mb-6 leading-relaxed">
+                    Designed for independent presses, publishing houses, and design studios scaling large catalogs.
+                  </p>
+                  <div className="flex items-baseline gap-1.5 mb-8 pb-8 border-b border-surface-container-highest dark:border-white/10">
+                    <span className="font-display-hero text-display-hero-mobile sm:text-display-hero text-primary dark:text-[#f1effa] font-title-editorial">
+                      {boutiquePrice}
+                    </span>
+                    <span className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-400">
+                      / month {billingCycle === 'annual' ? 'billed annually' : 'billed monthly'}
+                    </span>
+                  </div>
+                  <p className="font-label-caps text-label-caps text-on-surface-variant dark:text-neutral-400 uppercase mb-4 tracking-wider font-semibold">
+                    Enterprise Capabilities
+                  </p>
+                  <ul className="space-y-4 mb-8">
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
+                      <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
+                        <strong>25 Complete Books</strong> produced per month
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
+                      <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
+                        Multi-Seat Atelier Team Collaboration
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
+                      <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
+                        Automated Blurb, IngramSpark &amp; KDP ISBN Provisioning
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
+                      <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
+                        Dedicated Typographical Engineering Support
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+                <button
+                  onClick={() => handleSelectPlan('pro')}
+                  disabled={upgradingTier === 'pro'}
+                  className="w-full py-3.5 px-6 rounded-lg text-center font-label-ui text-label-ui text-primary dark:text-black bg-surface-container-low dark:bg-white hover:bg-surface-container-high transition-colors font-semibold active:scale-[0.99] cursor-pointer"
+                >
+                  {upgradingTier === 'pro' ? 'Activating...' : 'Contact Press Atelier'}
+                </button>
+              </div>
+
+            </div>
+          </div>
         </div>
       </main>
 

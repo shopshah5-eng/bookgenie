@@ -2,51 +2,113 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-surface: #fbf8ff;
+  --color-surface-dim: #dad9e3;
+  --color-surface-bright: #fbf8ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f4f2fd;
+  --color-surface-container: #eeedf7;
+  --color-surface-container-high: #e8e7f1;
+  --color-surface-container-highest: #e3e1ec;
+  --color-on-surface: #1a1b22;
+  --color-on-surface-variant: #47464b;
+  --color-inverse-surface: #2f3038;
+  --color-inverse-on-surface: #f1effa;
+  --color-outline: #77767b;
+  --color-outline-variant: #c8c5cb;
+  --color-surface-tint: #5f5e61;
+  --color-primary: #000000;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1b1b1e;
+  --color-on-primary-container: #858387;
+  --color-inverse-primary: #c8c5ca;
+  --color-secondary: #775a19;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #fed488;
+  --color-on-secondary-container: #785a1a;
+  --color-tertiary: #000000;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #2a1800;
+  --color-on-tertiary-container: #b07929;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-primary-fixed: #e4e1e6;
+  --color-primary-fixed-dim: #c8c5ca;
+  --color-on-primary-fixed: #1b1b1e;
+  --color-on-primary-fixed-variant: #47464a;
+  --color-secondary-fixed: #ffdea5;
+  --color-secondary-fixed-dim: #e9c176;
+  --color-on-secondary-fixed: #261900;
+  --color-on-secondary-fixed-variant: #5d4201;
+  --color-tertiary-fixed: #ffddb6;
+  --color-tertiary-fixed-dim: #fcba64;
+  --color-on-tertiary-fixed: #2a1800;
+  --color-on-tertiary-fixed-variant: #643f00;
+  --color-background: #fbf8ff;
+  --color-on-background: #1a1b22;
+  --color-surface-variant: #e3e1ec;
+
+  --spacing-gutter-mobile: 1rem;
+  --spacing-gutter: 1.5rem;
+  --spacing-gutter-desktop: 2rem;
+  --spacing-margin-mobile: 1.25rem;
+  --spacing-margin: 2rem;
+  --spacing-margin-desktop: 3rem;
+  --spacing-space-xs: 0.25rem;
+  --spacing-space-sm: 0.5rem;
+  --spacing-space-md: 1rem;
+  --spacing-space-lg: 1.5rem;
+  --spacing-space-xl: 2.5rem;
+}
+
 @layer base {
   :root {
-    --canvas: #FFFFFF;
-    --canvas-pure: #FFFFFF;
-    --canvas-subtle: #FAFAFA;
-    --canvas-sand: #F5F5F5;
+    --canvas: #fbf8ff;
+    --canvas-pure: #ffffff;
+    --canvas-subtle: #f4f2fd;
+    --canvas-sand: #eeedf7;
 
-    --foreground: #111111;
-    --foreground-muted: #555555;
-    --foreground-faint: #888888;
+    --foreground: #1a1b22;
+    --foreground-muted: #47464b;
+    --foreground-faint: #77767b;
     
-    --card: #FFFFFF;
-    --card-foreground: #111111;
-    --border: #EAEAEA;
-    --border-subtle: #F2F2F2;
+    --card: #ffffff;
+    --card-foreground: #1a1b22;
+    --border: #e3e1ec;
+    --border-subtle: #eeedf7;
 
-    --gold-primary: #A47A45;
-    --gold-hover: #8C5F2E;
-    --gold-light: #F9F7F4;
-    --gold-border: #E8E5DF;
-    --gold-gradient: linear-gradient(135deg, #B88E56 0%, #8C5F2E 100%);
+    --gold-primary: #775a19;
+    --gold-hover: #5d4201;
+    --gold-light: #fed488;
+    --gold-border: #e9c176;
+    --gold-gradient: linear-gradient(135deg, #775a19 0%, #b07929 100%);
 
-    --font-serif: var(--font-playfair), 'Cormorant Garamond', Georgia, serif;
-    --font-sans: var(--font-jakarta), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-serif: var(--font-playfair), 'Playfair Display', Georgia, serif;
+    --font-sans: var(--font-jakarta), 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   .dark {
-    --canvas: #0A0A0A;
-    --canvas-pure: #000000;
-    --canvas-subtle: #141414;
-    --canvas-sand: #1C1C1C;
-    --foreground: #F5F5F5;
-    --foreground-muted: #A0A0A0;
-    --foreground-faint: #666666;
+    --canvas: #121217;
+    --canvas-pure: #09090c;
+    --canvas-subtle: #1a1b22;
+    --canvas-sand: #24252e;
+    --foreground: #f1effa;
+    --foreground-muted: #c8c5cb;
+    --foreground-faint: #77767b;
 
-    --card: #141414;
-    --card-foreground: #F5F5F5;
-    --border: rgba(255, 255, 255, 0.1);
-    --border-subtle: rgba(255, 255, 255, 0.05);
+    --card: #1a1b22;
+    --card-foreground: #f1effa;
+    --border: rgba(227, 225, 236, 0.12);
+    --border-subtle: rgba(227, 225, 236, 0.06);
 
-    --gold-primary: #D4AF37;
-    --gold-hover: #E5C07B;
-    --gold-light: #1F1B12;
-    --gold-border: #3A3222;
-    --gold-gradient: linear-gradient(135deg, #D4AF37 0%, #A47A45 100%);
+    --gold-primary: #fcba64;
+    --gold-hover: #ffddb6;
+    --gold-light: #2a1800;
+    --gold-border: #785a1a;
+    --gold-gradient: linear-gradient(135deg, #fcba64 0%, #fed488 100%);
   }
 
   * {
@@ -82,6 +144,117 @@
     font-family: var(--font-serif);
     letter-spacing: -0.015em;
   }
+}
+
+/* Material Symbols Outlined Icon Font */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+/* DESIGN.md Atelier Typography Tokens */
+.font-display-hero {
+  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
+  font-size: 56px;
+  line-height: 64px;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+.font-display-hero-mobile {
+  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
+  font-size: 36px;
+  line-height: 44px;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+}
+.font-headline-lg {
+  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
+  font-size: 40px;
+  line-height: 48px;
+  letter-spacing: -0.015em;
+  font-weight: 500;
+}
+.font-headline-lg-mobile {
+  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
+  font-size: 28px;
+  line-height: 36px;
+  letter-spacing: -0.01em;
+  font-weight: 500;
+}
+.font-headline-md {
+  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
+  font-size: 28px;
+  line-height: 36px;
+  letter-spacing: -0.01em;
+  font-weight: 500;
+}
+.font-headline-sm {
+  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+.font-title-editorial {
+  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+.font-body-lg {
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-size: 18px;
+  line-height: 30px;
+  letter-spacing: -0.005em;
+  font-weight: 400;
+}
+.font-body-md {
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  line-height: 24px;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+.font-body-sm {
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+  letter-spacing: 0.005em;
+  font-weight: 400;
+}
+.font-label-caps {
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.font-label-ui {
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+.font-code-spec {
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+  font-weight: 500;
 }
 
 /* Subtle Paper Texture & Atmosphere */

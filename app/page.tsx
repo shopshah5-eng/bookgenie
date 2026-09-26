@@ -19,8 +19,8 @@ import { Footer } from '@/components/landing/Footer';
 export default function HomePage() {
   return (
     <AuthProvider>
-      <div className="min-h-screen flex flex-col bg-white dark:bg-[#000000] text-neutral-900 dark:text-neutral-50 transition-colors duration-300">
-        {/* 01 Sticky Editorial Glass Header with Theme Switcher */}
+      <div className="min-h-screen flex flex-col bg-surface-container-lowest dark:bg-[#121217] text-on-surface dark:text-[#f1effa] transition-colors duration-300">
+        {/* 01 Sticky Editorial Atelier Header */}
         <Header />
 
         {/* Main Landing Page Flow */}

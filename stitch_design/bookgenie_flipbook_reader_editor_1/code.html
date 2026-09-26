@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"tertiary-fixed-dim":"#fcba64","on-surface-variant":"#47464b","on-tertiary-fixed":"#2a1800","on-error":"#ffffff","on-secondary-container":"#785a1a","inverse-primary":"#c8c5ca","primary-container":"#1b1b1e","on-secondary-fixed-variant":"#5d4201","surface-tint":"#5f5e61","surface-container":"#eeedf7","surface-container-highest":"#e3e1ec","on-error-container":"#93000a","inverse-surface":"#2f3038","on-background":"#1a1b22","surface-variant":"#e3e1ec","surface-bright":"#fbf8ff","tertiary":"#000000","on-primary":"#ffffff","on-secondary-fixed":"#261900","primary-fixed-dim":"#c8c5ca","on-tertiary-fixed-variant":"#643f00","on-surface":"#1a1b22","secondary-fixed":"#ffdea5","outline-variant":"#c8c5cb","surface-container-lowest":"#ffffff","error-container":"#ffdad6","secondary-container":"#fed488","tertiary-fixed":"#ffddb6","on-tertiary-container":"#b07929","background":"#fbf8ff","inverse-on-surface":"#f1effa","on-tertiary":"#ffffff","surface-container-high":"#e8e7f1","surface-dim":"#dad9e3","secondary-fixed-dim":"#e9c176","surface":"#fbf8ff","primary":"#000000","error":"#ba1a1a","outline":"#77767b","on-primary-fixed":"#1b1b1e","on-secondary":"#ffffff","secondary":"#775a19","on-primary-container":"#858387","surface-container-low":"#f4f2fd","tertiary-container":"#2a1800","primary-fixed":"#e4e1e6","on-primary-fixed-variant":"#47464a"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"gutter-mobile":"1rem","margin-mobile":"1.25rem","space-xs":"0.25rem","space-md":"1rem","space-xl":"2.5rem","margin-desktop":"3rem","space-lg":"1.5rem","margin":"2rem","space-sm":"0.5rem","gutter":"1.5rem","gutter-desktop":"2rem"},fontFamily:{"headline-lg-mobile":["Playfair Display"],"display-hero-mobile":["Playfair Display"],"headline-lg":["Playfair Display"],"body-md":["Plus Jakarta Sans"],"label-caps":["Plus Jakarta Sans"],"headline-sm":["Playfair Display"],"display-hero":["Playfair Display"],"body-lg":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"code-spec":["Plus Jakarta Sans"],"title-editorial":["Playfair Display"],"headline-md":["Playfair Display"],"label-ui":["Plus Jakarta Sans"]},fontSize:{"headline-lg-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"500"}],"display-hero-mobile":["36px",{"lineHeight":"44px","letterSpacing":"-0.01em","fontWeight":"400"}],"headline-lg":["40px",{"lineHeight":"48px","letterSpacing":"-0.015em","fontWeight":"500"}],"body-md":["15px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"400"}],"label-caps":["11px",{"lineHeight":"16px","letterSpacing":"0.08em","fontWeight":"600"}],"headline-sm":["20px",{"lineHeight":"28px","letterSpacing":"0","fontWeight":"600"}],"display-hero":["56px",{"lineHeight":"64px","letterSpacing":"-0.02em","fontWeight":"400"}],"body-lg":["18px",{"lineHeight":"30px","letterSpacing":"-0.005em","fontWeight":"400"}],"body-sm":["13px",{"lineHeight":"20px","letterSpacing":"0.005em","fontWeight":"400"}],"code-spec":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"500"}],"title-editorial":["16px",{"lineHeight":"24px","letterSpacing":"0.02em","fontWeight":"600"}],"headline-md":["28px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"500"}],"label-ui":["13px",{"lineHeight":"18px","letterSpacing":"0","fontWeight":"500"}]}}}}</script></head><body class="bg-surface-container-lowest font-body-md text-body-md text-on-surface antialiased min-h-screen"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-low border-r border-surface-container-highest z-50 flex flex-col justify-between pt-space-lg pb-space-lg"><div class="flex flex-col"><div class="px-space-lg mb-space-xl flex items-center gap-space-sm"><img alt="BookGenie Minimal Monogram Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WDLnfg16O4BSlhxs-OdBHBw0Cdu7xL2GNDaZBgZjgpXGkisIneLIbyciLOKiU6V0L-vK0Z2OPuzhZ0YNJUlnvgbl56ndMTMmmKVHLgMVw8P8yYrB9VLceJI4QCgcXHtv5Htk00CfLQ3lurCngcQCgyjBzhZL0fjRHMUHRp_al9i6Qwaulns4AiT9dMW2vN0az7n4DIDzJAuOJ9fP5KrmsuhWDx1Z6FtkrGqkICka4WSoRkT0fUAm-L8qA"/><div class="flex flex-col"><span class="font-title-editorial text-title-editorial text-primary tracking-tight leading-none">BookGenie</span><span class="font-label-caps text-label-caps text-secondary uppercase tracking-widest mt-1">Studio Atelier</span></div></div><div class="px-space-md mb-space-sm"><span class="px-space-sm font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Spine &amp; Folio Index</span></div><nav class="space-y-1 px-space-md" data-active-classes="bg-surface-container-highest text-primary font-semibold"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded font-label-ui text-label-ui text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="studio" href="#"><span class="material-symbols-outlined text-[18px]">edit_note</span><span>Manuscript Studio</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm rounded transition-colors bg-surface-container-highest text-primary font-semibold" data-path="reader-preview" href="#"><span class="material-symbols-outlined text-[18px]">menu_book</span><span>Reader Folio</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded font-label-ui text-label-ui text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="typesetting-engine" href="#"><span class="material-symbols-outlined text-[18px]">format_shapes</span><span>Typeset Metrics</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded font-label-ui text-label-ui text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="export-matrix" href="#"><span class="material-symbols-outlined text-[18px]">print</span><span>Galley &amp; Exports</span></a></nav></div><div class="px-space-md"><div class="p-space-md bg-surface-container rounded border border-surface-container-highest"><div class="flex items-center justify-between mb-space-xs"><span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Folio Status</span><span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span></div><p class="font-body-sm text-body-sm text-on-surface mb-space-xs font-medium">Vol. I — Proof Edition</p><p class="font-code-spec text-code-spec text-on-surface-variant">32,480 words • 118 folios</p></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-md border-b border-surface-container-highest z-40 flex items-center justify-between px-space-xl"><div class="flex items-center gap-space-md"><span class="font-code-spec text-code-spec text-on-surface-variant uppercase tracking-widest">Workspace / Active Draft</span></div><div class="flex items-center gap-space-md"><a class="font-label-ui text-label-ui text-on-surface-variant hover:text-on-surface transition-colors flex items-center gap-space-xs" data-path="reader-preview" href="#"><span class="material-symbols-outlined text-[16px]">visibility</span><span>Proof Preview</span></a><a class="inline-flex items-center gap-space-xs bg-primary text-on-primary hover:bg-on-surface transition-colors px-space-md py-space-sm rounded font-label-ui text-label-ui" data-path="export-matrix" href="#"><span class="material-symbols-outlined text-[16px]">download</span><span>Compile PDF</span></a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="relative pt-16 bg-surface-container-lowest min-h-screen"><div class="flex flex-col w-full min-h-[calc(100vh-4rem)] relative select-none">
+<!-- Dynamic Styles for Font & Paper Presets -->
+<style>
+    .font-reader-garamond { font-family: 'Playfair Display', Georgia, serif; }
+    .font-reader-baskerville { font-family: 'Baskerville', 'Times New Roman', serif; }
+    .font-reader-modern { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .paper-ivory { background-color: #faf7f0 !important; color: #1f1d1a !important; }
+    .paper-linen { background-color: #fcfbf9 !important; color: #18181b !important; }
+    .paper-charcoal { background-color: #1e1e24 !important; color: #e4e1e6 !important; }
+    .spine-shadow-light {
+      background: linear-gradient(to right, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.01) 40%, rgba(0,0,0,0.01) 60%, rgba(0,0,0,0.06) 100%);
+    }
+  </style>
+<!-- READER TOP CHROME (Secondary Sub-Header Toolbar) -->
+<div class="w-full bg-surface-container-lowest/95 backdrop-blur-md px-gutter py-space-sm shadow-sm z-30 flex flex-wrap items-center justify-between gap-space-md">
+<!-- Left: Drawer Toggle & Metadata -->
+<div class="flex items-center gap-space-md min-w-0">
+<button class="p-space-xs rounded bg-surface-container hover:bg-surface-container-highest text-on-surface transition-colors flex items-center justify-center" id="toggle-toc-btn">
+<span class="material-symbols-outlined text-[20px]">menu</span>
+</button>
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-headline-sm text-[16px] text-primary truncate">The Whispering Meridian</span>
+<span class="text-outline-variant font-code-spec text-code-spec">/</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Chapter 4: The Glass Pavilion</span>
+</div>
+<span class="hidden md:inline-block px-2 py-0.5 rounded bg-surface-container font-label-caps text-label-caps text-secondary uppercase">Draft Rev. 3</span>
+</div>
+<!-- Center/Right: View Controls, Texture, Font, Export -->
+<div class="flex items-center gap-space-sm flex-wrap">
+<!-- Spread Mode Switcher -->
+<div class="flex items-center bg-surface-container rounded p-0.5">
+<button class="px-space-sm py-1 rounded bg-surface-container-lowest text-primary shadow-xs font-label-ui text-label-ui flex items-center gap-1 transition-all" id="view-spread-btn">
+<span class="material-symbols-outlined text-[16px]">auto_stories</span>
+<span class="hidden lg:inline">Spread</span>
+</button>
+<button class="px-space-sm py-1 rounded text-on-surface-variant hover:text-on-surface font-label-ui text-label-ui flex items-center gap-1 transition-all" id="view-single-btn">
+<span class="material-symbols-outlined text-[16px]">menu_book</span>
+<span class="hidden lg:inline">Single</span>
+</button>
+</div>
+<!-- Zoom Scale Dropdown -->
+<div class="relative">
+<select class="appearance-none bg-surface-container hover:bg-surface-container-high text-on-surface font-label-ui text-label-ui pl-2 pr-6 py-1.5 rounded cursor-pointer outline-none" id="scale-selector">
+<option value="fit">Fit to Folio</option>
+<option value="100">100% Optic</option>
+<option value="125">125% Inspection</option>
+</select>
+<span class="material-symbols-outlined absolute right-1.5 top-2 pointer-events-none text-on-surface-variant text-[16px]">unfold_more</span>
+</div>
+<!-- Paper Substrate Selector -->
+<div class="flex items-center bg-surface-container rounded p-0.5 gap-1">
+<button class="paper-btn w-6 h-6 rounded-full bg-[#FAF7F0] shadow-sm transform scale-105 ring-2 ring-secondary flex items-center justify-center transition-all" data-paper="paper-ivory" title="Crisp Ivory"></button>
+<button class="paper-btn w-6 h-6 rounded-full bg-[#FCFBF9] shadow-sm flex items-center justify-center transition-all" data-paper="paper-linen" title="Linen White"></button>
+<button class="paper-btn w-6 h-6 rounded-full bg-[#1E1E24] shadow-sm flex items-center justify-center transition-all" data-paper="paper-charcoal" title="Muted Charcoal Night"></button>
+</div>
+<!-- Font Type Switcher -->
+<div class="relative hidden sm:block">
+<select class="appearance-none bg-surface-container hover:bg-surface-container-high text-on-surface font-label-ui text-label-ui pl-2 pr-6 py-1.5 rounded cursor-pointer outline-none" id="font-selector">
+<option value="font-reader-garamond">Garamond Folio</option>
+<option value="font-reader-baskerville">Baskerville Serif</option>
+<option value="font-reader-modern">Studio Sans</option>
+</select>
+<span class="material-symbols-outlined absolute right-1.5 top-2 pointer-events-none text-on-surface-variant text-[16px]">format_size</span>
+</div>
+<!-- Export Dropdown Button -->
+<div class="relative">
+<button class="bg-primary text-on-primary hover:bg-on-surface transition-colors px-space-md py-1.5 rounded font-label-ui text-label-ui flex items-center gap-space-xs shadow-sm" id="export-menu-btn">
+<span class="material-symbols-outlined text-[16px]">file_download</span>
+<span>Export</span>
+<span class="material-symbols-outlined text-[14px]">expand_more</span>
+</button>
+<!-- Export Floating Flyout -->
+<div class="hidden absolute right-0 mt-2 w-64 bg-surface-container-lowest rounded-lg shadow-xl p-space-xs z-50 flex flex-col gap-0.5" id="export-menu">
+<a class="px-space-md py-space-sm rounded hover:bg-surface-container flex items-start gap-space-sm group" href="#">
+<span class="material-symbols-outlined text-secondary text-[20px] mt-0.5">picture_as_pdf</span>
+<div>
+<div class="font-label-ui text-label-ui text-primary group-hover:text-secondary">300 DPI Press-Ready PDF</div>
+<div class="font-code-spec text-[11px] text-on-surface-variant">Archival CMYK • Trim &amp; Bleeds</div>
+</div>
+</a>
+<a class="px-space-md py-space-sm rounded hover:bg-surface-container flex items-start gap-space-sm group" href="#">
+<span class="material-symbols-outlined text-secondary text-[20px] mt-0.5">book_2</span>
+<div>
+<div class="font-label-ui text-label-ui text-primary group-hover:text-secondary">Reflowable EPUB 3.2</div>
+<div class="font-code-spec text-[11px] text-on-surface-variant">Apple Books, Kindle, Kobo Spec</div>
+</div>
+</a>
+<a class="px-space-md py-space-sm rounded hover:bg-surface-container flex items-start gap-space-sm group" href="#">
+<span class="material-symbols-outlined text-secondary text-[20px] mt-0.5">share</span>
+<div>
+<div class="font-label-ui text-label-ui text-primary group-hover:text-secondary">Signed Proof Token</div>
+<div class="font-code-spec text-[11px] text-on-surface-variant">48hr Client Review Access</div>
+</div>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- MAIN WORKBENCH: Interactive Spread Canvas -->
+<div class="relative flex-1 w-full bg-surface-container flex items-center justify-center p-space-md sm:p-space-lg lg:p-space-xl overflow-hidden min-h-[700px]">
+<!-- PREVIOUS PAGE BUTTON -->
+<button class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-surface-container-lowest/90 hover:bg-surface-container-lowest shadow-md flex items-center justify-center text-on-surface hover:text-primary transition-all" id="prev-page-btn">
+<span class="material-symbols-outlined text-[24px]">arrow_back_ios_new</span>
+</button>
+<!-- NEXT PAGE BUTTON -->
+<button class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-surface-container-lowest/90 hover:bg-surface-container-lowest shadow-md flex items-center justify-center text-on-surface hover:text-primary transition-all" id="next-page-btn">
+<span class="material-symbols-outlined text-[24px]">arrow_forward_ios</span>
+</button>
+<!-- THE BOOK SPREAD WRAPPER -->
+<div class="transition-all duration-300 transform scale-100 max-w-6xl w-full flex items-stretch justify-center drop-shadow-2xl" id="folio-spread-container">
+<!-- LEFT PAGE: Painterly Chapter Plate -->
+<div class="w-1/2 paper-ivory font-reader-garamond relative rounded-l-md overflow-hidden flex flex-col justify-between p-space-lg lg:p-space-xl shadow-lg transition-colors duration-300" id="left-page">
+<!-- Top Running Header Left -->
+<div class="flex items-center justify-between text-on-surface-variant/70 pb-space-sm">
+<span class="font-code-spec text-[11px] tracking-widest uppercase">Chapter IV</span>
+<span class="font-code-spec text-[11px] tracking-wider italic">Plate No. 14</span>
+</div>
+<!-- Museum Grade Art Plate Frame -->
+<div class="flex-1 flex flex-col items-center justify-center my-space-md">
+<div class="w-full max-w-md bg-surface-container-low p-3 rounded shadow-md group relative overflow-hidden">
+<div class="relative w-full aspect-[4/5] overflow-hidden rounded bg-surface-container-highest">
+<img class="w-full h-full object-cover grayscale-[15%] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700 ease-out" data-alt="Fine art painterly oil illustration of an antique architectural glass conservatory at twilight. Atmospheric golden luminescence spills from hand-blown glass panes into deep misty violet gardens. Rich classical brushwork, chiascuro lighting, editorial museum catalogue quality, muted amber and indigo hues." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhUggMOHJQomcpa9Ydg2423ISXshXlgFyBh3PXNn045vD7sX3dUsyUryjArvxVYuFsbXj4h4A5mdpmPvkZCwUD584zfRlGmf4DzIVIi-spWW2IZGEpYz3V1EnM_zYFtUZtwgQNImMg48govp-0Tlc6rhJTbDbEi3Y-kuZ9OZaVY_3OffRbBBYfBdUeXrwO71OachS0i-4a6jK_ZwQiey6mYX3m4HslIPZPCkptHgvokXBxJIRtJqtP"/>
+<!-- Subtle inner light gradient -->
+<div class="absolute inset-0 pointer-events-none shadow-[inset_0_0_20px_rgba(0,0,0,0.25)]"></div>
+</div>
+<!-- Plate Caption -->
+<div class="pt-3 px-1 text-center">
+<p class="font-headline-sm text-[13px] tracking-wide text-on-surface">The Sunken Orangerie of Saint-Germain</p>
+<p class="font-code-spec text-[10px] text-on-surface-variant uppercase tracking-widest mt-0.5">Monotype &amp; Bistre Wash, Folio 47</p>
+</div>
+</div>
+</div>
+<!-- Left Page Footer Margins -->
+<div class="flex items-center justify-between pt-space-md text-on-surface-variant">
+<span class="font-code-spec text-code-spec">47</span>
+<span class="font-label-caps text-[10px] uppercase tracking-widest text-outline">The Whispering Meridian</span>
+</div>
+<!-- Spine Crease Shadow overlay (Right edge of left leaf) -->
+<div class="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-black/15 via-black/5 to-transparent pointer-events-none"></div>
+</div>
+<!-- RIGHT PAGE: Editorial Manuscript Text -->
+<div class="w-1/2 paper-ivory font-reader-garamond relative rounded-r-md overflow-hidden flex flex-col justify-between p-space-lg lg:p-space-xl shadow-lg transition-colors duration-300" id="right-page">
+<!-- Spine Crease Shadow overlay (Left edge of right leaf) -->
+<div class="absolute top-0 left-0 bottom-0 w-8 bg-gradient-to-r from-black/15 via-black/5 to-transparent pointer-events-none"></div>
+<!-- Top Running Header Right -->
+<div class="flex items-center justify-between text-on-surface-variant/70 pb-space-sm">
+<span class="font-code-spec text-[11px] tracking-widest uppercase">The Glass Pavilion</span>
+<span class="font-code-spec text-[11px] tracking-wider italic">Section 2</span>
+</div>
+<!-- Editorial Manuscript Body -->
+<div class="flex-1 flex flex-col justify-start my-space-md space-y-4 text-justify leading-relaxed selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<h2 class="font-headline-md text-headline-md text-primary text-center tracking-normal mb-2">
+            The Glass Pavilion
+          </h2>
+<div class="w-8 h-0.5 bg-secondary mx-auto mb-4 opacity-50"></div>
+<!-- Paragraph 1 with Drop Cap -->
+<p class="text-[15px] lg:text-[16px] leading-[26px] text-on-surface">
+<span class="float-left font-headline-lg text-[54px] leading-[44px] pr-2.5 pt-1 text-primary font-bold">I</span>
+            t was precisely twenty minutes before the equinoctial bells that Lord Vane noticed the copper needle trembling upon the marble pedestal. The pavilion was cold, its faceted octagonal ceilings condensing the salty breath of the tidal river beneath the cliffs. Not a breath of wind disturbed the brass sconces, yet the astrolabe spun with an unnatural, measured deliberation.
+          </p>
+<!-- Paragraph 2 -->
+<p class="text-[15px] lg:text-[16px] leading-[26px] text-on-surface indent-6">
+            For three centuries, the archive had remained sealed under the papal charter of 1682. There were no maps left of the sunken gallery, only the cryptic journal entries attributed to Brother Alistair, who had vanished while attempting to measure the celestial parallax of the lost star.
+          </p>
+<!-- Interactive Selectable Paragraph 3 (Target for AI Dock) -->
+<div class="p-2 rounded -mx-2 bg-secondary-fixed/30 ring-1 ring-secondary/50 cursor-pointer relative group transition-all" id="target-paragraph">
+<div class="absolute -top-3 right-2 bg-secondary text-on-secondary px-2 py-0.5 rounded text-[10px] font-label-caps uppercase tracking-wider shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">auto_awesome</span> Active Block
+            </div>
+<p class="text-[15px] lg:text-[16px] leading-[26px] text-on-surface indent-6">
+              The shadows lengthened across the worn limestone flags like ink poured through chilled water. When he finally reached into the recess behind the bronze astrolabe, his fingers brushed against cold vellum bound in salt-bleached goatskin. The inscription read simply: <em>‘To those who calculate what should only be endured.’</em>
+</p>
+</div>
+<!-- Paragraph 4 -->
+<p class="text-[15px] lg:text-[16px] leading-[26px] text-on-surface indent-6">
+            A tremor shuddered through the glazed ceiling. In the dark water below, something vast and ancient had shifted against the foundation stones, displacing the century-old ballast of forgotten ships.
+          </p>
+</div>
+<!-- Right Page Footer Margins -->
+<div class="flex items-center justify-between pt-space-md text-on-surface-variant">
+<span class="font-label-caps text-[10px] uppercase tracking-widest text-outline">Act II • Folio Proof</span>
+<span class="font-code-spec text-code-spec">48</span>
+</div>
+</div>
+</div>
+</div>
+<!-- SPREAD PROGRESS SCRUBBER BAR -->
+<div class="w-full bg-surface-container-lowest px-gutter py-space-sm flex items-center justify-between gap-space-md z-20 shadow-sm">
+<div class="flex items-center gap-space-sm">
+<span class="font-code-spec text-[12px] text-on-surface">Folio 47–48</span>
+<span class="text-outline-variant font-code-spec text-[12px]">/</span>
+<span class="font-code-spec text-[12px] text-on-surface-variant">118 Pages</span>
+</div>
+<!-- Interactive Scrubber -->
+<div class="flex-1 max-w-xl mx-auto flex items-center gap-space-sm">
+<span class="font-code-spec text-[10px] text-on-surface-variant uppercase">Ch. 1</span>
+<div class="relative w-full h-1.5 bg-surface-container-highest rounded-full cursor-pointer overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 bg-primary w-[41%] rounded-full group-hover:bg-secondary transition-colors"></div>
+</div>
+<span class="font-code-spec text-[10px] text-on-surface-variant uppercase">Ch. 12</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[18px]">bookmark_border</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[18px]">fullscreen</span>
+</button>
+</div>
+</div>
+<!-- FLOATING SURGICAL AI REVISION DOCK -->
+<div class="fixed bottom-12 left-1/2 -translate-x-1/2 z-40 w-11/12 max-w-2xl bg-surface-container-lowest/95 backdrop-blur-md rounded-xl p-space-sm shadow-xl flex flex-col gap-2">
+<!-- Active Selection Indicator Bar -->
+<div class="flex items-center justify-between px-2 pt-1">
+<div class="flex items-center gap-space-xs text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[16px]">edit_note</span>
+<span class="font-label-ui text-label-ui font-semibold">Paragraph 3</span>
+<span class="font-code-spec text-[11px] text-on-surface-variant truncate max-w-xs sm:max-w-md">“The shadows lengthened across the worn limestone...”</span>
+</div>
+<span class="font-label-caps text-[10px] text-secondary bg-secondary-fixed/50 px-2 py-0.5 rounded uppercase">Context Synchronized</span>
+</div>
+<!-- Quick Editorial Action Chips -->
+<div class="flex items-center gap-1.5 overflow-x-auto py-1 px-1 no-scrollbar">
+<button class="shrink-0 px-2.5 py-1 rounded bg-surface-container hover:bg-secondary-fixed hover:text-on-secondary-fixed text-on-surface text-[12px] font-label-ui flex items-center gap-1 transition-all">
+<span class="material-symbols-outlined text-[14px]">bedtime</span> Rewrite: More Atmospheric
+      </button>
+<button class="shrink-0 px-2.5 py-1 rounded bg-surface-container hover:bg-secondary-fixed hover:text-on-secondary-fixed text-on-surface text-[12px] font-label-ui flex items-center gap-1 transition-all">
+<span class="material-symbols-outlined text-[14px]">compress</span> Shorten Cadence
+      </button>
+<button class="shrink-0 px-2.5 py-1 rounded bg-surface-container hover:bg-secondary-fixed hover:text-on-secondary-fixed text-on-surface text-[12px] font-label-ui flex items-center gap-1 transition-all">
+<span class="material-symbols-outlined text-[14px]">person</span> First-Person POV
+      </button>
+<button class="shrink-0 px-2.5 py-1 rounded bg-surface-container hover:bg-secondary-fixed hover:text-on-secondary-fixed text-on-surface text-[12px] font-label-ui flex items-center gap-1 transition-all">
+<span class="material-symbols-outlined text-[14px]">brush</span> Regenerate Plate
+      </button>
+<button class="shrink-0 px-2.5 py-1 rounded bg-surface-container hover:bg-secondary-fixed hover:text-on-secondary-fixed text-on-surface text-[12px] font-label-ui flex items-center gap-1 transition-all">
+<span class="material-symbols-outlined text-[14px]">vertical_distribute</span> Trim Margin
+      </button>
+</div>
+<!-- Surgical AI Input Prompt Bar -->
+<div class="flex items-center gap-2 bg-surface-container-low rounded-lg p-1">
+<span class="material-symbols-outlined text-secondary text-[20px] ml-2">auto_fix_high</span>
+<input class="flex-1 bg-transparent px-2 py-1 font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant outline-none" id="ai-revision-prompt" placeholder="Make the dialogue sharper, reference the bronze astrolabe's patina..." type="text" value="Sharpen tension, emphasize the damp ocean smell and mechanical tick of the dial."/>
+<button class="bg-primary hover:bg-on-surface text-on-primary px-space-md py-1.5 rounded font-label-ui text-label-ui flex items-center gap-1 shadow-sm transition-all active:scale-95" id="apply-ai-btn">
+<span>Apply Edit</span>
+<span class="material-symbols-outlined text-[16px]">arrow_upward</span>
+</button>
+</div>
+</div>
+<!-- COLLAPSIBLE LEFT DRAWER: Table of Contents & Chapter Folios -->
+<div class="fixed top-16 left-72 bottom-0 w-80 bg-surface-container-lowest shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col" id="toc-drawer">
+<!-- Drawer Header -->
+<div class="p-space-md bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">menu_book</span>
+<span class="font-headline-sm text-[16px] text-primary">Folio Chapters</span>
+</div>
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface" id="close-toc-btn">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Chapter List -->
+<div class="flex-1 overflow-y-auto p-space-sm space-y-1">
+<!-- Chapter Item 1 -->
+<a class="p-space-sm rounded hover:bg-surface-container flex items-center gap-space-sm group transition-colors" href="#">
+<div class="w-12 h-14 bg-surface-container-highest rounded overflow-hidden shrink-0">
+<img class="w-full h-full object-cover grayscale" data-alt="Sepia toned minimal book chapter thumbnail of an antique brass compass lying on faded maritime cartography map." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3N9fNqqsMytR_bUli-3km0LPQvyNl6slHbwAAB2lZBjniQdldoGDL3zvfjM_CA4Nn2uvMPODKJocByJ5xTW4O20nsYNcOeYRlRJO6YR86wSLdl8RI_XgQJoweGhDtace3OKr-LvLQdcHqTdADezm2xZiSO-2g8rZPJRDXLYt4nXzdKnde8bL0rpoJ9_hggKYz1Qfju9pFQEtFhkTeZp9O0hUaraVwa0Y3USQV6Unb43tT0ZuTfriu"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between text-on-surface-variant font-code-spec text-[10px]">
+<span>CH. 1</span>
+<span>18 min</span>
+</div>
+<p class="font-title-editorial text-[14px] text-on-surface truncate group-hover:text-secondary">The Archival Seal</p>
+<span class="font-code-spec text-[11px] text-on-surface-variant">Folios 1 – 14</span>
+</div>
+</a>
+<!-- Chapter Item 2 -->
+<a class="p-space-sm rounded hover:bg-surface-container flex items-center gap-space-sm group transition-colors" href="#">
+<div class="w-12 h-14 bg-surface-container-highest rounded overflow-hidden shrink-0">
+<img class="w-full h-full object-cover grayscale" data-alt="Monochrome book chapter thumbnail illustration depicting a grand spiral library staircase ascending into cathedral shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6pxp9mSm-I87GgrjBfAOQqOx0KKKf4dbawhFal3QWEx5kZOXoQk6oiiis8vGeRhJsCqmieQ8o9wfHkmnYl6GobC73wm6YADPJnP4qeLhvwyhvDu0CkWloVwSWDqYgbuQ3Vdu_79Yz7Rb-DQd-HogNnvsGoOgqo5VnINbBGSTMQIGTvZnx0oKb5F1ynECcDPbRcoMRHZzZE3-Nv0tSabkuQCzCVi78V4dhIoxOyTWWhYOfzk0UtiC4"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between text-on-surface-variant font-code-spec text-[10px]">
+<span>CH. 2</span>
+<span>24 min</span>
+</div>
+<p class="font-title-editorial text-[14px] text-on-surface truncate group-hover:text-secondary">The Spiral Scriptorium</p>
+<span class="font-code-spec text-[11px] text-on-surface-variant">Folios 15 – 30</span>
+</div>
+</a>
+<!-- Chapter Item 3 -->
+<a class="p-space-sm rounded hover:bg-surface-container flex items-center gap-space-sm group transition-colors" href="#">
+<div class="w-12 h-14 bg-surface-container-highest rounded overflow-hidden shrink-0">
+<img class="w-full h-full object-cover grayscale" data-alt="Fine art woodcut style illustration of ancient cliffs over a tempestuous North Sea at midnight with a lone lighthouse." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIw00xnZoxLvLmRENBDgegFmgv_KYC3R7Pod__Kn_YxTJjPiYAEhYau1VWXr9olSBT-dA7Vt3P2ZHJ8cFIn61WrkAAl1MIFl1_EXz2SybIpjKqA3o9nFPmYhP5xC1ddy6x0QOfRoXiszwQpZgFLV6Hw6U-dWRadiZivRjwJmHQqA-16zg8Qn2Dkj2CdEmtr5PMxJDbF0SLahH-3lROAd7XHq-hksVzE9w1vyrUm3p-NSuJmfd7NoYT"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between text-on-surface-variant font-code-spec text-[10px]">
+<span>CH. 3</span>
+<span>15 min</span>
+</div>
+<p class="font-title-editorial text-[14px] text-on-surface truncate group-hover:text-secondary">Descent to the Coastline</p>
+<span class="font-code-spec text-[11px] text-on-surface-variant">Folios 31 – 46</span>
+</div>
+</a>
+<!-- Chapter Item 4 (Active Chapter) -->
+<a class="p-space-sm rounded bg-surface-container flex items-center gap-space-sm group shadow-sm" href="#">
+<div class="w-12 h-14 bg-secondary-fixed rounded overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Painterly impressionist illustration of an architectural glass conservatory glowing amber in violet dusk." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGHjr8JLyxB9Rr2GHYegYUy_-QL4r2mgJPSMf7M4vZ9RMFtfia5p2POKI2Z_HAqPdqLRCpML_TcFQa8RQBtErDtW5grzvy2JYVmSINKNwFIpfGm8HPqCq0n4J8wK8eqhKK-eT4p12aUj0_tQ-Nek-Ywvg6iTpKObujWPbyLtRMKbbUc2to8uwily71LG5OHHtdS_OKFKBy76lfI75XXURcLClMj5C-rZPfMMiNZlh6DCYzTbmGvJKL"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between text-secondary font-code-spec text-[10px] font-semibold">
+<span>ACTIVE • CH. 4</span>
+<span>22 min</span>
+</div>
+<p class="font-title-editorial text-[14px] text-primary font-bold truncate">The Glass Pavilion</p>
+<span class="font-code-spec text-[11px] text-on-surface">Folios 47 – 68</span>
+</div>
+</a>
+<!-- Chapter Item 5 -->
+<a class="p-space-sm rounded hover:bg-surface-container flex items-center gap-space-sm group transition-colors opacity-70" href="#">
+<div class="w-12 h-14 bg-surface-container-highest rounded overflow-hidden shrink-0">
+<img class="w-full h-full object-cover grayscale" data-alt="Architectural sketch of an astrolabe and astronomical clock gear mechanisms engraved on parchment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbXemtPh8up4-rRx-xJyFOTGAq7FZl-2U-PLgVO5G10rebHvMmPhtlyCM_w5ZuUHixDHBiHNWh-U_wE_x8SDmw2_ii_w9NiCm00zqiEMUGnYKzAm1M5krqYYYfG14RXLUouMaKqNuEjyoWUDB3KoUNQd3gYdGnRdmK9nIm5-0U6euw7MF2SvBEzf0NoI4C-sqwXg14b43Sj4VDOkCF5dFAgd_yN07wFtyGMyTT5ODtoZcqeXb1-m15"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between text-on-surface-variant font-code-spec text-[10px]">
+<span>CH. 5</span>
+<span>30 min</span>
+</div>
+<p class="font-title-editorial text-[14px] text-on-surface truncate group-hover:text-secondary">The Meridian Dial</p>
+<span class="font-code-spec text-[11px] text-on-surface-variant">Folios 69 – 92</span>
+</div>
+</a>
+</div>
+<!-- Drawer Footer Stats -->
+<div class="p-space-md bg-surface-container-low text-center">
+<span class="font-code-spec text-[11px] text-on-surface-variant">Total Volume Length: 4h 12m reading</span>
+</div>
+</div>
+<!-- INTERACTIVE SCRIPTS -->
+<script>
+    (function initReaderStudio() {
+      // Elements
+      const tocDrawer = document.getElementById('toc-drawer');
+      const toggleTocBtn = document.getElementById('toggle-toc-btn');
+      const closeTocBtn = document.getElementById('close-toc-btn');
+      const exportMenuBtn = document.getElementById('export-menu-btn');
+      const exportMenu = document.getElementById('export-menu');
+      const viewSpreadBtn = document.getElementById('view-spread-btn');
+      const viewSingleBtn = document.getElementById('view-single-btn');
+      const leftPage = document.getElementById('left-page');
+      const rightPage = document.getElementById('right-page');
+      const spreadContainer = document.getElementById('folio-spread-container');
+      const scaleSelector = document.getElementById('scale-selector');
+      const fontSelector = document.getElementById('font-selector');
+      const paperBtns = document.querySelectorAll('.paper-btn');
+      const applyAiBtn = document.getElementById('apply-ai-btn');
+      const targetParagraph = document.getElementById('target-paragraph');
+
+      // Table of Contents Drawer Toggle
+      toggleTocBtn.addEventListener('click', () => {
+        tocDrawer.classList.toggle('-translate-x-full');
+      });
+      closeTocBtn.addEventListener('click', () => {
+        tocDrawer.classList.add('-translate-x-full');
+      });
+
+      // Export Flyout Toggle
+      exportMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        exportMenu.classList.toggle('hidden');
+      });
+      document.addEventListener('click', () => {
+        exportMenu.classList.add('hidden');
+      });
+
+      // View Spread vs Single Page Mode
+      viewSingleBtn.addEventListener('click', () => {
+        viewSingleBtn.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-xs');
+        viewSingleBtn.classList.remove('text-on-surface-variant');
+        viewSpreadBtn.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-xs');
+        viewSpreadBtn.classList.add('text-on-surface-variant');
+        leftPage.classList.add('hidden');
+        rightPage.classList.remove('w-1/2', 'rounded-r-md');
+        rightPage.classList.add('w-full', 'max-w-2xl', 'rounded-md');
+      });
+
+      viewSpreadBtn.addEventListener('click', () => {
+        viewSpreadBtn.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-xs');
+        viewSpreadBtn.classList.remove('text-on-surface-variant');
+        viewSingleBtn.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-xs');
+        viewSingleBtn.classList.add('text-on-surface-variant');
+        leftPage.classList.remove('hidden');
+        rightPage.classList.add('w-1/2', 'rounded-r-md');
+        rightPage.classList.remove('w-full', 'max-w-2xl', 'rounded-md');
+      });
+
+      // Scale / Zoom Selector
+      scaleSelector.addEventListener('change', (e) => {
+        const val = e.target.value;
+        if (val === 'fit') {
+          spreadContainer.style.transform = 'scale(1)';
+        } else if (val === '100') {
+          spreadContainer.style.transform = 'scale(1.08)';
+        } else if (val === '125') {
+          spreadContainer.style.transform = 'scale(1.22)';
+        }
+      });
+
+      // Paper Texture Switching
+      paperBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          paperBtns.forEach(b => {
+            b.classList.remove('ring-2', 'ring-secondary', 'scale-105');
+          });
+          btn.classList.add('ring-2', 'ring-secondary', 'scale-105');
+          const paperClass = btn.getAttribute('data-paper');
+          
+          [leftPage, rightPage].forEach(page => {
+            page.classList.remove('paper-ivory', 'paper-linen', 'paper-charcoal');
+            page.classList.add(paperClass);
+          });
+        });
+      });
+
+      // Font Family Switcher
+      fontSelector.addEventListener('change', (e) => {
+        const selectedFont = e.target.value;
+        [leftPage, rightPage].forEach(page => {
+          page.classList.remove('font-reader-garamond', 'font-reader-baskerville', 'font-reader-modern');
+          page.classList.add(selectedFont);
+        });
+      });
+
+      // Surgical AI Revision Demonstration
+      applyAiBtn.addEventListener('click', () => {
+        applyAiBtn.innerHTML = '<span class="material-symbols-outlined text-[16px] animate-spin">refresh</span><span>Applying...</span>';
+        setTimeout(() => {
+          const p = targetParagraph.querySelector('p');
+          p.innerHTML = 'The shadows lengthened across the wet limestone flags like slow black ink seeped into brine. Reaching behind the verdigris spine of the astrolabe, his fingers felt the crisp, briny bite of vellum bound in salt-bleached goatskin. The inscription resonated against the stone: <em>‘To those who calculate what should only be endured.’</em>';
+          applyAiBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">done</span><span>Applied</span>';
+          setTimeout(() => {
+            applyAiBtn.innerHTML = '<span>Apply Edit</span><span class="material-symbols-outlined text-[16px]">arrow_upward</span>';
+          }, 1800);
+        }, 800);
+      });
+    })();
+  </script>
+</div></main></div></body></html>

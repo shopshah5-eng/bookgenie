@@ -6,8 +6,6 @@ import { Header } from '@/components/landing/Header';
 import { Footer } from '@/components/landing/Footer';
 import { AuthProvider } from '@/components/auth/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
-import { Button } from '@/components/ui/Button';
-import { ChevronDown, Sparkles, ShieldCheck, Lock, CheckCircle2 } from 'lucide-react';
 
 export default function FAQPage() {
   const faqs = [
@@ -55,68 +53,55 @@ export default function FAQPage() {
 
   return (
     <AuthProvider>
-      <div className="min-h-screen flex flex-col bg-[#FDFBF7] text-[#1A1612]">
+      <div className="min-h-screen flex flex-col bg-surface-container-lowest dark:bg-[#121217] text-on-surface dark:text-[#f1effa] transition-colors">
         <Header />
 
         <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F8F3EA] text-[#8C5F2E] border border-[#E8DCCB] text-[11px] font-semibold uppercase tracking-wider mb-3">
-              <Sparkles className="w-3.5 h-3.5" /> Frequently Asked Questions
+          <div className="text-center mb-16">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container dark:bg-white/10 text-secondary dark:text-[#fcba64] border border-surface-container-highest dark:border-white/10 text-[11px] font-label-caps uppercase tracking-wider mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-secondary dark:bg-[#fcba64]" />
+              Knowledge &amp; Support
             </span>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#1A1612] tracking-tight mb-4">
-              Everything You Need to Know
+            <h1 className="font-display-hero text-display-hero-mobile md:text-display-hero text-primary dark:text-[#f1effa] tracking-tight leading-none mb-4">
+              Frequently Asked Questions
             </h1>
-            <p className="text-sm sm:text-base text-[#6B635B]">
-              Comprehensive answers regarding AI generation, data privacy, commercial publishing, and supported formats.
+            <p className="font-body-lg text-body-lg text-on-surface-variant dark:text-neutral-400">
+              Clear answers regarding autonomous book generation, licensing, and printing.
             </p>
           </div>
 
-          {/* Privacy & Security Guarantee Callout */}
-          <div className="mb-10 rounded-2xl bg-[#F5EFE6] border border-[#E8DFC8] p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[#8C5F2E] text-white flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-serif font-bold text-[#1A1612] text-base mb-1">
-                Data Privacy & Commercial Rights Guarantee
-              </h4>
-              <p className="text-xs sm:text-sm text-[#6B635B] leading-relaxed">
-                Your uploaded documents and generated books are 100% private to your account. We never train public AI models on your creative manuscripts or source notes. All Creator and Pro books carry full commercial publishing licenses.
-              </p>
-            </div>
-          </div>
-
-          {/* Accessible, Crawlable Accordion List via Semantic <details> */}
           <div className="space-y-4 mb-16">
-            {faqs.map((item, idx) => (
+            {faqs.map((faq, idx) => (
               <details
                 key={idx}
-                open={idx < 3}
-                className="group rounded-2xl bg-white border border-[#EFECE6] open:border-[#9A6F3C]/40 open:shadow-md transition-all duration-200 overflow-hidden"
+                className="group p-6 rounded-xl bg-surface-container-lowest dark:bg-[#181820] border border-surface-container-highest dark:border-white/10 shadow-xs transition-colors open:bg-surface-container-low dark:open:bg-[#1a1b24]"
               >
-                <summary className="w-full list-none cursor-pointer p-5 sm:p-6 flex items-center justify-between gap-4 font-serif font-bold text-base sm:text-lg text-[#1A1612] group-hover:text-[#9A6F3C] transition-colors select-none">
-                  <span>{item.q}</span>
-                  <ChevronDown className="w-5 h-5 text-[#9E968E] shrink-0 transition-transform duration-200 group-open:rotate-180 group-open:text-[#9A6F3C]" />
+                <summary className="flex items-center justify-between cursor-pointer font-headline-sm text-base sm:text-lg text-primary dark:text-[#f1effa] list-none select-none">
+                  <span>{faq.q}</span>
+                  <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] transition-transform group-open:rotate-180 shrink-0 ml-4">
+                    expand_more
+                  </span>
                 </summary>
-
-                <div className="px-5 pb-6 sm:px-6 text-xs sm:text-sm text-[#6B635B] leading-relaxed border-t border-[#F4F1EA] pt-4">
-                  <p>{item.a}</p>
-                </div>
+                <p className="mt-4 pt-4 border-t border-surface-container-highest dark:border-white/10 font-body-md text-sm sm:text-base text-on-surface-variant dark:text-neutral-300 leading-relaxed">
+                  {faq.a}
+                </p>
               </details>
             ))}
           </div>
 
-          <div className="rounded-3xl bg-white border border-[#EFECE6] p-8 text-center shadow-xs">
-            <h3 className="text-xl font-serif font-bold text-[#1A1612] mb-1">
-              Still have questions?
+          <div className="text-center p-8 bg-surface-container-low dark:bg-[#181820] rounded-2xl border border-surface-container-highest dark:border-white/10">
+            <h3 className="font-headline-sm text-lg font-bold text-primary dark:text-[#f1effa] mb-2">
+              Have a specific printing or publishing requirement?
             </h3>
-            <p className="text-xs sm:text-sm text-[#6B635B] mb-4">
-              Our editorial support team is ready to help you publish your book.
+            <p className="font-body-sm text-sm text-on-surface-variant dark:text-neutral-400 mb-6">
+              Our typographical engineering team is available for custom imprint formats, ISBNs, and distribution specs.
             </p>
-            <Link href="/contact">
-              <Button variant="secondary" size="md">
-                Contact Support Team →
-              </Button>
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 bg-primary dark:bg-white text-on-primary dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 px-6 py-2.5 rounded-full font-label-ui text-sm font-semibold transition-all"
+            >
+              <span>Contact Editorial Atelier</span>
+              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
             </Link>
           </div>
         </main>

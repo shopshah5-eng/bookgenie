@@ -29,24 +29,24 @@ export function ValueProps() {
   ];
 
   return (
-    <section className="py-12 border-t border-[#EFECE6] bg-[#FDFBF7]">
+    <section className="py-12 border-t border-outline-variant/30 bg-surface dark:bg-[#0f1015] transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           {props.map((item) => (
             <div
               key={item.title}
-              className="flex items-start gap-4 p-5 rounded-2xl bg-white/60 border border-[#EFECE6]/80 hover:bg-white hover:border-[#E8DFD0] transition-colors"
+              className="flex items-start gap-4 p-6 rounded-2xl bg-surface-container-low dark:bg-[#1a1b22] border border-outline-variant/30 hover:border-secondary/30 transition-all shadow-xs"
             >
               <div
-                className={`w-11 h-11 rounded-2xl ${item.bg} flex items-center justify-center shrink-0 border border-[#EBE3D5] shadow-2xs`}
+                className="w-12 h-12 rounded-2xl bg-secondary-container/20 dark:bg-white/5 flex items-center justify-center shrink-0 border border-secondary/20 shadow-2xs"
               >
                 {item.icon}
               </div>
               <div>
-                <h3 className="text-base font-serif font-bold text-[#1A1612] mb-1">
+                <h3 className="font-title-editorial text-base text-on-surface dark:text-white mb-1">
                   {item.title}
                 </h3>
-                <p className="text-xs sm:text-sm text-[#6B635B] leading-relaxed">
+                <p className="font-body-md text-xs sm:text-sm text-on-surface-variant dark:text-[#c4c7c5] leading-relaxed">
                   {item.description}
                 </p>
               </div>

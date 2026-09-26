@@ -1,21 +1,26 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
-import {
-  ArrowRight,
-  Play,
-  CheckCircle2,
-  Sparkles,
-} from 'lucide-react';
 
 export function HeroSection() {
   const router = useRouter();
   const { user, openAuthModal } = useAuth();
+  const [prompt, setPrompt] = useState('');
+  const [isSynthesizing, setIsSynthesizing] = useState(false);
 
-  const handleStart = () => {
+  const handleSynthesize = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!prompt.trim()) return;
+    setIsSynthesizing(true);
+    setTimeout(() => {
+      router.push(`/create?prompt=${encodeURIComponent(prompt.trim())}`);
+    }, 400);
+  };
+
+  const handleOpenStudio = () => {
     if (!user) {
       openAuthModal('signup', '/create');
     } else {
@@ -24,104 +29,105 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative overflow-hidden pt-8 sm:pt-14 pb-12 sm:pb-16 bg-white dark:bg-[#0A0A0A] transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Main Hero Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-          
-          {/* Left Column: Typography & CTAs (Exact match to reference) */}
-          <div className="lg:col-span-6 xl:col-span-6 flex flex-col items-start text-left z-10">
-            
-            {/* Pill Eyebrow */}
-            <div className="inline-flex items-center px-3.5 py-1 rounded-full bg-[#F3F3F1] dark:bg-[#1E1E1E] text-[#666666] dark:text-[#A0A0A0] text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase mb-5 border border-[#E5E5E5] dark:border-[#2C2C2C]">
-              AI PUBLISHING STUDIO
-            </div>
+    <section className="relative w-full pt-12 pb-20 overflow-hidden bg-surface-container-lowest dark:bg-[#121217]">
+      {/* Subtle architectural ambient gradient aura */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[880px] h-[420px] bg-gradient-to-b from-surface-container-low dark:from-white/5 via-surface/40 to-transparent blur-3xl pointer-events-none -z-10" />
 
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-[56px] font-serif font-bold text-[#111111] dark:text-[#F5F5F5] tracking-tight leading-[1.08] mb-5">
-              Turn an idea into<br className="hidden sm:inline" /> a finished book.
-            </h1>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
+        {/* Pill announcement tag */}
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-surface-container-low dark:bg-white/5 border border-surface-container-highest dark:border-white/10 shadow-xs mb-8 transition-transform hover:-translate-y-0.5 cursor-default">
+          <span className="w-1.5 h-1.5 rounded-full bg-secondary dark:bg-[#fcba64] animate-pulse" />
+          <span className="font-label-caps text-label-caps uppercase tracking-widest text-on-surface-variant dark:text-neutral-400">
+            BookGenie Atelier • The art of autonomous bookmaking
+          </span>
+        </div>
 
-            {/* Editorial Subtitle */}
-            <p className="text-base sm:text-lg text-[#555555] dark:text-[#A0A0A0] leading-relaxed max-w-xl mb-8 font-sans">
-              BookGenie writes, structures, designs, illustrates, and prepares your book for publication.
-            </p>
+        {/* Confident Minimalist Display Headline */}
+        <h1 className="font-display-hero text-display-hero-mobile md:text-display-hero text-primary dark:text-[#f1effa] max-w-4xl tracking-tight leading-[1.08] mb-6">
+          Books of enduring beauty, written and typeset in minutes.
+        </h1>
 
-            {/* CTA Buttons Row */}
-            <div className="flex flex-wrap items-center gap-3.5 mb-8 w-full sm:w-auto">
-              <button
-                onClick={handleStart}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full text-xs sm:text-sm font-semibold text-white bg-[#111111] hover:bg-black dark:bg-white dark:text-black dark:hover:bg-[#EAEAEA] transition-all shadow-sm active:scale-[0.98] cursor-pointer w-full sm:w-auto"
-              >
-                <span>Create your book</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+        {/* Calibrated Editorial Subtitle */}
+        <p className="font-body-lg text-body-lg text-on-surface-variant dark:text-neutral-400 max-w-2xl mb-10 leading-relaxed font-normal">
+          Turn raw manuscripts, essays, or premises into collector-grade hardcovers, validated EPUB3s, and tactile digital folios with deterministic algorithmic typography.
+        </p>
 
-              <button
-                onClick={() => router.push('/examples/ocean-wonders')}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-full text-xs sm:text-sm font-medium text-[#111111] dark:text-[#F5F5F5] bg-white dark:bg-[#1A1A1A] border border-[#E5E5E5] dark:border-[#2C2C2C] hover:bg-[#F9F9F8] dark:hover:bg-[#222222] transition-all shadow-2xs cursor-pointer w-full sm:w-auto"
-              >
-                <Play className="w-3.5 h-3.5 fill-current text-[#111111] dark:text-white" />
-                <span>Watch demo</span>
-              </button>
-            </div>
+        {/* Primary Action Cluster */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 w-full max-w-md">
+          <button
+            onClick={handleOpenStudio}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary dark:bg-white text-on-primary dark:text-black px-7 py-3.5 rounded-full font-label-ui text-label-ui shadow-sm hover:shadow-md hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-all active:scale-[0.99] cursor-pointer"
+          >
+            <span>Open Creation Studio</span>
+            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </button>
+          <a
+            href="#showcase"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-surface-container-low dark:bg-white/5 border border-surface-container-highest dark:border-white/10 text-on-surface dark:text-[#f1effa] px-6 py-3.5 rounded-full font-label-ui text-label-ui shadow-xs hover:bg-surface-container dark:hover:bg-white/10 transition-all"
+          >
+            <span className="material-symbols-outlined text-[18px] text-secondary dark:text-[#fcba64]">menu_book</span>
+            <span>Explore Sample Editions</span>
+          </a>
+        </div>
 
-            {/* 4 Micro Feature Checks (Exact match from reference) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full text-[11px] sm:text-xs text-[#666666] dark:text-[#999999] font-medium pt-2 border-t border-[#F0F0EE] dark:border-[#1E1E1E]">
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#888888] dark:text-[#777777] shrink-0" />
-                <span>No design skills required</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#888888] dark:text-[#777777] shrink-0" />
-                <span>Commercial rights</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#888888] dark:text-[#777777] shrink-0" />
-                <span>PDF + EPUB</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#888888] dark:text-[#777777] shrink-0" />
-                <span>AI-powered publishing</span>
-              </div>
-            </div>
-
+        {/* Quick Folio Prompt Synthesizer Bar */}
+        <form
+          onSubmit={handleSynthesize}
+          className="w-full max-w-2xl bg-surface-container-low dark:bg-[#1a1b22] border border-surface-container-highest dark:border-white/10 p-1.5 rounded-full shadow-md flex items-center gap-2 mb-16 transition-all focus-within:ring-2 focus-within:ring-secondary/40"
+        >
+          <div className="pl-4 pr-1 text-on-surface-variant dark:text-neutral-400 flex items-center">
+            <span className="material-symbols-outlined text-[20px]">auto_stories</span>
           </div>
+          <input
+            type="text"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Describe your book idea or drop manuscript fragment..."
+            className="flex-1 bg-transparent border-0 outline-none text-on-surface dark:text-[#f1effa] font-body-md text-body-md placeholder:text-outline/70 dark:placeholder:text-neutral-500 px-2 py-2"
+          />
+          <button
+            type="submit"
+            disabled={isSynthesizing}
+            className="inline-flex items-center gap-1.5 bg-primary dark:bg-white text-on-primary dark:text-black hover:bg-primary/90 dark:hover:bg-neutral-200 px-5 py-2.5 rounded-full font-label-ui text-label-ui whitespace-nowrap shadow-sm transition-all cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-[16px] text-secondary-container dark:text-amber-600">
+              {isSynthesizing ? 'sync' : 'magic_button'}
+            </span>
+            <span>{isSynthesizing ? 'Synthesizing...' : 'Synthesize Folio'}</span>
+          </button>
+        </form>
 
-          {/* Right Column: Physical Hardcover & Book Stack Still-Life */}
-          <div className="lg:col-span-6 xl:col-span-6 relative flex flex-col items-center justify-center select-none">
-            
-            {/* Visual Still Life Composition - Seamless Blend to Background */}
-            <div className="relative w-full max-w-[560px] aspect-[4/3] overflow-hidden [mask-image:radial-gradient(ellipse_at_center,black_65%,transparent_100%)] dark:[mask-image:radial-gradient(ellipse_at_center,black_60%,transparent_100%)] transition-transform duration-500 hover:scale-[1.01]">
+        {/* Hero Visual Book Artifact with Ambient Lighting */}
+        <div className="relative w-full max-w-5xl group select-none">
+          <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-surface-container dark:bg-[#1a1b22] border border-surface-container-highest dark:border-white/10">
+            <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] max-h-[580px]">
               <Image
-                src="/images/hero-brighter-you.jpg"
-                alt="Artisanal hardcover book edition with stack of volumes"
+                src="/images/atelier-studio-hero.png"
+                alt="Open folio book on chalk surface with fluttering deckle-edged architectural plates"
                 fill
-                sizes="(max-width: 1024px) 100vw, 560px"
                 priority
-                className="object-cover object-center"
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.01]"
               />
             </div>
-
-            {/* Handwritten Cursive Callout with Hand-drawn Arrow */}
-            <div className="absolute -top-4 right-1 sm:right-4 z-20 hidden sm:flex flex-col items-end transform -rotate-2 select-none pointer-events-none">
-              <span className="font-serif italic text-sm sm:text-base text-[#3A3530] dark:text-[#E8C28A] tracking-wide">
-                Your ideas deserve a beautiful home.
-              </span>
-              <svg className="w-14 h-8 text-[#554E46] dark:text-[#D4AF37] -mr-2 mt-0.5" viewBox="0 0 56 32" fill="none" stroke="currentColor" strokeWidth="1.2">
-                <path d="M4 4 C 18 10, 36 6, 44 24 M 38 20 L 44 24 L 46 16" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-
+            <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-surface-container-lowest dark:from-[#121217] via-surface-container-lowest/40 to-transparent" />
           </div>
 
+          {/* Whisper Folio Badge Overlay */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-surface-container-lowest/90 dark:bg-[#1a1b22]/90 backdrop-blur-md px-5 py-2 rounded-full border border-surface-container-highest dark:border-white/10 shadow-lg flex items-center gap-3 sm:gap-4 text-left">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-secondary dark:bg-[#fcba64]" />
+              <span className="font-code-spec text-code-spec text-on-surface dark:text-[#f1effa] tracking-wider uppercase">
+                Folio Spread 64–65
+              </span>
+            </div>
+            <span className="text-surface-variant dark:text-neutral-600">•</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-400">
+              Archival Paper 140 GSM • French Fold Binding
+            </span>
+          </div>
         </div>
 
       </div>
     </section>
   );
 }
-
-
-

@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary-container":"#1b1b1e","on-tertiary-fixed-variant":"#643f00","surface-dim":"#dad9e3","on-surface-variant":"#47464b","secondary-fixed-dim":"#e9c176","surface":"#fbf8ff","secondary-fixed":"#ffdea5","on-tertiary-fixed":"#2a1800","on-error":"#ffffff","on-primary-fixed":"#1b1b1e","on-secondary-fixed-variant":"#5d4201","on-primary":"#ffffff","on-tertiary":"#ffffff","on-primary-container":"#858387","surface-container-high":"#e8e7f1","primary-fixed":"#e4e1e6","on-secondary":"#ffffff","primary-fixed-dim":"#c8c5ca","surface-tint":"#5f5e61","surface-container-lowest":"#ffffff","tertiary-fixed":"#ffddb6","on-background":"#1a1b22","outline-variant":"#c8c5cb","on-error-container":"#93000a","surface-variant":"#e3e1ec","on-secondary-fixed":"#261900","tertiary":"#000000","secondary-container":"#fed488","tertiary-container":"#2a1800","on-secondary-container":"#785a1a","background":"#fbf8ff","tertiary-fixed-dim":"#fcba64","inverse-on-surface":"#f1effa","error-container":"#ffdad6","inverse-primary":"#c8c5ca","on-primary-fixed-variant":"#47464a","surface-container-low":"#f4f2fd","on-surface":"#1a1b22","surface-container-highest":"#e3e1ec","primary":"#000000","on-tertiary-container":"#b07929","outline":"#77767b","surface-container":"#eeedf7","error":"#ba1a1a","surface-bright":"#fbf8ff","secondary":"#775a19","inverse-surface":"#2f3038"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-xl":"2.5rem","margin":"2rem","space-xs":"0.25rem","margin-desktop":"3rem","gutter-mobile":"1rem","space-lg":"1.5rem","gutter-desktop":"2rem","space-md":"1rem","space-sm":"0.5rem","margin-mobile":"1.25rem","gutter":"1.5rem"},fontFamily:{"title-editorial":["Playfair Display"],"display-hero-mobile":["Playfair Display"],"code-spec":["Plus Jakarta Sans"],"headline-sm":["Playfair Display"],"headline-md":["Playfair Display"],"body-lg":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"label-ui":["Plus Jakarta Sans"],"label-caps":["Plus Jakarta Sans"],"headline-lg-mobile":["Playfair Display"],"body-sm":["Plus Jakarta Sans"],"headline-lg":["Playfair Display"],"display-hero":["Playfair Display"]},fontSize:{"title-editorial":["16px",{"lineHeight":"24px","letterSpacing":"0.02em","fontWeight":"600"}],"display-hero-mobile":["36px",{"lineHeight":"44px","letterSpacing":"-0.01em","fontWeight":"400"}],"code-spec":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"500"}],"headline-sm":["20px",{"lineHeight":"28px","letterSpacing":"0","fontWeight":"600"}],"headline-md":["28px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"500"}],"body-lg":["18px",{"lineHeight":"30px","letterSpacing":"-0.005em","fontWeight":"400"}],"body-md":["15px",{"lineHeight":"24px","letterSpacing":"0","fontWeight":"400"}],"label-ui":["13px",{"lineHeight":"18px","letterSpacing":"0","fontWeight":"500"}],"label-caps":["11px",{"lineHeight":"16px","letterSpacing":"0.08em","fontWeight":"600"}],"headline-lg-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"500"}],"body-sm":["13px",{"lineHeight":"20px","letterSpacing":"0.005em","fontWeight":"400"}],"headline-lg":["40px",{"lineHeight":"48px","letterSpacing":"-0.015em","fontWeight":"500"}],"display-hero":["56px",{"lineHeight":"64px","letterSpacing":"-0.02em","fontWeight":"400"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed"><header class="fixed top-0 inset-x-0 z-50 bg-surface-container-lowest/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)]"><div class="h-16 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between"><div class="flex items-center gap-space-lg"><a class="flex items-center gap-space-sm group" data-path="showcase" href="#"><img alt="Brand logo. - Primary color: #18181b
+- Font: playfairDisplay
+- Mode: light
+- Roundness: rounded-sm
+" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VshjqzBzmzGMe5X2xlmuXahJ91-yqTJpbWIlG8mp_6TU39aaIEpWi-BgVYLlHpIB8M6pAwkP1irAf7jeGx_-36ZVqJcOC8f15fm9UlkYFXvzEK8nm_fiMcHJfuS-jJE_fMjwFkqnj9Xa7ASzkKHPhLVhZYcPInSHYRu9JIvvK2RCfNOCW7QvpgaBwVmlbMy19DMEbdXhpaS1DYhVH9BMV8PYvPzB1iYwjDBlM4NQjj2gTg6J-voNLqAg"/><span class="font-title-editorial text-title-editorial text-primary tracking-tight">BookGenie</span></a><nav class="hidden md:flex items-center gap-space-lg ml-space-md" data-active-classes="text-primary font-title-editorial"><a class="font-label-ui text-label-ui text-on-surface-variant hover:text-primary transition-colors" data-path="studio" href="#">Studio</a><a class="font-label-ui text-label-ui text-on-surface-variant hover:text-primary transition-colors" data-path="reader" href="#">Reader</a><a aria-current="page" class="transition-colors text-primary font-title-editorial" data-path="showcase" href="#">Showcase</a><a class="font-label-ui text-label-ui text-on-surface-variant hover:text-primary transition-colors" data-path="pricing" href="#">Pricing</a><a class="font-label-ui text-label-ui text-on-surface-variant hover:text-primary transition-colors" data-path="how-it-works" href="#">How It Works</a></nav></div><div class="flex items-center gap-space-md"><a class="hidden sm:inline-flex items-center px-4 py-2 rounded-full font-label-ui text-label-ui text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-all" data-path="login" href="#">Sign In</a><a class="inline-flex items-center px-5 py-2 rounded-full bg-primary text-on-primary font-label-ui text-label-ui hover:bg-primary-container hover:text-on-primary-container transition-all active:scale-[0.99]" data-path="studio" href="#">Start Creating</a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-surface min-h-[calc(100vh-16rem)]"><div class="flex flex-col w-full">
+<!-- Minimalist Editorial Hero -->
+<section class="relative w-full max-w-7xl mx-auto px-6 lg:px-12 pt-12 pb-16">
+<div class="flex flex-col items-center text-center max-w-4xl mx-auto">
+<!-- Archive Pill Badge -->
+<div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant font-code-spec text-code-spec tracking-wider uppercase mb-6 shadow-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>ATELIER ARCHIVE // 1,842 CURATED EDITIONS</span>
+</div>
+<!-- Main Headline with Italic Playfair Accents -->
+<h1 class="font-display-hero text-display-hero text-primary tracking-tight mb-6">
+        The BookGenie <span class="italic font-normal font-title-editorial text-secondary">Showcase.</span>
+</h1>
+<!-- Editorial Subtitle -->
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl leading-relaxed mb-8">
+        Discover collector-grade volumes written, illustrated, and typeset completely by autonomous artificial intelligence. Inspect open double-page spreads, examine generation blueprints, or fork as your own atelier template.
+      </p>
+<!-- Key Atelier Metrics Sparkline Bar -->
+<div class="flex flex-wrap items-center justify-center gap-8 py-3 px-6 rounded-full bg-surface-container-low shadow-sm">
+<div class="flex items-center gap-2">
+<span class="font-code-spec text-code-spec text-outline uppercase">Press Speed</span>
+<span class="font-title-editorial text-title-editorial text-primary">0.42s/pg</span>
+</div>
+<div class="w-px h-3 bg-outline-variant"></div>
+<div class="flex items-center gap-2">
+<span class="font-code-spec text-code-spec text-outline uppercase">Paper Weight</span>
+<span class="font-title-editorial text-title-editorial text-primary">120gsm Munken Pure</span>
+</div>
+<div class="w-px h-3 bg-outline-variant"></div>
+<div class="flex items-center gap-2">
+<span class="font-code-spec text-code-spec text-outline uppercase">Binding</span>
+<span class="font-title-editorial text-title-editorial text-primary">Smyth Sewn Layflat</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Filter, Search, and Catalog Utility Shelf -->
+<section class="w-full max-w-7xl mx-auto px-6 lg:px-12 pb-10">
+<div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between p-4 rounded-xl bg-surface-container-lowest shadow-sm">
+<!-- Search Input with Keyboard Pill -->
+<div class="relative flex-1 max-w-md">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-12 py-2.5 bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface transition-all" id="showcase-search" placeholder="Search by archetype, prompt, tone, or binding..." type="text"/>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-code-spec text-[10px]">
+          ⌘K
+        </div>
+</div>
+<!-- Genre & Discipline Filter Pills -->
+<div class="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0 scrollbar-none">
+<button class="filter-pill px-3.5 py-1.5 rounded-full font-label-ui text-label-ui whitespace-nowrap bg-primary text-on-primary transition-all shadow-sm" data-category="all">
+          All Editions
+        </button>
+<button class="filter-pill px-3.5 py-1.5 rounded-full font-label-ui text-label-ui whitespace-nowrap bg-surface-container-low text-on-surface-variant hover:text-primary transition-all" data-category="scifi">
+          Hard Sci-Fi &amp; Speculative
+        </button>
+<button class="filter-pill px-3.5 py-1.5 rounded-full font-label-ui text-label-ui whitespace-nowrap bg-surface-container-low text-on-surface-variant hover:text-primary transition-all" data-category="children">
+          Children's Illustrated
+        </button>
+<button class="filter-pill px-3.5 py-1.5 rounded-full font-label-ui text-label-ui whitespace-nowrap bg-surface-container-low text-on-surface-variant hover:text-primary transition-all" data-category="business">
+          Business &amp; Leadership
+        </button>
+<button class="filter-pill px-3.5 py-1.5 rounded-full font-label-ui text-label-ui whitespace-nowrap bg-surface-container-low text-on-surface-variant hover:text-primary transition-all" data-category="botanical">
+          Botanical &amp; Monograph
+        </button>
+<button class="filter-pill px-3.5 py-1.5 rounded-full font-label-ui text-label-ui whitespace-nowrap bg-surface-container-low text-on-surface-variant hover:text-primary transition-all" data-category="culinary">
+          Culinary &amp; Heritage
+        </button>
+</div>
+<!-- Sorting Selector -->
+<div class="flex items-center gap-3">
+<span class="font-code-spec text-code-spec text-outline uppercase hidden sm:inline">Sort</span>
+<div class="relative">
+<select class="appearance-none pl-3 pr-8 py-1.5 bg-surface-container-low rounded-lg font-label-ui text-label-ui text-on-surface cursor-pointer focus:outline-none">
+<option>Staff Curated</option>
+<option>Most Read</option>
+<option>Recently Synthesized</option>
+<option>Highest Lexical Density</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Curated 6-Book Master Grid -->
+<section class="w-full max-w-7xl mx-auto px-6 lg:px-12 pb-20">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Book 1: The Silent Cartographer -->
+<article class="group relative flex flex-col rounded-xl bg-surface-container-lowest p-6 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+<!-- Visual Cover Presentation Area with 3D spine depth -->
+<div class="relative w-full aspect-[4/5] rounded-lg overflow-hidden bg-surface-container mb-6 shadow-md">
+<div class="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-transparent z-10 pointer-events-none"></div>
+<!-- Left Spine Hinge Shadow -->
+<div class="absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-r from-black/25 via-black/10 to-transparent z-20 pointer-events-none"></div>
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" data-alt="Minimalist architectural book cover titled The Silent Cartographer with deep obsidian slate tones, subtle golden geometric foil lines, atmospheric fog, and refined Swiss modern typography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuChe2luDbYSwnNkYIRgDDxrHwl2nC5F_kqtABB5fgJ-rjnEAKXj7D8Sn1QqigzefTqarvkOZ9EN_Fm9v3u0iT2Ws4gitmkN2QAPX2eGkQYWZoYQP0PWJBSlbP9lbcXWhzKf7LwiGi0P7vQbuZsr49UYR5yB23RT-gpnAZN5bTnSeNyCHYhEC-2E9CoV0JdOSGHrMgBLDTbWJOaS-iOwyYJ4rs1WXn67nW-VOaU3SGDtZeJZvR7L3vfK"/>
+<div class="absolute top-3 right-3 z-20 px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-primary font-code-spec text-[10px] uppercase tracking-wider">
+            Hard Sci-Fi
+          </div>
+<div class="absolute bottom-3 left-4 z-20 flex items-center gap-1.5 text-on-primary font-code-spec text-[11px] drop-shadow">
+<span class="material-symbols-outlined text-[14px]">auto_stories</span>
+<span>142 pp • Royal Octavo</span>
+</div>
+</div>
+<!-- Meta and Editorial Info -->
+<div class="flex flex-col flex-1">
+<div class="flex items-center justify-between gap-2 mb-2">
+<span class="font-code-spec text-code-spec text-secondary uppercase tracking-wider">Kyoto Engine v4.1</span>
+<span class="font-code-spec text-code-spec text-outline">ISBN 978-0-842-10</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-primary mb-2 line-clamp-1 group-hover:text-secondary transition-colors">
+            The Silent Cartographer
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 leading-relaxed mb-6">
+            A meditation on orbital isolation, algorithmic topography, and starship telemetry. Synthesized using speculative cartographic logs.
+          </p>
+<!-- Action Buttons -->
+<div class="mt-auto pt-4 flex items-center gap-3">
+<a class="flex-1 text-center py-2 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-ui text-label-ui transition-all" data-path="reader" href="#">
+              Read Spread
+            </a>
+<a class="flex-1 text-center py-2 px-3 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-ui text-label-ui transition-all shadow-sm" data-path="studio" href="#">
+              Inspect Blueprint
+            </a>
+</div>
+</div>
+</article>
+<!-- Book 2: Little Fox and the Starlit Forest -->
+<article class="group relative flex flex-col rounded-xl bg-surface-container-lowest p-6 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+<div class="relative w-full aspect-[4/5] rounded-lg overflow-hidden bg-surface-container mb-6 shadow-md">
+<div class="absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-r from-black/20 via-black/5 to-transparent z-20 pointer-events-none"></div>
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" data-alt="Exquisite picture book cover featuring an innocent small orange fox gazing up at luminous starry canopy, delicate pastel watercolor wash, golden bioluminescence, Munken pure cream paper texture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDRt_M9w_yUwIrv85nU_JA8maWsMSlqy58EfUUTnAb5P3OzDZdbrz44JvYxjrautffYiAbmyF9XpLAKwKyptiq2tigdlFYMumRypAABqi7iRjHa3-AL3Wr0cPxDD7YMIHxdKp197fH1fpDrU7--LhYY1rHBxGETbaxsHHtWuANeO-pIqPXn1jZ1mx9ikPLslNyaZoE1snqN6zqygbKZm075fnIt26NMn5Fvj6-6uOgHMEJz4Dg0X90"/>
+<div class="absolute top-3 right-3 z-20 px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-primary font-code-spec text-[10px] uppercase tracking-wider">
+            Illustrated
+          </div>
+<div class="absolute bottom-3 left-4 z-20 flex items-center gap-1.5 text-on-primary font-code-spec text-[11px] drop-shadow">
+<span class="material-symbols-outlined text-[14px]">palette</span>
+<span>32 pp • Soft Pastel</span>
+</div>
+</div>
+<div class="flex flex-col flex-1">
+<div class="flex items-center justify-between gap-2 mb-2">
+<span class="font-code-spec text-code-spec text-secondary uppercase tracking-wider">PastelGAN Studio</span>
+<span class="font-code-spec text-code-spec text-outline">Ages 4–8</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-primary mb-2 line-clamp-1 group-hover:text-secondary transition-colors">
+            Little Fox and the Starlit Forest
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 leading-relaxed mb-6">
+            Lyrical bedtime cadence calibrated for restorative sleep states, illustrated in soft wet-on-wet watercolor spreads.
+          </p>
+<div class="mt-auto pt-4 flex items-center gap-3">
+<a class="flex-1 text-center py-2 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-ui text-label-ui transition-all" data-path="reader" href="#">
+              Read Spread
+            </a>
+<a class="flex-1 text-center py-2 px-3 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-ui text-label-ui transition-all shadow-sm" data-path="studio" href="#">
+              Inspect Blueprint
+            </a>
+</div>
+</div>
+</article>
+<!-- Book 3: The Kinetic Organization -->
+<article class="group relative flex flex-col rounded-xl bg-surface-container-lowest p-6 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+<div class="relative w-full aspect-[4/5] rounded-lg overflow-hidden bg-surface-container mb-6 shadow-md">
+<div class="absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-r from-black/25 via-black/10 to-transparent z-20 pointer-events-none"></div>
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" data-alt="Editorial business hardcover cover with dual-tone black and champagne risograph vector schematic, dynamic typography, asymmetric layout, clean constructivist inspiration." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKO0pbu96aNMvl8VC0tWa08s30ycM3Levc-OurtDHQekiFNevADOl27jAih815tzmiEdaAT4HnCZfyjnS-mS1IHhdcv27Igc8g1UwUhMKls_ry1sq2f98_GsKIMRqdNj9mPctMyK0x4Zq9CbOV0BWTySO8lAxwJkmx42uNL7daYj9SE75zzZ5TWQkEmLq6NIme5c7PtQeMWS6cV_NQclQcUhmq5xNElfyPHyk64mwZOhaunfulTi0y"/>
+<div class="absolute top-3 right-3 z-20 px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-primary font-code-spec text-[10px] uppercase tracking-wider">
+            Leadership
+          </div>
+<div class="absolute bottom-3 left-4 z-20 flex items-center gap-1.5 text-on-primary font-code-spec text-[11px] drop-shadow">
+<span class="material-symbols-outlined text-[14px]">query_stats</span>
+<span>210 pp • Risograph Folio</span>
+</div>
+</div>
+<div class="flex flex-col flex-1">
+<div class="flex items-center justify-between gap-2 mb-2">
+<span class="font-code-spec text-code-spec text-secondary uppercase tracking-wider">Systems Strategy</span>
+<span class="font-code-spec text-code-spec text-outline">Executive Brief</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-primary mb-2 line-clamp-1 group-hover:text-secondary transition-colors">
+            The Kinetic Organization
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 leading-relaxed mb-6">
+            Autonomous synthesis of 450 corporate post-mortems formatted into actionable structural frameworks and diagrams.
+          </p>
+<div class="mt-auto pt-4 flex items-center gap-3">
+<a class="flex-1 text-center py-2 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-ui text-label-ui transition-all" data-path="reader" href="#">
+              Read Spread
+            </a>
+<a class="flex-1 text-center py-2 px-3 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-ui text-label-ui transition-all shadow-sm" data-path="studio" href="#">
+              Inspect Blueprint
+            </a>
+</div>
+</div>
+</article>
+<!-- Book 4: Heirloom & Ember -->
+<article class="group relative flex flex-col rounded-xl bg-surface-container-lowest p-6 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+<div class="relative w-full aspect-[4/5] rounded-lg overflow-hidden bg-surface-container mb-6 shadow-md">
+<div class="absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-r from-black/25 via-black/10 to-transparent z-20 pointer-events-none"></div>
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" data-alt="Fine culinary recipe book cover showing rustic sourdough loaf, cast iron cocotte, dramatic directional sunlight casting shadows on raw linen kitchen table, 35mm grain." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDr2NOzVDPdc1Pnf63muDyYAcqC8UBTDg6TUjbEeCb0JZh6vj0d2jqMabTKgagxTLUmRRPqHaJwQrEBWbS-JUONPoY-8_U8WXfSmlGhm5081zJNsZuvZacfo-3f9LDNc0nSdYSLrEPlFIhPXHM4mtBAbaNQQuw06qS5Y9WdUeg45-riqLeo_PHjVeS4Js5-hpzq0a-wuJaUd6DxpauQtZxYwUVb2u9AOTvhhhDQEGcXadKZip-DU3fd"/>
+<div class="absolute top-3 right-3 z-20 px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-primary font-code-spec text-[10px] uppercase tracking-wider">
+            Gastronomy
+          </div>
+<div class="absolute bottom-3 left-4 z-20 flex items-center gap-1.5 text-on-primary font-code-spec text-[11px] drop-shadow">
+<span class="material-symbols-outlined text-[14px]">restaurant_menu</span>
+<span>96 pp • Film Grain 400</span>
+</div>
+</div>
+<div class="flex flex-col flex-1">
+<div class="flex items-center justify-between gap-2 mb-2">
+<span class="font-code-spec text-code-spec text-secondary uppercase tracking-wider">Heritage Imprint</span>
+<span class="font-code-spec text-code-spec text-outline">Linen Bound</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-primary mb-2 line-clamp-1 group-hover:text-secondary transition-colors">
+            Heirloom &amp; Ember
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 leading-relaxed mb-6">
+            Revived hearth recipes and sourdough fermentation histories, paired with prompt-synthesized natural light photography.
+          </p>
+<div class="mt-auto pt-4 flex items-center gap-3">
+<a class="flex-1 text-center py-2 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-ui text-label-ui transition-all" data-path="reader" href="#">
+              Read Spread
+            </a>
+<a class="flex-1 text-center py-2 px-3 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-ui text-label-ui transition-all shadow-sm" data-path="studio" href="#">
+              Inspect Blueprint
+            </a>
+</div>
+</div>
+</article>
+<!-- Book 5: Echoes of the Renaissance -->
+<article class="group relative flex flex-col rounded-xl bg-surface-container-lowest p-6 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+<div class="relative w-full aspect-[4/5] rounded-lg overflow-hidden bg-surface-container mb-6 shadow-md">
+<div class="absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-r from-black/25 via-black/10 to-transparent z-20 pointer-events-none"></div>
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" data-alt="Art history monograph cover featuring Renaissance marble sculpture bust with deep golden chisel shadows, high-contrast chiaroscuro, classic typography embossed in gold leaf." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfQDRbmODgBFnuO20Inj-ksgLEJ3tPbRwPmhjWla_JP4QUiccz_LPFEh3Vg7GCoq8D0FiTAngyNtDNXezTHCHyIDXZe0-Dcjt0dq52OJwLSo37SQIuwih-EZdFErO1_2cq09hoF6yJIc-PX3TrvvUnFRmU867_QFCmEnh8nAjA-0t7mFZ3FYy5czzBoSlwKnMbEBW-A7Qczgi6RGEJEEtkkl0L4GcOsIQGIDtMtOjNx7B4ITDQZmsq"/>
+<div class="absolute top-3 right-3 z-20 px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-primary font-code-spec text-[10px] uppercase tracking-wider">
+            Monograph
+          </div>
+<div class="absolute bottom-3 left-4 z-20 flex items-center gap-1.5 text-on-primary font-code-spec text-[11px] drop-shadow">
+<span class="material-symbols-outlined text-[14px]">museum</span>
+<span>180 pp • Archival Folio</span>
+</div>
+</div>
+<div class="flex flex-col flex-1">
+<div class="flex items-center justify-between gap-2 mb-2">
+<span class="font-code-spec text-code-spec text-secondary uppercase tracking-wider">Florence Engine</span>
+<span class="font-code-spec text-code-spec text-outline">Gold Letterpress</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-primary mb-2 line-clamp-1 group-hover:text-secondary transition-colors">
+            Echoes of the Renaissance
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 leading-relaxed mb-6">
+            A critical examination of lost Tuscan workshops and pigment compounding, typeset with classical Golden Ratio margins.
+          </p>
+<div class="mt-auto pt-4 flex items-center gap-3">
+<a class="flex-1 text-center py-2 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-ui text-label-ui transition-all" data-path="reader" href="#">
+              Read Spread
+            </a>
+<a class="flex-1 text-center py-2 px-3 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-ui text-label-ui transition-all shadow-sm" data-path="studio" href="#">
+              Inspect Blueprint
+            </a>
+</div>
+</div>
+</article>
+<!-- Book 6: Quantum Horizons -->
+<article class="group relative flex flex-col rounded-xl bg-surface-container-lowest p-6 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+<div class="relative w-full aspect-[4/5] rounded-lg overflow-hidden bg-surface-container mb-6 shadow-md">
+<div class="absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-r from-black/25 via-black/10 to-transparent z-20 pointer-events-none"></div>
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" data-alt="Science book cover with delicate abstract quantum wave functions rendered in ultra-thin geometric wireframes, dark deep indigo and copper accents, sharp modern editorial aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCw230hLPhtQs7C4FH7yw33x_k7jdOyaQMjRWyPM3hkxzDv8AEayrRhGobdhdYU9XKzJ1T2ueuOb6ID4TP_3oxQNyeOTI6JJZKQgNDpj8JGKA2f7PL3oITHo132eM7cXjqv5xhFaxbXO-lkffIuHI7RhjonEHId1zhiXihyveQXzD7cX4-YV18RtFUKEYqTx_8RgZ3PuZlG9R_DmgJkbyEmmOxnoDfodyR8gsuMBCKnhU-S3GzZ6UZL"/>
+<div class="absolute top-3 right-3 z-20 px-2 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-primary font-code-spec text-[10px] uppercase tracking-wider">
+            Popular Science
+          </div>
+<div class="absolute bottom-3 left-4 z-20 flex items-center gap-1.5 text-on-primary font-code-spec text-[11px] drop-shadow">
+<span class="material-symbols-outlined text-[14px]">hub</span>
+<span>160 pp • Vector Plates</span>
+</div>
+</div>
+<div class="flex flex-col flex-1">
+<div class="flex items-center justify-between gap-2 mb-2">
+<span class="font-code-spec text-code-spec text-secondary uppercase tracking-wider">Turing Codex</span>
+<span class="font-code-spec text-code-spec text-outline">Matte Deboss</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-primary mb-2 line-clamp-1 group-hover:text-secondary transition-colors">
+            Quantum Horizons
+          </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 leading-relaxed mb-6">
+            Non-locality and entanglement unpacked through plain prose analogies and mathematically verified infographic plates.
+          </p>
+<div class="mt-auto pt-4 flex items-center gap-3">
+<a class="flex-1 text-center py-2 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-ui text-label-ui transition-all" data-path="reader" href="#">
+              Read Spread
+            </a>
+<a class="flex-1 text-center py-2 px-3 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-ui text-label-ui transition-all shadow-sm" data-path="studio" href="#">
+              Inspect Blueprint
+            </a>
+</div>
+</div>
+</article>
+</div>
+</section>
+<!-- Deep Inspection Feature: Spread of the Week (Inspired by User Image) -->
+<section class="w-full bg-surface-container-low py-20">
+<div class="max-w-7xl mx-auto px-6 lg:px-12">
+<!-- Section Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+<div>
+<span class="font-code-spec text-code-spec text-secondary uppercase tracking-widest block mb-2">Atelier Spotlight</span>
+<h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">
+            Spread of the Week: <span class="italic font-normal font-title-editorial text-secondary">Deep Inspection</span>
+</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md">
+          A microscopic look at how BookGenie's algorithmic compositor balances leading, gutter tension, and generative plate placement on open pages.
+        </p>
+</div>
+<!-- Realistic Open Layflat Spread Presentation -->
+<div class="relative w-full rounded-2xl bg-surface-container-lowest p-6 lg:p-12 shadow-xl mb-12 overflow-hidden">
+<!-- Background Studio Lighting Gradient -->
+<div class="absolute inset-0 bg-gradient-to-b from-surface to-surface-container-lowest pointer-events-none"></div>
+<div class="relative z-10 flex flex-col items-center">
+<!-- Mockup Display matching inspiration aesthetic -->
+<div class="relative w-full max-w-5xl rounded-lg bg-surface-container-lowest p-4 sm:p-8 lg:p-12 shadow-2xl">
+<!-- Spine Axis Center Line Shadow -->
+<div class="absolute left-1/2 top-0 bottom-0 w-8 -translate-x-1/2 bg-gradient-to-r from-transparent via-black/15 to-transparent pointer-events-none z-30"></div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16">
+<!-- Left Folio Page (Verso) -->
+<div class="relative flex flex-col p-4 sm:p-6 bg-surface-bright rounded shadow-sm">
+<!-- Page Number & Running Header -->
+<div class="flex items-center justify-between font-code-spec text-code-spec text-outline mb-8 pb-3 border-b-0">
+<span>64</span>
+<span class="tracking-widest uppercase">The Silent Cartographer</span>
+</div>
+<!-- Page Graphic Plate -->
+<div class="relative w-full aspect-[16/10] rounded bg-surface-container-low mb-6 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Architectural minimal geometric line drawing of an atrium with soft sunbeam ray casting long shadows on pale stone floor, high key editorial book plate." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZ3s5Hh8DOjMeTo74YI2gUbi09TaxJIicbAYQ29XFfR8z5Hji4MZjFJjmDYY7U6706a5K_zSzWmYvK72o3rOfduuDAAwQnAVlHVuHw5TCOXaZa66QbGe03QSO_Sn3RVIPqrbGa3qYyeqxn8EGJ-NluhIVMTb3wfdnKxxlr6RBN77NguLDnoBJYtFgoHACaHy9eqTe1UozBBJp8uU8PU1uNenJvHUF8-FI6bsG5H3Zk2uNf3MVFn-ZN"/>
+<!-- Inspection Overlay Indicator -->
+<div class="absolute top-2 left-2 px-2 py-0.5 rounded bg-primary/80 backdrop-blur-sm text-on-primary font-code-spec text-[9px] uppercase tracking-wider">
+                    Pl. XIV • Vector Plate
+                  </div>
+</div>
+<!-- Typographic Leaf -->
+<h3 class="font-headline-sm text-headline-sm text-primary mb-3">Light and Shadow</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-4">
+<span class="float-left text-3xl font-title-editorial font-bold leading-none pr-2 pt-1 text-primary">T</span>he boundary between habitable vacuum and stellar glare requires constant optical recalibration. Through the glass dome of the auxiliary bay, the dust clouds of the Perseus Arm appeared not as ethereal mists, but as monolithic blocks of suspended matter.
+                </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                  We plotted coordinates along the logarithmic spiral of the station's cooling fins. Every computation was a quiet testament to precision typesetting.
+                </p>
+<div class="mt-auto pt-6 text-right font-code-spec text-[10px] text-outline">
+                  Folio Gutter: 24mm • Bleed: 3mm
+                </div>
+</div>
+<!-- Right Folio Page (Recto) -->
+<div class="relative flex flex-col p-4 sm:p-6 bg-surface-bright rounded shadow-sm">
+<!-- Running Header & Page Number -->
+<div class="flex items-center justify-between font-code-spec text-code-spec text-outline mb-8 pb-3">
+<span class="tracking-widest uppercase">Chapter IV: Polar Grids</span>
+<span>65</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-3">Aurora</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-4">
+                  Ionization currents in the thermosphere flickered with the precise rhythm of an alternating quartz crystal. At 0400 hours, the planetary horizon blushed with a soft champagne ionization veil.
+                </p>
+<!-- Second Inset Plate with Gutter Alignment -->
+<div class="relative w-full aspect-[16/9] rounded bg-surface-container-low my-4 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Quiet interior architectural study showing paper texture and geometric structural lines in soft natural light, pristine editorial gallery proof." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCS2qyDd1bjYpWnY3mWbdox-JrYdQyziIaPbOn1KMR-FMF0XRGdQ7qHV39uHqlWD73ENGECY7Y-7CDA57ZajrybJqrnRanGoqj9Y19tSswwg9K3uIqMMen-3sBvKI-WDEnAZ6mrflzegkox8N1_PX5vZ1cGpq8Cy-lzCcu3YioCezKfjFH6Woz2jqT5kHME59QxUPi_QUONGOAC-E1UI8mCKEc6fSkjriXdxlz7Pvm8MXxoJX2QV4db"/>
+<div class="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-surface-container-lowest/90 backdrop-blur-sm text-primary font-code-spec text-[9px] uppercase tracking-wider">
+                    Knuth-Plass Balanced
+                  </div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                  The crew cataloged four thousand distinct spectral lines before the star rose above the atmospheric horizon. Every line was indexed directly into the physical ledger.
+                </p>
+<div class="mt-auto pt-6 flex items-center justify-between font-code-spec text-[10px] text-outline">
+<span>Leading: 24pt</span>
+<span>Grid: 12-Col Modular</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Typography and Synthesis Metadata Callout Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="p-6 rounded-xl bg-surface-container-lowest shadow-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-primary text-[18px]">format_shapes</span>
+</div>
+<h4 class="font-label-ui text-label-ui text-primary uppercase tracking-wider mb-2">Micro-Typographic Engine</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            Knuth-Plass paragraph breaking algorithm guarantees zero rivers or loose lines. Optical margin alignment pulls punctuation into margins for clean vertical reading edges.
+          </p>
+</div>
+<div class="p-6 rounded-xl bg-surface-container-lowest shadow-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-primary text-[18px]">brush</span>
+</div>
+<h4 class="font-label-ui text-label-ui text-primary uppercase tracking-wider mb-2">Prompt Plate Synthesis</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            Illustrations are rendered at 600 DPI vector-hybrid resolution, harmonizing color temperature to the designated paper stock (Munken Pure warm cream).
+          </p>
+</div>
+<div class="p-6 rounded-xl bg-surface-container-lowest shadow-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-primary text-[18px]">print</span>
+</div>
+<h4 class="font-label-ui text-label-ui text-primary uppercase tracking-wider mb-2">Certified Print Ready</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            Pre-flight PDF/X-1a automated validation with dynamic spine width calculated according to exact paper bulk (caliper 1.25) and stitch signature count.
+          </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Community Fork & Generation Stats Section -->
+<section class="w-full max-w-7xl mx-auto px-6 lg:px-12 py-16">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+<div class="lg:col-span-7">
+<span class="font-code-spec text-code-spec text-secondary uppercase tracking-widest block mb-2">Open Atelier Blueprint</span>
+<h2 class="font-headline-md text-headline-md text-primary tracking-tight mb-4">
+          Clone any showcase edition into your private workbench.
+        </h2>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed mb-6">
+          Every volume shown in this gallery is open-source within BookGenie. With one click, copy the complete prompt sequence, typographic rules, chapter hierarchy, and spine calibration directly into your editor.
+        </p>
+<!-- Inline SVG Visualization: Publication Pipeline Velocity -->
+<div class="p-5 rounded-xl bg-surface-container-low shadow-sm">
+<div class="flex items-center justify-between mb-3">
+<span class="font-label-ui text-label-ui text-primary">Atelier Synthesis Throughput</span>
+<span class="font-code-spec text-code-spec text-secondary">Past 24 Hours</span>
+</div>
+<svg class="w-full h-16 text-primary" fill="none" preserveaspectratio="none" viewbox="0 0 400 60">
+<path d="M0 45 C 40 45, 60 20, 100 25 C 140 30, 170 10, 210 15 C 250 20, 280 5, 320 18 C 360 30, 380 12, 400 8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+<path d="M0 45 C 40 45, 60 20, 100 25 C 140 30, 170 10, 210 15 C 250 20, 280 5, 320 18 C 360 30, 380 12, 400 8 L 400 60 L 0 60 Z" fill="currentColor" fill-opacity="0.04"></path>
+<!-- Accent Data Nodes -->
+<circle cx="100" cy="25" fill="#775a19" r="3"></circle>
+<circle cx="210" cy="15" fill="#775a19" r="3"></circle>
+<circle cx="320" cy="18" fill="#775a19" r="3"></circle>
+</svg>
+<div class="flex items-center justify-between pt-2 text-[11px] font-code-spec text-outline">
+<span>00:00 UTC</span>
+<span>1,420 Chapters Composed</span>
+<span>23:59 UTC</span>
+</div>
+</div>
+</div>
+<!-- Quick Blueprint Stats Box -->
+<div class="lg:col-span-5 p-8 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col gap-6">
+<div class="flex items-center justify-between pb-4">
+<div>
+<span class="font-code-spec text-code-spec text-outline uppercase block">Active Templates</span>
+<span class="font-headline-md text-headline-md text-primary">342</span>
+</div>
+<div>
+<span class="font-code-spec text-code-spec text-outline uppercase block">Global Prints</span>
+<span class="font-headline-md text-headline-md text-primary">48,910</span>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex items-center justify-between text-body-sm">
+<span class="font-body-sm text-on-surface-variant">Hardcover (Smyth Sewn)</span>
+<span class="font-code-spec text-code-spec text-primary">64%</span>
+</div>
+<div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 64%"></div>
+</div>
+<div class="flex items-center justify-between text-body-sm pt-2">
+<span class="font-body-sm text-on-surface-variant">Japanese Stab Binding</span>
+<span class="font-code-spec text-code-spec text-primary">22%</span>
+</div>
+<div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 22%"></div>
+</div>
+<div class="flex items-center justify-between text-body-sm pt-2">
+<span class="font-body-sm text-on-surface-variant">Softcover Perfect Bound</span>
+<span class="font-code-spec text-code-spec text-primary">14%</span>
+</div>
+<div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-outline h-full rounded-full" style="width: 14%"></div>
+</div>
+</div>
+<a class="mt-2 text-center py-2.5 px-4 rounded-lg bg-surface-container-low hover:bg-surface-container text-primary font-label-ui text-label-ui transition-all" data-path="how-it-works" href="#">
+          Explore Production Specs →
+        </a>
+</div>
+</div>
+</section>
+<!-- Bottom Hero CTA Section -->
+<section class="w-full max-w-7xl mx-auto px-6 lg:px-12 pb-24">
+<div class="relative w-full rounded-2xl bg-primary text-on-primary p-8 sm:p-12 lg:p-16 overflow-hidden shadow-2xl">
+<!-- Ambient Graphic Glow -->
+<div class="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-secondary/15 blur-3xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+<div class="max-w-2xl">
+<span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-lowest/10 text-secondary-fixed font-code-spec text-code-spec uppercase tracking-wider mb-4">
+            Instant Manuscript Engine
+          </span>
+<h2 class="font-headline-lg text-headline-lg tracking-tight mb-4">
+            Have a book inside you? Generate your first blueprint in 60 seconds.
+          </h2>
+<p class="font-body-md text-body-md text-primary-fixed-dim leading-relaxed">
+            Supply a thesis, upload research fragments, or let our literary director shape your premise. Your first physical proof leaf is just minutes away.
+          </p>
+</div>
+<div class="flex flex-col sm:flex-row items-center gap-4">
+<a class="w-full sm:w-auto text-center px-8 py-3.5 rounded-full bg-on-primary text-primary hover:bg-surface-bright font-label-ui text-label-ui transition-all shadow-md active:scale-95" data-path="studio" href="#">
+            Launch Studio Workbench
+          </a>
+<a class="w-full sm:w-auto text-center px-6 py-3.5 rounded-full bg-surface-container-lowest/10 hover:bg-surface-container-lowest/20 text-on-primary font-label-ui text-label-ui transition-all" data-path="reader" href="#">
+            Read Curated Edition
+          </a>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive Search / Filter Client-side Script -->
+<script>
+    (function() {
+      const pills = document.querySelectorAll('.filter-pill');
+      pills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          pills.forEach(p => {
+            p.classList.remove('bg-primary', 'text-on-primary');
+            p.classList.add('bg-surface-container-low', 'text-on-surface-variant');
+          });
+          pill.classList.remove('bg-surface-container-low', 'text-on-surface-variant');
+          pill.classList.add('bg-primary', 'text-on-primary');
+        });
+      });
+
+      // Quick keyboard shortcut hint handler
+      window.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+          e.preventDefault();
+          const searchInput = document.getElementById('showcase-search');
+          if (searchInput) searchInput.focus();
+        }
+      });
+    })();
+  </script>
+</div></main><footer class="w-full bg-surface-container-lowest shadow-[0_-1px_6px_rgba(0,0,0,0.02)]"><div class="max-w-7xl mx-auto px-6 lg:px-12 py-space-xl"><div class="grid grid-cols-1 md:grid-cols-4 gap-space-xl mb-space-xl"><div class="md:col-span-1"><div class="flex items-center gap-space-sm mb-space-md"><img alt="Brand logo. - Primary color: #18181b
+- Font: playfairDisplay
+- Mode: light
+- Roundness: rounded-sm
+" class="h-6 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VshjqzBzmzGMe5X2xlmuXahJ91-yqTJpbWIlG8mp_6TU39aaIEpWi-BgVYLlHpIB8M6pAwkP1irAf7jeGx_-36ZVqJcOC8f15fm9UlkYFXvzEK8nm_fiMcHJfuS-jJE_fMjwFkqnj9Xa7ASzkKHPhLVhZYcPInSHYRu9JIvvK2RCfNOCW7QvpgaBwVmlbMy19DMEbdXhpaS1DYhVH9BMV8PYvPzB1iYwjDBlM4NQjj2gTg6J-voNLqAg"/><span class="font-title-editorial text-title-editorial text-primary">BookGenie</span></div><p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-space-md">An atelier for fine computational publishing and precision typography. Algorithmic intelligence meets physical bookcraft.</p><div class="font-code-spec text-code-spec text-outline uppercase tracking-wider">Folio Edition 2.4 / Kyoto Typeset</div></div><div><h4 class="font-label-caps text-label-caps uppercase text-on-surface-variant mb-space-md">Studio</h4><ul class="space-y-space-sm"><li class="font-label-ui text-label-ui text-on-surface-variant hover:text-primary transition-colors"><a data-path="studio" href="#">Typesetting Atelier</a></li><li class="font-label-ui text-label-ui text-on-surface-variant hover:text-primary transition-colors"><a data-path="studio" href="#">Spine &amp; Binding Metrics</a></li><li class="font-label-ui text-label-ui text-on-surface-variant hover:text-primary transition-colors"><a data-path="reader" href="#">Galley Proofs</a></li><li class="font-label-ui text-label-ui text-on-surface-variant hover:text-primary transition-colors"><a data-path="showcase" href="#">Curated Catalog</a></li></ul></div><div><h4 class="font-label-caps text-label-caps uppercase text-on-surface-variant mb-space-md">Creation Pipeline</h4><ul class="space-y-space-sm"><li class="font-label-ui text-label-ui text-on-surface-variant hover:text-primary transition-colors"><a data-path="how-it-works" href="#">Algorithmic Scribe</a></li><li class="font-label-ui text-label-ui text-on-surface-variant hover:text-primary transition-colors"><a data-path="how-it-works" href="#">Foil &amp; Letterpress Stamping</a></li><li class="font-label-ui text-label-ui text-on-surface-variant hover:text-primary transition-colors"><a data-path="pricing" href="#">Print-on-Demand Folios</a></li><li class="font-label-ui text-label-ui text-on-surface-variant hover:text-primary transition-colors"><a data-path="pricing" href="#">Boutique Editions</a></li></ul></div><div><h4 class="font-label-caps text-label-caps uppercase text-on-surface-variant mb-space-md">Legal &amp; Archive</h4><ul class="space-y-space-sm"><li class="font-label-ui text-label-ui text-on-surface-variant hover:text-primary transition-colors"><a data-path="legal-colophon" href="#">Colophon &amp; Imprint</a></li><li class="font-label-ui text-label-ui text-on-surface-variant hover:text-primary transition-colors"><a data-path="legal-colophon" href="#">Author Intellectual Rights</a></li><li class="font-label-ui text-label-ui text-on-surface-variant hover:text-primary transition-colors"><a data-path="legal-colophon" href="#">Type Foundry Licenses</a></li><li class="font-label-ui text-label-ui text-on-surface-variant hover:text-primary transition-colors"><a data-path="legal-colophon" href="#">Privacy Architecture</a></li></ul></div></div><div class="pt-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-md bg-surface-container-lowest"><span class="font-code-spec text-code-spec text-outline">© 2025 BookGenie Atelier Inc. Printed digitally with archival balance.</span><div class="flex items-center gap-space-lg font-code-spec text-code-spec text-on-surface-variant"><span class="hover:text-primary transition-colors cursor-pointer">ISBN Pre-Check</span><span class="hover:text-primary transition-colors cursor-pointer">Opus 12</span><span class="hover:text-primary transition-colors cursor-pointer">Status: Calibrated</span></div></div></div></footer></body></html>
