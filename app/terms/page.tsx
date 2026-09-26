@@ -30,7 +30,7 @@ export default function TermsPage() {
             </section>
             <section>
               <h2 className="text-lg font-serif font-bold text-[#1A1612] dark:text-white mb-2">3. Intellectual Property & Commercial Rights</h2>
-              <p>You retain full ownership of the prompts and source materials you provide. Creators on active paid tiers (Author Single, Studio Atelier, and Boutique Press) receive full commercial rights to publish, distribute, and monetize books generated through their accounts, subject to applicable AI regulations and third-party foundation model terms.</p>
+              <p>You retain full ownership of the prompts and source materials you provide. Creators on active paid tiers (Pro Creator and Premium Atelier) receive full commercial rights to publish, distribute, and monetize books generated through their accounts, subject to applicable AI regulations and third-party foundation model terms.</p>
             </section>
             <section>
               <h2 className="text-lg font-serif font-bold text-[#1A1612] mb-2">4. User Conduct & Acceptable Use</h2>

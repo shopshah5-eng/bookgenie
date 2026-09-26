@@ -18,36 +18,36 @@ export function PricingTeaserSection() {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
-          {/* Author Single Tier */}
+          {/* Free Starter Tier */}
           <div className="bg-surface-container-low dark:bg-[#1a1b22] p-8 rounded-xl border border-surface-container-highest dark:border-white/10 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
             <div>
               <div className="flex items-baseline justify-between mb-4">
                 <h3 className="font-headline-sm text-headline-sm text-primary dark:text-[#f1effa]">
-                  Author Single
+                  Free Starter
                 </h3>
                 <div className="font-headline-lg text-headline-lg text-primary dark:text-[#f1effa]">
-                  $49
+                  $0
                 </div>
               </div>
               <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-400 mb-6">
-                Complete autonomous synthesis and master proofing for a single collector-grade volume.
+                Generate your first full book and read it in the dual-page folio reader with zero commitment.
               </p>
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center gap-3 font-body-sm text-body-sm text-on-surface dark:text-[#f1effa]">
                   <span className="material-symbols-outlined text-[18px] text-secondary dark:text-[#fcba64]">check</span>
-                  <span>1 Finished Book Pipeline (Up to 60k Words)</span>
+                  <span>1 Finished Book (Up to 16 Pages)</span>
                 </li>
                 <li className="flex items-center gap-3 font-body-sm text-body-sm text-on-surface dark:text-[#f1effa]">
                   <span className="material-symbols-outlined text-[18px] text-secondary dark:text-[#fcba64]">check</span>
-                  <span>20 Style-Consistent Illustrated Plates</span>
+                  <span>4 Illustrated Plates &amp; Cover Art</span>
                 </li>
                 <li className="flex items-center gap-3 font-body-sm text-body-sm text-on-surface dark:text-[#f1effa]">
                   <span className="material-symbols-outlined text-[18px] text-secondary dark:text-[#fcba64]">check</span>
-                  <span>Print-Ready CMYK PDF + Validated EPUB3</span>
+                  <span>1 Free PDF &amp; EPUB 3.0 Download</span>
                 </li>
                 <li className="flex items-center gap-3 font-body-sm text-body-sm text-on-surface dark:text-[#f1effa]">
                   <span className="material-symbols-outlined text-[18px] text-secondary dark:text-[#fcba64]">check</span>
-                  <span>100% Commercial Rights &amp; Retained Copyright</span>
+                  <span>Private Interactive Web Reader</span>
                 </li>
               </ul>
             </div>
@@ -55,46 +55,46 @@ export function PricingTeaserSection() {
               href="/create"
               className="w-full py-3 rounded-full bg-surface-container dark:bg-white/10 text-on-surface dark:text-[#f1effa] hover:bg-surface-variant dark:hover:bg-white/15 font-label-ui text-label-ui transition-colors text-center inline-block font-semibold"
             >
-              Synthesize Single Book
+              Start Creating Free
             </Link>
           </div>
 
-          {/* Studio Atelier Tier */}
+          {/* Pro Creator Tier */}
           <div className="bg-primary dark:bg-[#000000] text-on-primary p-8 rounded-xl border border-primary/20 dark:border-white/15 shadow-xl flex flex-col justify-between relative overflow-hidden">
             <div className="absolute -right-8 -top-8 w-32 h-32 bg-secondary/20 rounded-full blur-2xl pointer-events-none" />
             <div>
               <div className="flex items-baseline justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <h3 className="font-headline-sm text-headline-sm text-white">
-                    Studio Atelier
+                    Pro Creator
                   </h3>
                   <span className="px-2.5 py-0.5 rounded-full bg-secondary text-white font-label-caps text-[10px] uppercase tracking-wider font-semibold">
-                    Most Popular
+                    Best Value
                   </span>
                 </div>
                 <div className="font-headline-lg text-headline-lg text-white">
-                  $129 <span className="font-body-sm text-body-sm text-neutral-400 font-normal">/mo</span>
+                  $15 <span className="font-body-sm text-body-sm text-neutral-400 font-normal">/mo</span>
                 </div>
               </div>
               <p className="font-body-sm text-body-sm text-neutral-300 mb-6">
-                For active authors, independent presses, and design studios producing regular catalog titles.
+                For active authors, teachers, and creators publishing books ready for Amazon KDP &amp; Apple Books.
               </p>
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center gap-3 font-body-sm text-body-sm text-white">
                   <span className="material-symbols-outlined text-[18px] text-[#fcba64]">check</span>
-                  <span><strong>5 Complete Books</strong> Produced Per Month</span>
+                  <span><strong>15 Complete Books</strong> Per Month (up to 64 pages)</span>
                 </li>
                 <li className="flex items-center gap-3 font-body-sm text-body-sm text-white">
                   <span className="material-symbols-outlined text-[18px] text-[#fcba64]">check</span>
-                  <span>Unlimited Retypesetting &amp; Revisions</span>
+                  <span><strong>UNLIMITED EPUB &amp; 300 DPI PDF Exports</strong></span>
                 </li>
                 <li className="flex items-center gap-3 font-body-sm text-body-sm text-white">
                   <span className="material-symbols-outlined text-[18px] text-[#fcba64]">check</span>
-                  <span>Custom Font License Ingestion &amp; Ligatures</span>
+                  <span>Up to 60 Style-Consistent Illustrated Plates / mo</span>
                 </li>
                 <li className="flex items-center gap-3 font-body-sm text-body-sm text-white">
                   <span className="material-symbols-outlined text-[18px] text-[#fcba64]">check</span>
-                  <span>Direct KDP &amp; IngramSpark Print Standards</span>
+                  <span>100% Commercial Rights &amp; No Watermarks</span>
                 </li>
               </ul>
             </div>
@@ -102,7 +102,7 @@ export function PricingTeaserSection() {
               href="/pricing"
               className="w-full py-3 rounded-full bg-white text-black hover:bg-neutral-100 font-label-ui text-label-ui transition-colors text-center inline-block font-semibold"
             >
-              Join Studio Atelier
+              Upgrade to Pro ($15/mo)
             </Link>
           </div>
         </div>
@@ -112,7 +112,7 @@ export function PricingTeaserSection() {
             href="/pricing"
             className="font-label-ui text-sm text-secondary dark:text-[#fcba64] hover:underline inline-flex items-center gap-1.5 font-medium"
           >
-            <span>Need more volume? Compare all tiers including Boutique Press ($349/mo)</span>
+            <span>Need high-volume publisher tools? Explore Premium Atelier ($39/mo)</span>
             <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
           </Link>
         </div>

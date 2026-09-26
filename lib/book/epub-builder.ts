@@ -79,12 +79,42 @@ blockquote {
 `
   );
 
-  // 4. Generate Chapter XHTML pages
+  // 4. Generate Chapter XHTML pages & Cover Asset
   const manifestItems: string[] = [
     `<item id="css" href="style.css" media-type="text/css"/>`,
     `<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>`,
   ];
   const spineItems: string[] = [];
+
+  // Embed Cover Image if local or remote URL provided
+  let hasCoverImage = false;
+  try {
+    if (book.coverUrl) {
+      let imageBuffer: Buffer | null = null;
+      if (book.coverUrl.startsWith('/images/')) {
+        const fs = await import('fs');
+        const path = await import('path');
+        const localPath = path.join(process.cwd(), 'public', book.coverUrl);
+        if (fs.existsSync(localPath)) {
+          imageBuffer = fs.readFileSync(localPath);
+        }
+      } else if (book.coverUrl.startsWith('http')) {
+        const res = await fetch(book.coverUrl);
+        if (res.ok) {
+          const arr = await res.arrayBuffer();
+          imageBuffer = Buffer.from(arr);
+        }
+      }
+
+      if (imageBuffer) {
+        oebps.file('images/cover.jpg', imageBuffer);
+        manifestItems.push(`<item id="cover-image" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>`);
+        hasCoverImage = true;
+      }
+    }
+  } catch (imgErr) {
+    console.warn('[EPUB Builder] Cover image embedding warning:', imgErr);
+  }
 
   // Cover Page
   const coverHtml = `<?xml version="1.0" encoding="utf-8"?>
@@ -97,6 +127,7 @@ blockquote {
 </head>
 <body>
   <div class="cover-wrapper">
+    ${hasCoverImage ? '<p><img src="images/cover.jpg" alt="Cover" style="max-width:100%; height:auto; margin:0 auto 1.5em; border-radius:8px;"/></p>' : ''}
     <h1>${escapeXml(book.title)}</h1>
     <div class="subtitle">${escapeXml(book.subtitle || 'A publication crafted with BookGenie AI')}</div>
     <p><em>${escapeXml(book.bookType)} • BookGenie Edition</em></p>

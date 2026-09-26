@@ -129,136 +129,136 @@ function PricingContent() {
           <div className="max-w-7xl mx-auto px-6 lg:px-12 pb-24">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
               
-              {/* Card 1: Author Single */}
+              {/* Card 1: Free Starter */}
               <div className="flex flex-col justify-between rounded-xl bg-surface-container-lowest dark:bg-[#181820] border border-surface-container-highest dark:border-white/10 p-8 lg:p-10 shadow-xs transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <span className="font-code-spec text-code-spec text-on-surface-variant dark:text-neutral-400 uppercase tracking-wider">
-                      Folio / Single Volume
+                      Evaluation / Starter
                     </span>
                     <span className="material-symbols-outlined text-outline">menu_book</span>
                   </div>
                   <h3 className="font-headline-md text-headline-md text-primary dark:text-[#f1effa] mb-2">
-                    Author Single
+                    Free Starter
                   </h3>
                   <p className="font-body-md text-body-md text-on-surface-variant dark:text-neutral-400 mb-6 leading-relaxed">
-                    Perfect for independent authors crafting a single collector&apos;s volume with print-grade integrity.
+                    Test the publishing studio risk-free. Create your first book and experience the reading folio.
                   </p>
                   <div className="flex items-baseline gap-1.5 mb-8 pb-8 border-b border-surface-container-highest dark:border-white/10">
                     <span className="font-display-hero text-display-hero-mobile sm:text-display-hero text-primary dark:text-[#f1effa] font-title-editorial">
-                      $49
+                      $0
                     </span>
                     <span className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-400">
-                      / single book
+                      / forever free
                     </span>
                   </div>
                   <p className="font-label-caps text-label-caps text-on-surface-variant dark:text-neutral-400 uppercase mb-4 tracking-wider font-semibold">
-                    Included Specifications
+                    Included Features
                   </p>
                   <ul className="space-y-4 mb-8">
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
                       <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
-                        <strong>1 Complete Book Pipeline</strong> (up to 60k words)
+                        <strong>1 Complete Book</strong> (up to 16 pages)
                       </span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
                       <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
-                        20 Style-Consistent Illustrated Plates
+                        4 Illustrated Plates &amp; Cover Art
                       </span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
                       <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
-                        Print-Ready CMYK PDF + Validated EPUB3
+                        1 Free PDF &amp; EPUB 3.0 Export
                       </span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
                       <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
-                        Full Archival Typography &amp; Hyphenation
+                        Private Interactive Web Reader
                       </span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
                       <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
-                        100% Retained Intellectual &amp; Commercial Rights
+                        Notes Ingestion (.txt, .md, .pdf references)
                       </span>
                     </li>
                   </ul>
                 </div>
                 <button
-                  onClick={() => handleSelectPlan('author-single')}
+                  onClick={() => handleSelectPlan('free')}
                   className="w-full py-3.5 px-6 rounded-lg text-center font-label-ui text-label-ui text-primary dark:text-black bg-surface-container-low dark:bg-white hover:bg-surface-container-high transition-colors font-semibold active:scale-[0.99] cursor-pointer"
                 >
-                  Synthesize Single Book
+                  Start Creating Free
                 </button>
               </div>
 
-              {/* Card 2: Studio Atelier (Featured Obsidian Elevation) */}
+              {/* Card 2: Pro Creator (Featured Elevation) */}
               <div className="relative flex flex-col justify-between rounded-xl bg-primary dark:bg-[#000000] text-on-primary border border-secondary/30 dark:border-white/20 p-8 lg:p-10 shadow-2xl transition-all duration-300 hover:-translate-y-1.5 overflow-hidden">
                 {/* Ambient Gold Foil Halo Effect */}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#fcba64] to-transparent" />
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <span className="font-label-caps text-label-caps px-3 py-1 rounded-full bg-secondary-container text-secondary dark:bg-amber-950 dark:text-amber-300 font-semibold tracking-wider">
-                      MOST POPULAR ATELIER
+                      MOST POPULAR • CREATOR BEST VALUE
                     </span>
                     <span className="material-symbols-outlined text-[#fcba64]">auto_awesome</span>
                   </div>
                   <h3 className="font-headline-md text-headline-md text-white mb-2">
-                    Studio Atelier
+                    Pro Creator
                   </h3>
                   <p className="font-body-md text-body-md text-neutral-300 mb-6 leading-relaxed">
-                    For prolific writers, series creators, and professional publishing stylists demanding perfection.
+                    For active authors, teachers, and creators publishing complete books ready for Amazon KDP &amp; Apple Books.
                   </p>
                   <div className="flex items-baseline gap-1.5 mb-8 pb-8 border-b border-white/10">
                     <span className="font-display-hero text-display-hero-mobile sm:text-display-hero text-white font-title-editorial">
-                      {atelierPrice}
+                      {billingCycle === 'annual' ? '$12' : '$15'}
                     </span>
                     <span className="font-body-sm text-body-sm text-neutral-400">
-                      / month {billingCycle === 'annual' ? 'billed annually' : 'billed monthly'}
+                      / month {billingCycle === 'annual' ? 'billed annually ($144/yr)' : 'billed monthly'}
                     </span>
                   </div>
                   <p className="font-label-caps text-label-caps text-[#fcba64] uppercase mb-4 tracking-wider font-semibold">
-                    Atelier Core Privileges
+                    Creator Privileges
                   </p>
                   <ul className="space-y-4 mb-8">
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-[#fcba64] text-[20px] shrink-0">verified</span>
                       <span className="font-body-md text-body-md text-white">
-                        <strong>5 Complete Books</strong> produced per month
+                        <strong>15 Complete Books</strong> per month (up to 64 pages each)
                       </span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-[#fcba64] text-[20px] shrink-0">verified</span>
                       <span className="font-body-md text-body-md text-white">
-                        Unlimited AI Latent Visual Plates &amp; Dust Jackets
+                        <strong>UNLIMITED EPUB &amp; 300 DPI PDF Exports</strong>
                       </span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-[#fcba64] text-[20px] shrink-0">verified</span>
                       <span className="font-body-md text-body-md text-white">
-                        Custom Font License Ingestion &amp; OpenType ligatures
+                        Up to 60 Style-Consistent Illustrated Plates / mo
                       </span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-[#fcba64] text-[20px] shrink-0">verified</span>
                       <span className="font-body-md text-body-md text-white">
-                        Interactive Web Flipbook Reader on Custom Domains
+                        100% Commercial Copyright Retention (Sell on KDP/IngramSpark)
                       </span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-[#fcba64] text-[20px] shrink-0">verified</span>
                       <span className="font-body-md text-body-md text-white">
-                        IngramSpark &amp; KDP Direct Automated Submission API
+                        In-Reader AI Chapter Revision Dock
                       </span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-[#fcba64] text-[20px] shrink-0">verified</span>
                       <span className="font-body-md text-body-md text-white">
-                        Priority OpenRouter Claude 3.5 &amp; Gemini Pro Models
+                        Zero Watermarks / Clean Custom Colophon
                       </span>
                     </li>
                   </ul>
@@ -268,59 +268,65 @@ function PricingContent() {
                   disabled={upgradingTier === 'creator'}
                   className="w-full py-3.5 px-6 rounded-lg text-center font-label-ui text-label-ui text-black bg-[#fcba64] hover:bg-[#ffddb6] transition-all shadow-md font-semibold active:scale-[0.99] cursor-pointer"
                 >
-                  {upgradingTier === 'creator' ? 'Activating...' : 'Join Studio Atelier'}
+                  {upgradingTier === 'creator' ? 'Activating Pro...' : 'Upgrade to Pro Creator ($15/mo)'}
                 </button>
               </div>
 
-              {/* Card 3: Boutique Press */}
+              {/* Card 3: Premium Atelier */}
               <div className="flex flex-col justify-between rounded-xl bg-surface-container-lowest dark:bg-[#181820] border border-surface-container-highest dark:border-white/10 p-8 lg:p-10 shadow-xs transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <span className="font-code-spec text-code-spec text-on-surface-variant dark:text-neutral-400 uppercase tracking-wider">
-                      Enterprise &amp; Imprints
+                      Power Publishing &amp; Imprints
                     </span>
                     <span className="material-symbols-outlined text-outline">domain</span>
                   </div>
                   <h3 className="font-headline-md text-headline-md text-primary dark:text-[#f1effa] mb-2">
-                    Boutique Press
+                    Premium Atelier
                   </h3>
                   <p className="font-body-md text-body-md text-on-surface-variant dark:text-neutral-400 mb-6 leading-relaxed">
-                    Designed for independent presses, publishing houses, and design studios scaling large catalogs.
+                    Designed for serial authors, design agencies, and boutique publishers scaling continuous catalogs.
                   </p>
                   <div className="flex items-baseline gap-1.5 mb-8 pb-8 border-b border-surface-container-highest dark:border-white/10">
                     <span className="font-display-hero text-display-hero-mobile sm:text-display-hero text-primary dark:text-[#f1effa] font-title-editorial">
-                      {boutiquePrice}
+                      {billingCycle === 'annual' ? '$32' : '$39'}
                     </span>
                     <span className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-400">
-                      / month {billingCycle === 'annual' ? 'billed annually' : 'billed monthly'}
+                      / month {billingCycle === 'annual' ? 'billed annually ($384/yr)' : 'billed monthly'}
                     </span>
                   </div>
                   <p className="font-label-caps text-label-caps text-on-surface-variant dark:text-neutral-400 uppercase mb-4 tracking-wider font-semibold">
-                    Enterprise Capabilities
+                    Atelier Power Privileges
                   </p>
                   <ul className="space-y-4 mb-8">
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
                       <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
-                        <strong>25 Complete Books</strong> produced per month
+                        <strong>50 Books</strong> per month (up to 160 pages each)
                       </span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
                       <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
-                        Multi-Seat Atelier Team Collaboration
+                        <strong>UNLIMITED All Exports</strong> (PDF, EPUB, Markdown archive)
                       </span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
                       <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
-                        Automated Blurb, IngramSpark &amp; KDP ISBN Provisioning
+                        250 High-Res AI Visual Plates / mo with Character Bible Locks
                       </span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
                       <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
-                        Dedicated Typographical Engineering Support
+                        Priority High-Speed AI Processing Queue
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
+                      <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
+                        Custom Publisher Imprint, Colophon &amp; ISBN Ingestion
                       </span>
                     </li>
                   </ul>
@@ -330,7 +336,7 @@ function PricingContent() {
                   disabled={upgradingTier === 'pro'}
                   className="w-full py-3.5 px-6 rounded-lg text-center font-label-ui text-label-ui text-primary dark:text-black bg-surface-container-low dark:bg-white hover:bg-surface-container-high transition-colors font-semibold active:scale-[0.99] cursor-pointer"
                 >
-                  {upgradingTier === 'pro' ? 'Activating...' : 'Contact Press Atelier'}
+                  {upgradingTier === 'pro' ? 'Activating Premium...' : 'Join Premium Atelier ($39/mo)'}
                 </button>
               </div>
 

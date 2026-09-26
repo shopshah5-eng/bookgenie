@@ -17,11 +17,13 @@ export async function POST(req: NextRequest) {
     }
 
     const { tier } = body || {};
-    const validTiers = ['free', 'creator', 'pro'];
+    // Supports standard tiers: free, creator (Pro $15), pro (Premium $39)
+    const validTiers = ['free', 'creator', 'pro', 'author-single', 'studio-atelier', 'boutique-press'];
+    const normalizedTier = tier === 'author-single' || tier === 'creator' ? 'creator' : tier === 'studio-atelier' || tier === 'boutique-press' || tier === 'pro' ? 'pro' : 'free';
 
     if (!tier || !validTiers.includes(tier)) {
       return NextResponse.json(
-        { error: `Invalid plan tier. Valid options are: ${validTiers.join(', ')}.` },
+        { error: `Invalid plan tier. Valid options are: free, creator, pro.` },
         { status: 400 }
       );
     }
@@ -65,7 +67,7 @@ export async function POST(req: NextRequest) {
     const { data: updatedProfile, error: updateError } = await supabaseAdmin
       .from('profiles')
       .update({
-        tier,
+        tier: normalizedTier,
         updated_at: new Date().toISOString(),
       })
       .eq('id', user.id)

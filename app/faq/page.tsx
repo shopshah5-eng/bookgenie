@@ -27,7 +27,7 @@ export default function FAQPage() {
     },
     {
       q: 'Can I commercially publish and sell the generated books on Amazon KDP or Gumroad?',
-      a: 'Yes! Subscribers on all paid tiers (Author Single, Studio Atelier, and Boutique Press) retain 100% commercial rights and intellectual property ownership over all generated text, layouts, and illustrations. You can distribute your books as digital ebooks (EPUB), sell physical paperbacks via Amazon KDP or IngramSpark (using our print-ready PDF), or sell directly to your audience.',
+      a: 'Yes! Subscribers on all paid tiers (Pro Creator and Premium Atelier) retain 100% commercial rights and intellectual property ownership over all generated text, layouts, and illustrations. You can distribute your books as digital ebooks (EPUB), sell physical paperbacks via Amazon KDP or IngramSpark (using our print-ready PDF), or sell directly to your audience.',
     },
     {
       q: 'How long does book generation take?',
