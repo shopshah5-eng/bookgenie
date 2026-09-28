@@ -387,7 +387,7 @@ export class GenerationPipeline {
             };
           }
 
-          const progress = Math.min(64, 50 + Math.round((chaptersDone / chapters.length) * 15));
+          const progress = Math.max(currentJob.progress || 50, Math.min(64, 50 + Math.round((chaptersDone / chapters.length) * 15)));
 
           const { error: bookUpdateError } = await supabase
             .from('books')
@@ -535,7 +535,7 @@ export class GenerationPipeline {
           };
           const completedVisuals = updatedBlueprint.visualPlan.filter((item) => item.visualType !== 'none' && item.assetId).length;
           const totalVisuals = Math.max(updatedBlueprint.visualPlan.filter((item) => item.visualType !== 'none').length, 1);
-          const progress = Math.min(80, 65 + Math.round((completedVisuals / totalVisuals) * 15));
+          const progress = Math.max(currentJob.progress || 65, Math.min(80, 65 + Math.round((completedVisuals / totalVisuals) * 15)));
 
           const { error: blueprintError } = await supabase
             .from('books')
@@ -577,22 +577,21 @@ export class GenerationPipeline {
           pageNumber: idx + 1,
         }));
 
-        // Upsert pages into Supabase book_pages table
-        for (const page of canonicalPages) {
-          const { error: pageError } = await supabase.from('book_pages').upsert(
-            {
-              book_id: bookId,
-              page_number: page.pageNumber,
-              chapter_index: page.chapterIndex || 1,
-              title: page.title || '',
-              page_type: page.pageType || 'illustrated_content',
-              layout: page.layout || 'standard',
-              blocks: page.blocks || [],
-            },
-            { onConflict: 'book_id,page_number' }
-          );
-          if (pageError) throw pageError;
-        }
+        // Upsert pages into Supabase book_pages table in a single batch query
+        const pagesToUpsert = canonicalPages.map((page) => ({
+          book_id: bookId,
+          page_number: page.pageNumber,
+          chapter_index: page.chapterIndex || 1,
+          title: page.title || '',
+          page_type: page.pageType || 'illustrated_content',
+          layout: page.layout || 'standard',
+          blocks: page.blocks || [],
+        }));
+
+        const { error: pageError } = await supabase
+          .from('book_pages')
+          .upsert(pagesToUpsert, { onConflict: 'book_id,page_number' });
+        if (pageError) throw pageError;
 
         const { error: designingBookError } = await supabase
           .from('books')
@@ -647,13 +646,22 @@ export class GenerationPipeline {
         };
 
 
-        const { error: versionError } = await supabase.from('book_versions').insert({
-          book_id: bookId,
-          version_number: 1,
-          document_snapshot: finalDoc as any,
-          change_instruction: 'Initial Generation',
-        });
-        if (versionError) throw versionError;
+        const { data: existingVersion } = await supabase
+          .from('book_versions')
+          .select('id')
+          .eq('book_id', bookId)
+          .eq('version_number', 1)
+          .maybeSingle();
+
+        if (!existingVersion) {
+          const { error: versionError } = await supabase.from('book_versions').insert({
+            book_id: bookId,
+            version_number: 1,
+            document_snapshot: finalDoc as any,
+            change_instruction: 'Initial Generation',
+          });
+          if (versionError) throw versionError;
+        }
 
         const { error: completedBookError } = await supabase
           .from('books')
