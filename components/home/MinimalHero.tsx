@@ -13,20 +13,19 @@ export function MinimalHero() {
           {/* Eyebrow */}
           <div className="mb-4">
             <span className="font-sans text-[11px] font-semibold tracking-[0.2em] text-[#666666] uppercase">
-              AUTONOMOUS EBOOK CREATOR
+              EBOOK CREATOR
             </span>
           </div>
 
           {/* Main Headline */}
-          <h1 className="font-bold text-[42px] sm:text-[54px] md:text-[62px] text-[#111111] leading-[1.08] tracking-tight mb-5">
+          <h1 className="font-serif text-[42px] sm:text-[54px] md:text-[62px] text-[#111111] leading-[1.08] tracking-tight mb-5 font-normal">
             Turn Your Ideas<br />
-            Into <span className="font-semibold text-[#333333]">Beautiful Books</span>
+            Into <span className="italic font-normal">Beautiful Books.</span>
           </h1>
 
           {/* Subtitle */}
-          <p className="font-sans text-[16px] sm:text-[17px] text-[#666666] leading-relaxed max-w-xl mb-10">
-            Just write a prompt, and create a complete,
-            professionally designed eBook for you — in minutes.
+          <p className="font-sans text-[16px] sm:text-[17px] text-[#666666] leading-relaxed max-w-xl mb-10 font-light">
+            Write a simple idea, choose your page count, and create a beautifully written and designed eBook.
           </p>
 
           {/* Compact Feature Row */}
