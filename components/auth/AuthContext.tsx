@@ -15,6 +15,7 @@ interface AuthContextType {
   closeAuthModal: () => void;
   setAuthView: (view: AuthView) => void;
   signOut: () => Promise<void>;
+  updateProfileName: (newName: string) => Promise<boolean>;
   redirectUrl: string | null;
 }
 
@@ -97,6 +98,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
+  const updateProfileName = async (newName: string): Promise<boolean> => {
+    const trimmed = newName.trim();
+    if (!trimmed) return false;
+
+    try {
+      // 1. Try server API first for robust privileges
+      const res = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: trimmed }),
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        if (json.user) {
+          setUser(json.user);
+        } else if (user) {
+          setUser({
+            ...user,
+            user_metadata: {
+              ...user.user_metadata,
+              full_name: trimmed,
+              name: trimmed,
+            },
+          });
+        }
+        return true;
+      }
+    } catch (apiErr) {
+      console.warn('API profile update error, falling back to client SDK:', apiErr);
+    }
+
+    // Fallback directly via client Supabase
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.updateUser({
+        data: { full_name: trimmed, name: trimmed },
+      });
+      if (!error && data?.user) {
+        setUser(data.user);
+        return true;
+      }
+    } catch (sdkErr) {
+      console.error('Client SDK profile update error:', sdkErr);
+    }
+    return false;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -108,6 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         closeAuthModal,
         setAuthView,
         signOut,
+        updateProfileName,
         redirectUrl,
       }}
     >

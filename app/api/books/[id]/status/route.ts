@@ -63,6 +63,19 @@ export async function GET(
           }
         }
 
+        // Active serverless progression: advance the job by one stage during this poll
+        let activeJob = dbJob;
+        if (dbJob.status !== 'completed' && dbJob.status !== 'failed') {
+          try {
+            const advanced = await GenerationPipeline.advanceJob(dbJob.id, id);
+            if (advanced) {
+              activeJob = { ...activeJob, ...advanced };
+            }
+          } catch (advErr) {
+            console.warn('Status poller job advancement notice:', advErr);
+          }
+        }
+
         let bookMeta: any = null;
         try {
           const { data: bData } = await supabase
@@ -87,17 +100,17 @@ export async function GET(
         };
 
         return NextResponse.json({
-          id: dbJob.id,
-          bookId: dbJob.book_id,
-          status: dbJob.status,
-          stage: dbJob.stage,
-          progress: dbJob.progress,
-          title: bookMeta?.title || 'Untitled eBook',
-          subtitle: bookMeta?.subtitle || '',
-          cover_url: bookMeta?.cover_url || bookMeta?.cover_image_url || null,
-          page_count: bookMeta?.page_count || 30,
-          stepsCompleted: stageDescriptions[dbJob.stage] || ['Analyzing creative tone'],
-          error: dbJob.error_message || null,
+          id: activeJob.id,
+          bookId: activeJob.book_id,
+          status: activeJob.status,
+          stage: activeJob.stage,
+          progress: activeJob.progress,
+          title: bookMeta?.title || activeJob.title || 'Untitled eBook',
+          subtitle: bookMeta?.subtitle || activeJob.subtitle || '',
+          cover_url: bookMeta?.cover_url || bookMeta?.cover_image_url || activeJob.cover_url || null,
+          page_count: bookMeta?.page_count || activeJob.pageCount || 16,
+          stepsCompleted: stageDescriptions[activeJob.stage] || ['Analyzing creative tone'],
+          error: activeJob.error_message || null,
         });
       }
     } catch (dbErr) {

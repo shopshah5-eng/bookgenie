@@ -80,6 +80,9 @@ export interface BookBlueprint {
   chapters: ChapterOutline[];
   visualPlan: VisualPlanItem[];
   characterBible?: Record<string, string>;
+  prompt?: string;
+  uploadedContext?: string;
+  generatedPages?: BookPageDocument[];
 }
 
 export interface BookDocument {
