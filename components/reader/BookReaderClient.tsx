@@ -147,8 +147,15 @@ export function BookReaderClient({ initialBook, bookId }: BookReaderClientProps)
     setTimeout(() => setCopySuccess(false), 3000);
   };
 
-  const activePage: BookPageDocument = book.pages[currentPageIndex] || book.pages[0];
-  const totalPages = book.pages.length;
+  const activePage: BookPageDocument = book.pages[currentPageIndex] || book.pages[0] || {
+    pageNumber: 1,
+    chapterIndex: 1,
+    title: book.title || 'Untitled',
+    pageType: 'content',
+    layout: 'standard',
+    blocks: [{ type: 'paragraph', text: 'Preparing publication pages...' }],
+  };
+  const totalPages = Math.max(book.pages.length, 1);
 
   const paperClasses = {
     ivory: 'bg-[#FAF7F0] text-[#1A1612] border-[#E8DFC8]',

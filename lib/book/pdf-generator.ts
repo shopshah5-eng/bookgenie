@@ -29,7 +29,7 @@ export async function generateBookPdfBuffer(book: BookDocument): Promise<Uint8Ar
   doc.setProperties({
     title: title,
     subject: subtitle,
-    author: 'BookGenie AI Publishing Studio',
+    author: 'BookGenie Publishing Studio',
     keywords: `${bookType}, ebook, publishing`,
     creator: 'BookGenie Engine v1.0',
   });

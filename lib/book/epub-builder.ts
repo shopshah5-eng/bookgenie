@@ -129,7 +129,7 @@ blockquote {
   <div class="cover-wrapper">
     ${hasCoverImage ? '<p><img src="images/cover.jpg" alt="Cover" style="max-width:100%; height:auto; margin:0 auto 1.5em; border-radius:8px;"/></p>' : ''}
     <h1>${escapeXml(book.title)}</h1>
-    <div class="subtitle">${escapeXml(book.subtitle || 'A publication crafted with BookGenie AI')}</div>
+    <div class="subtitle">${escapeXml(book.subtitle || 'A publication crafted with BookGenie')}</div>
     <p><em>${escapeXml(book.bookType)} • BookGenie Edition</em></p>
   </div>
 </body>
@@ -233,7 +233,7 @@ blockquote {
     <dc:identifier id="pub-id">${pubIdentifier}</dc:identifier>
     <dc:title>${escapeXml(book.title)}</dc:title>
     <dc:language>${book.language?.slice(0, 2).toLowerCase() || 'en'}</dc:language>
-    <dc:creator>BookGenie AI Publishing Studio</dc:creator>
+    <dc:creator>BookGenie Publishing Studio</dc:creator>
     <dc:date>${new Date().toISOString()}</dc:date>
     <meta property="dcterms:modified">${new Date().toISOString().replace(/\.\d+Z$/, 'Z')}</meta>
   </metadata>
