@@ -1,0 +1,10 @@
+project_id = "olewesighfxtgmflllgh"
+
+[auth]
+enabled = true
+site_url = "https://bookgenie-app.netlify.app"
+additional_redirect_urls = [
+  "https://bookgenie-app.netlify.app/**",
+  "https://bookgenie-app.netlify.app/api/auth/callback",
+  "http://localhost:3000/**"
+]
