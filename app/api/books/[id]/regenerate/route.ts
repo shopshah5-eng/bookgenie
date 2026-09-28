@@ -112,7 +112,7 @@ export async function POST(
 
     const { error: snapshotError } = await admin.from('book_versions').insert({
       book_id: book.id,
-      version_number: previousVersion,
+      version_number: newVersion,
       document_snapshot: book,
       change_instruction: instruction.trim(),
     });
@@ -147,7 +147,14 @@ export async function POST(
       updatedCoverUrl = coverAsset.url;
     }
 
-    let revisedPages = result.pages;
+    // Merge revised pages into existing book pages by pageNumber
+    const pageMap = new Map(book.pages.map((p) => [p.pageNumber, p]));
+    for (const rp of result.pages) {
+      const existing = pageMap.get(rp.pageNumber);
+      pageMap.set(rp.pageNumber, existing ? { ...existing, ...rp } : rp);
+    }
+
+    let revisedPages = Array.from(pageMap.values()).sort((a, b) => a.pageNumber - b.pageNumber);
     if (result.requiresImageRegeneration && result.imageInstructions) {
       for (const imageRequest of result.imageInstructions) {
         const imageResult = await imageProvider.generateImage({
@@ -206,20 +213,26 @@ export async function POST(
       .eq('user_id', user.id);
     if (updateError) throw updateError;
 
-    const pagesToUpsert = revisedPages.map((page) => ({
-      book_id: book.id,
-      page_number: page.pageNumber,
-      chapter_index: page.chapterIndex || 1,
-      title: page.title || '',
-      page_type: page.pageType || 'illustrated_content',
-      layout: page.layout || 'standard',
-      blocks: page.blocks,
-    }));
+    // Upsert the modified pages into Supabase
+    const pagesToUpsert = result.pages.map((page) => {
+      const canonical = pageMap.get(page.pageNumber) || page;
+      return {
+        book_id: book.id,
+        page_number: canonical.pageNumber,
+        chapter_index: canonical.chapterIndex || 1,
+        title: canonical.title || '',
+        page_type: canonical.pageType || 'illustrated_content',
+        layout: canonical.layout || 'standard',
+        blocks: canonical.blocks,
+      };
+    });
 
-    const { error: pageError } = await admin
-      .from('book_pages')
-      .upsert(pagesToUpsert, { onConflict: 'book_id,page_number' });
-    if (pageError) throw pageError;
+    if (pagesToUpsert.length > 0) {
+      const { error: pageError } = await admin
+        .from('book_pages')
+        .upsert(pagesToUpsert, { onConflict: 'book_id,page_number' });
+      if (pageError) throw pageError;
+    }
 
     return NextResponse.json({
       success: true,
@@ -228,9 +241,10 @@ export async function POST(
       message: `Version ${newVersion} successfully compiled.`,
     });
   } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : 'Failed to apply editorial revision.';
     console.error('Regenerate error:', err);
     return NextResponse.json(
-      { error: 'REVISION_FAILED', message: 'Failed to apply editorial revision.' },
+      { error: 'REVISION_FAILED', message: errorMsg },
       { status: 500 }
     );
   }

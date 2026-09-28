@@ -101,7 +101,26 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
     const apiKey = this.requireApiKey();
     const rawInstruction = params.instruction.toLowerCase();
     const isVisual = ['image', 'illustration', 'picture', 'drawing', 'color'].some((word) => rawInstruction.includes(word));
-    const modelConfig = AICostController.selectTextModel(isVisual ? 'complex_revision' : 'micro_revision', params.blueprint.bookType);
+    const modelConfig = AICostController.selectTextModel(isVisual ? 'complex_revision' : 'micro_revision', params.blueprint?.bookType);
+
+    // Filter to targeted/relevant pages to avoid huge prompt payloads and response truncation
+    let pagesToConsider = params.existingPages || [];
+    if (params.targetPageNumbers && params.targetPageNumbers.length > 0) {
+      pagesToConsider = pagesToConsider.filter((p) => params.targetPageNumbers!.includes(p.pageNumber));
+    } else if (rawInstruction.includes('chapter 1') || rawInstruction.includes('title') || rawInstruction.includes('heading')) {
+      pagesToConsider = pagesToConsider.slice(0, 4);
+    } else {
+      pagesToConsider = pagesToConsider.slice(0, 8);
+    }
+
+    const compactPages = pagesToConsider.map((p) => ({
+      pageNumber: p.pageNumber,
+      chapterIndex: p.chapterIndex,
+      title: p.title,
+      layout: p.layout,
+      blocks: p.blocks,
+    }));
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 20_000);
     try {
@@ -119,11 +138,11 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
           messages: [
             {
               role: 'system',
-              content: 'You are BookGenie’s targeted editorial revision engine. Return only JSON: {"pages": BookPageDocument[], "requiresImageRegeneration": boolean, "imageInstructions": [{"pageNumber": number, "prompt": string}]}. Never request new images unless the instruction explicitly changes a visual.',
+              content: 'You are BookGenie’s targeted editorial revision engine. Return only JSON: {"pages": BookPageDocument[], "requiresImageRegeneration": boolean, "imageInstructions": [{"pageNumber": number, "prompt": string}]}. In "pages", return ONLY the pages that are modified by the instruction. Never request new images unless the instruction explicitly changes a visual.',
             },
             {
               role: 'user',
-              content: `Instruction: ${params.instruction}\nTarget pages: ${JSON.stringify(params.targetPageNumbers || 'all relevant')}\nCurrent pages: ${JSON.stringify(params.existingPages)}`,
+              content: `Instruction: ${params.instruction}\nPages to revise: ${JSON.stringify(compactPages)}`,
             },
           ],
           response_format: { type: 'json_object' },
