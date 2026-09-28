@@ -1,3 +1,5 @@
-import RefundsPage from '../refunds/page';
+import { permanentRedirect } from 'next/navigation';
 
-export default RefundsPage;
+export default function RefundLegacyRedirect() {
+  permanentRedirect('/refunds');
+}

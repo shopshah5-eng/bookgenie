@@ -9,9 +9,8 @@ import { AuthModal } from '@/components/auth/AuthModal';
 
 export default function RefundsPage() {
   return (
-    <AuthProvider>
-      <div className="min-h-screen flex flex-col bg-white text-[#111111] font-sans antialiased">
-        <MinimalHeader />
+    <div className="min-h-screen flex flex-col bg-white text-[#111111] font-sans antialiased">
+      <MinimalHeader />
 
         <main className="flex-1 max-w-[800px] w-full mx-auto px-6 pt-12 sm:pt-16 pb-24">
           {/* Header */}
@@ -91,8 +90,6 @@ export default function RefundsPage() {
         </main>
 
         <MinimalFooter />
-        <AuthModal />
       </div>
-    </AuthProvider>
   );
 }

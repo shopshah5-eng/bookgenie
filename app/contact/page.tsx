@@ -44,9 +44,8 @@ export default function ContactPage() {
   };
 
   return (
-    <AuthProvider>
-      <div className="min-h-screen flex flex-col bg-white text-[#111111] antialiased selection:bg-[#F2EFE9]">
-        <Header />
+    <div className="min-h-screen flex flex-col bg-white text-[#111111] antialiased selection:bg-[#F2EFE9]">
+      <Header />
 
         <main className="flex-1 max-w-[800px] mx-auto w-full px-6 py-14 sm:py-20">
           {/* Header */}
@@ -180,8 +179,6 @@ export default function ContactPage() {
         </main>
 
         <Footer />
-        <AuthModal />
       </div>
-    </AuthProvider>
   );
 }

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
-import { AuthModal } from '@/components/auth/AuthModal';
+import { MinimalHeader } from '@/components/home/MinimalHeader';
 import { Footer } from '@/components/landing/Footer';
 import { BookOpen, ArrowRight, RotateCcw, Plus, Trash2 } from 'lucide-react';
 
@@ -73,76 +73,7 @@ export default function MyEbooksPage() {
 
   return (
     <div className="min-h-screen bg-white text-[#111111] antialiased flex flex-col selection:bg-[#F2EFE9]">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-[#0000000d]">
-        <div className="max-w-[1240px] mx-auto px-6 h-16 flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group select-none">
-            <svg
-              className="w-5 h-5 text-[#111111]"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-              <path d="M22 3h-6a4 4 0 0 1-4 4v14a3 3 0 0 0 3-3h7z" />
-            </svg>
-            <span className="font-semibold text-lg tracking-tight text-[#111111]">
-              BookGenie
-            </span>
-          </Link>
-
-          {/* Center Links */}
-          <nav className="hidden md:flex items-center gap-8">
-            <Link
-              href="/"
-              className="text-[14px] font-medium text-[#666666] hover:text-[#111111] transition-colors py-1"
-            >
-              Home
-            </Link>
-            <Link
-              href="/pricing"
-              className="text-[14px] font-medium text-[#666666] hover:text-[#111111] transition-colors py-1"
-            >
-              Pricing
-            </Link>
-            <Link
-              href="/my-ebooks"
-              className="relative text-[14px] font-medium text-[#111111] transition-colors py-1"
-            >
-              My eBooks
-              <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#111111] rounded-full" />
-            </Link>
-          </nav>
-
-          {/* Right: User Avatar */}
-          <div className="flex items-center gap-3">
-            {user ? (
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#F2EFE9] text-[#111111] flex items-center justify-center text-xs font-semibold select-none border border-[#EAEAEA]">
-                  {(user.email?.[0] || 'U').toUpperCase()}
-                </div>
-                <button
-                  onClick={() => signOut()}
-                  className="text-xs text-[#888888] hover:text-[#111111] transition-colors hidden sm:inline-block cursor-pointer"
-                >
-                  Sign Out
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => openAuthModal('signin')}
-                className="text-[13px] font-medium px-4 py-1.5 rounded-full border border-[#EAEAEA] text-[#111111] hover:border-[#111111] transition-all cursor-pointer"
-              >
-                Sign In
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
+      <MinimalHeader />
 
       {/* Main Content */}
       <main className="flex-1 max-w-[1240px] w-full mx-auto px-6 py-12">
@@ -358,7 +289,6 @@ export default function MyEbooksPage() {
       </main>
 
       <Footer />
-      <AuthModal />
     </div>
   );
 }

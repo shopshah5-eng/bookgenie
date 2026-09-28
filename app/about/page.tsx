@@ -11,9 +11,8 @@ import { ArrowRight, BookOpen } from 'lucide-react';
 
 export default function AboutPage() {
   return (
-    <AuthProvider>
-      <div className="min-h-screen flex flex-col bg-white text-[#111111] font-sans antialiased">
-        <MinimalHeader />
+    <div className="min-h-screen flex flex-col bg-white text-[#111111] font-sans antialiased">
+      <MinimalHeader />
 
         <main className="flex-1 max-w-[840px] w-full mx-auto px-6 pt-12 sm:pt-16 pb-24">
           {/* Header */}
@@ -77,8 +76,6 @@ export default function AboutPage() {
         </main>
 
         <MinimalFooter />
-        <AuthModal />
       </div>
-    </AuthProvider>
   );
 }

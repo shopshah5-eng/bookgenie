@@ -2,18 +2,50 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
-import { Menu, X, BookOpen } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 export function MinimalHeader() {
   const { user, openAuthModal, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const handlePricingClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+    if (pathname === '/') {
+      const pricingEl = document.getElementById('pricing');
+      if (pricingEl) {
+        pricingEl.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }
+    } else {
+      router.push('/#pricing');
+    }
+  };
+
+  const handleHomeClick = (e: React.MouseEvent) => {
+    setMobileMenuOpen(false);
+    if (pathname === '/') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const isHome = pathname === '/';
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/85 backdrop-blur-md border-b border-[#0000000d] transition-all">
+    <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-[#0000000d] transition-all">
       <div className="max-w-[1240px] mx-auto px-6 h-16 flex items-center justify-between">
         {/* Left: Logo */}
-        <Link href="/" className="flex items-center gap-2 group select-none">
+        <Link
+          href="/"
+          onClick={handleHomeClick}
+          className="flex items-center gap-2 group select-none cursor-pointer"
+        >
           <svg
             className="w-5 h-5 text-[#111111]"
             viewBox="0 0 24 24"
@@ -31,29 +63,30 @@ export function MinimalHeader() {
           </span>
         </Link>
 
-        {/* Center: Navigation Links */}
+        {/* Center: Exactly Two Navigation Options — Home & Pricing */}
         <nav className="hidden md:flex items-center gap-8">
           <Link
             href="/"
-            className="relative text-[14px] font-medium text-[#111111] transition-colors py-1"
+            onClick={handleHomeClick}
+            className={`relative text-[14px] font-medium transition-colors py-1 ${
+              isHome
+                ? 'text-[#111111]'
+                : 'text-[#666666] hover:text-[#111111]'
+            }`}
           >
             Home
-            <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#111111] rounded-full" />
+            {isHome && (
+              <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#111111] rounded-full" />
+            )}
           </Link>
-          <Link
-            href="/pricing"
-            className="text-[14px] font-medium text-[#666666] hover:text-[#111111] transition-colors py-1"
+
+          <a
+            href="/#pricing"
+            onClick={handlePricingClick}
+            className="text-[14px] font-medium text-[#666666] hover:text-[#111111] transition-colors py-1 cursor-pointer"
           >
             Pricing
-          </Link>
-          {user && (
-            <Link
-              href="/my-ebooks"
-              className="text-[14px] font-medium text-[#666666] hover:text-[#111111] transition-colors py-1"
-            >
-              My eBooks
-            </Link>
-          )}
+          </a>
         </nav>
 
         {/* Right: Auth Buttons */}
@@ -62,16 +95,16 @@ export function MinimalHeader() {
             <div className="flex items-center gap-3">
               <Link
                 href="/my-ebooks"
-                className="text-[13px] font-medium text-[#111111] px-4 py-2 rounded-full border border-[#EAEAEA] hover:border-[#111111] transition-all"
+                className="text-[13px] font-medium text-[#111111] px-4 py-1.5 rounded-full border border-[#EAEAEA] hover:border-[#111111] transition-all"
               >
                 My eBooks
               </Link>
               <div className="w-8 h-8 rounded-full bg-[#F2EFE9] text-[#111111] flex items-center justify-center text-xs font-semibold select-none border border-[#EAEAEA]">
-                {(user.email?.[0] || 'T').toUpperCase()}
+                {(user.email?.[0] || 'U').toUpperCase()}
               </div>
               <button
                 onClick={() => signOut()}
-                className="text-[12px] font-medium text-[#777777] hover:text-[#111111] transition-colors px-1"
+                className="text-[12px] font-medium text-[#777777] hover:text-[#111111] transition-colors px-1 cursor-pointer"
               >
                 Sign Out
               </button>
@@ -97,72 +130,72 @@ export function MinimalHeader() {
         {/* Mobile menu trigger */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 text-[#111111] rounded-lg hover:bg-black/5"
-          aria-label="Toggle mobile menu"
+          className="md:hidden p-2 text-[#111111] rounded-lg hover:bg-black/5 cursor-pointer"
+          aria-label="Toggle navigation menu"
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-[#EAEAEA] bg-white px-6 py-4 flex flex-col gap-3">
+        <div className="md:hidden bg-white border-b border-[#0000000d] px-6 py-5 flex flex-col gap-4 shadow-lg animate-in fade-in duration-150">
           <Link
             href="/"
-            onClick={() => setMobileMenuOpen(false)}
-            className="text-sm font-medium text-[#111111] py-1"
+            onClick={handleHomeClick}
+            className={`text-sm font-medium py-1 ${isHome ? 'text-[#111111] font-semibold' : 'text-[#666666]'}`}
           >
             Home
           </Link>
-          <Link
-            href="/pricing"
-            onClick={() => setMobileMenuOpen(false)}
-            className="text-sm font-medium text-[#666666] py-1"
+          <a
+            href="/#pricing"
+            onClick={handlePricingClick}
+            className="text-sm font-medium text-[#666666] py-1 cursor-pointer"
           >
             Pricing
-          </Link>
-          {user && (
-            <Link
-              href="/my-ebooks"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-sm font-medium text-[#666666] py-1"
-            >
-              My eBooks
-            </Link>
-          )}
+          </a>
 
-          <div className="pt-3 border-t border-[#EAEAEA] flex flex-col gap-2">
+          <div className="pt-4 border-t border-[#F0F0F0] flex flex-col gap-3">
             {user ? (
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  signOut();
-                }}
-                className="w-full py-2.5 rounded-full border border-[#EAEAEA] text-xs font-medium text-[#111111]"
-              >
-                Sign Out
-              </button>
-            ) : (
-              <>
+              <div className="flex items-center justify-between">
+                <Link
+                  href="/my-ebooks"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-sm font-medium text-[#111111]"
+                >
+                  My eBooks
+                </Link>
                 <button
                   onClick={() => {
+                    signOut();
                     setMobileMenuOpen(false);
-                    openAuthModal('signin');
                   }}
-                  className="w-full py-2.5 rounded-full border border-[#EAEAEA] text-xs font-medium text-[#111111]"
+                  className="text-xs text-[#888888] hover:text-[#111111]"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    openAuthModal('signin');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="flex-1 py-2 rounded-full border border-[#EAEAEA] text-xs font-medium text-[#111111] text-center"
                 >
                   Sign In
                 </button>
                 <button
                   onClick={() => {
-                    setMobileMenuOpen(false);
                     openAuthModal('signup');
+                    setMobileMenuOpen(false);
                   }}
-                  className="w-full py-2.5 rounded-full bg-[#111111] text-xs font-medium text-white"
+                  className="flex-1 py-2 rounded-full bg-[#111111] text-white text-xs font-medium text-center"
                 >
                   Sign Up
                 </button>
-              </>
+              </div>
             )}
           </div>
         </div>

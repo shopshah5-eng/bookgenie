@@ -76,9 +76,8 @@ const FEATURES_LIST = [
 
 export default function FeaturesPage() {
   return (
-    <AuthProvider>
-      <div className="min-h-screen flex flex-col bg-white text-[#111111] font-sans antialiased">
-        <MinimalHeader />
+    <div className="min-h-screen flex flex-col bg-white text-[#111111] font-sans antialiased">
+      <MinimalHeader />
 
         <main className="flex-1 max-w-[1240px] w-full mx-auto px-6 pt-12 sm:pt-16 pb-24">
           {/* Header */}
@@ -142,8 +141,6 @@ export default function FeaturesPage() {
         </main>
 
         <MinimalFooter />
-        <AuthModal />
       </div>
-    </AuthProvider>
   );
 }

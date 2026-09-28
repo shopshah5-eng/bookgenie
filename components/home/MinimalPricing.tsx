@@ -1,225 +1,176 @@
 'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Check, Sparkles } from 'lucide-react';
+import React from 'react';
+import { Check } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthContext';
 
 export function MinimalPricing() {
-  const router = useRouter();
   const { user, openAuthModal } = useAuth();
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
 
   const handleAction = (planId: string) => {
     if (!user) {
-      openAuthModal('signup', '/pricing');
+      openAuthModal('signup');
       return;
     }
-    router.push('/pricing');
+    // If logged in, scroll to the book creator prompt card smoothly
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const plans = [
+    {
+      id: 'free',
+      name: 'FREE',
+      price: '₹0',
+      period: '',
+      description: 'For trying BookGenie.',
+      features: [
+        '1 eBook',
+        'Up to 10 pages',
+        'Standard book design',
+        'PDF',
+        'BookGenie watermark',
+      ],
+      buttonText: 'Start Creating',
+      popular: false,
+    },
+    {
+      id: 'book',
+      name: 'BOOK',
+      price: '₹199',
+      period: '/ book',
+      description: 'For creating individual books.',
+      features: [
+        'Up to 30 pages',
+        'Premium book design',
+        'PDF + EPUB',
+        'No watermark',
+        'Commercial use',
+      ],
+      buttonText: 'Create a Book',
+      popular: true,
+    },
+    {
+      id: 'book-plus',
+      name: 'BOOK PLUS',
+      price: '₹399',
+      period: '/ book',
+      description: 'For larger, more detailed books.',
+      features: [
+        'Up to 60 pages',
+        'Premium book design',
+        'PDF + EPUB',
+        'No watermark',
+        'Commercial use',
+        'Enhanced illustrations',
+        'Regenerate and refine',
+      ],
+      buttonText: 'Create a Book',
+      popular: false,
+    },
+    {
+      id: 'creator',
+      name: 'CREATOR',
+      price: '₹799',
+      period: '/ month',
+      description: 'For frequent book creation.',
+      features: [
+        'Up to 5 books per month',
+        'Up to 100 pages per book',
+        'PDF + EPUB',
+        'No watermark',
+        'Commercial use',
+        'All available design styles',
+        'Faster generation',
+        'Priority support',
+      ],
+      buttonText: 'Start Creating',
+      popular: false,
+    },
+  ];
+
   return (
-    <section className="w-full py-20 bg-white border-b border-[#0000000a]" id="pricing">
+    <section className="w-full py-20 bg-white border-b border-[#0000000a] scroll-mt-20" id="pricing">
       <div className="max-w-[1240px] mx-auto px-6">
-        
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F5F5F3] text-[#666666] text-xs font-semibold uppercase tracking-wider mb-4 border border-[#EAEAEA]">
-            Plans &amp; Pricing
-          </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#111111] tracking-tight leading-tight">
-            Simple, transparent publishing plans.
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <h2 className="font-serif text-3xl sm:text-4xl text-[#111111] font-normal tracking-tight mb-3">
+            Simple pricing for beautiful books.
           </h2>
-          <p className="text-sm sm:text-base text-[#666666] mt-3 font-sans leading-relaxed">
-            Start creating free, or upgrade to Pro and Premium for high-volume publishing and commercial exports.
+          <p className="text-sm sm:text-base text-[#666666] font-light leading-relaxed">
+            Choose the plan that fits how you create.
           </p>
-
-          {/* Billing Cycle Toggle */}
-          <div className="mt-8 inline-flex items-center gap-1.5 p-1 rounded-full bg-[#F5F5F3] border border-[#EAEAEA]">
-            <button
-              onClick={() => setBillingCycle('monthly')}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                billingCycle === 'monthly'
-                  ? 'bg-white text-[#111111] shadow-xs font-semibold'
-                  : 'text-[#666666] hover:text-[#111111]'
-              }`}
-            >
-              Monthly Billing
-            </button>
-            <button
-              onClick={() => setBillingCycle('annual')}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
-                billingCycle === 'annual'
-                  ? 'bg-white text-[#111111] shadow-xs font-semibold'
-                  : 'text-[#666666] hover:text-[#111111]'
-              }`}
-            >
-              <span>Annual Billing</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#111111] text-white">
-                Save 20%
-              </span>
-            </button>
-          </div>
         </div>
 
-        {/* 3 Cards Grid: Free, Pro, Premium */}
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-          
-          {/* Card 1: Free */}
-          <div className="flex flex-col justify-between rounded-2xl border border-[#EAEAEA] bg-white p-7 transition-all duration-200 hover:border-[#111111]/30 hover:shadow-sm">
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-semibold text-[#888888] uppercase tracking-wider">
-                  Discovery
-                </span>
-              </div>
-              <h3 className="text-2xl font-bold text-[#111111] mb-1">
-                Free
-              </h3>
-              <p className="text-xs text-[#666666] mb-5 leading-relaxed">
-                Test the studio risk-free. Create your first book and experience the reading folio.
-              </p>
-              <div className="flex items-baseline gap-1 mb-5 pb-5 border-b border-[#F0F0F0]">
-                <span className="text-3xl font-bold text-[#111111]">$0</span>
-                <span className="text-xs text-[#888888]">/ forever free</span>
-              </div>
-              <ul className="space-y-3 mb-6 text-xs text-[#333333]">
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span><strong>1 Complete Book</strong> (up to 16 pages)</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span>4 Illustrated Plates &amp; Cover Art</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span>Interactive Reading Folio</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span>Notes &amp; Outline Ingestion</span>
-                </li>
-              </ul>
-            </div>
-            <Link
-              href="/create"
-              className="w-full py-3 px-4 rounded-full text-center text-xs font-semibold text-[#111111] bg-[#F5F5F3] hover:bg-[#EAEAEA] transition-colors cursor-pointer"
+        {/* 4 Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+          {plans.map((plan) => (
+            <div
+              key={plan.id}
+              className={`relative flex flex-col justify-between rounded-2xl p-7 transition-all ${
+                plan.popular
+                  ? 'border-2 border-[#111111] shadow-[0_8px_30px_rgba(0,0,0,0.06)] bg-white'
+                  : 'border border-[#EAEAEA] bg-white hover:border-[#D0D0CE]'
+              }`}
             >
-              Start Free
-            </Link>
-          </div>
+              {/* Popular Tag */}
+              {plan.popular && (
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                  <span className="px-3.5 py-1 rounded-full bg-[#111111] text-white text-[10px] font-semibold tracking-wider uppercase shadow-xs">
+                    POPULAR
+                  </span>
+                </div>
+              )}
 
-          {/* Card 2: Pro (Most Popular) */}
-          <div className="relative flex flex-col justify-between rounded-2xl border border-[#111111] bg-[#111111] text-white p-7 shadow-lg transition-all duration-200 hover:-translate-y-1">
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white uppercase tracking-wider">
-                  Most Popular
+              <div>
+                <span className="text-[11px] font-semibold text-[#888888] uppercase tracking-wider block mb-2">
+                  {plan.name}
                 </span>
-                <Sparkles className="w-4 h-4 text-amber-300" />
+
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className="text-4xl font-normal font-sans text-[#111111] tracking-tight">
+                    {plan.price}
+                  </span>
+                  {plan.period && (
+                    <span className="text-xs text-[#777777] font-light">
+                      {plan.period}
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-xs text-[#666666] mb-6 font-light">
+                  {plan.description}
+                </p>
+
+                <div className="pt-4 border-t border-[#F0F0F0] mb-6">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[#999999] block mb-3">
+                    INCLUDES:
+                  </span>
+                  <ul className="space-y-2.5 text-xs text-[#333333] font-light">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <Check className="w-3.5 h-3.5 text-[#111111] shrink-0 mt-0.5 stroke-[2]" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-1">
-                Pro
-              </h3>
-              <p className="text-xs text-[#AAAAAA] mb-5 leading-relaxed">
-                For authors and creators publishing complete books ready for Amazon KDP.
-              </p>
-              <div className="flex items-baseline gap-1 mb-5 pb-5 border-b border-white/10">
-                <span className="text-3xl font-bold text-white">
-                  {billingCycle === 'annual' ? '$12' : '$15'}
-                </span>
-                <span className="text-xs text-[#AAAAAA]">
-                  / month {billingCycle === 'annual' ? '($144/yr)' : ''}
-                </span>
+
+              <div>
+                <button
+                  onClick={() => handleAction(plan.id)}
+                  className={`w-full py-3 px-4 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                    plan.popular
+                      ? 'bg-[#111111] text-white hover:bg-[#222222] shadow-xs'
+                      : 'border border-[#E5E5E5] text-[#111111] hover:border-[#111111] bg-white'
+                  }`}
+                >
+                  {plan.buttonText}
+                </button>
               </div>
-              <ul className="space-y-3 mb-6 text-xs text-[#DDDDDD]">
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                  <span><strong>15 Books</strong> / month (up to 64 pages)</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                  <span><strong>Unlimited PDF &amp; EPUB Exports</strong></span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                  <span>100% Commercial Rights</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                  <span>In-Reader Chapter Revision Dock</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                  <span>Permanent Bookshelf Cloud Storage</span>
-                </li>
-              </ul>
             </div>
-            <button
-              onClick={() => handleAction('creator')}
-              className="w-full py-3 px-4 rounded-full text-center text-xs font-semibold text-[#111111] bg-white hover:bg-[#F0F0F0] transition-colors cursor-pointer"
-            >
-              Upgrade to Pro
-            </button>
-          </div>
-
-          {/* Card 3: Premium */}
-          <div className="flex flex-col justify-between rounded-2xl border border-[#EAEAEA] bg-white p-7 transition-all duration-200 hover:border-[#111111]/30 hover:shadow-sm">
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-semibold text-[#888888] uppercase tracking-wider">
-                  Imprint &amp; Agency
-                </span>
-              </div>
-              <h3 className="text-2xl font-bold text-[#111111] mb-1">
-                Premium
-              </h3>
-              <p className="text-xs text-[#666666] mb-5 leading-relaxed">
-                For serial publishers and marketing agencies scaling continuous volume.
-              </p>
-              <div className="flex items-baseline gap-1 mb-5 pb-5 border-b border-[#F0F0F0]">
-                <span className="text-3xl font-bold text-[#111111]">
-                  {billingCycle === 'annual' ? '$32' : '$39'}
-                </span>
-                <span className="text-xs text-[#888888]">
-                  / month {billingCycle === 'annual' ? '($384/yr)' : ''}
-                </span>
-              </div>
-              <ul className="space-y-3 mb-6 text-xs text-[#333333]">
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span><strong>50 Books</strong> / mo (up to 300 pages)</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span><strong>250 Visual Plates</strong> with character lock</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span>Priority Studio Processing Queue</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span>Custom Imprint &amp; ISBN Ingestion</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span>Markdown &amp; Raw Assets Archive</span>
-                </li>
-              </ul>
-            </div>
-            <button
-              onClick={() => handleAction('pro')}
-              className="w-full py-3 px-4 rounded-full text-center text-xs font-semibold text-[#111111] bg-[#F5F5F3] hover:bg-[#EAEAEA] transition-colors cursor-pointer"
-            >
-              Join Premium
-            </button>
-          </div>
-
+          ))}
         </div>
-
       </div>
     </section>
   );

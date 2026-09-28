@@ -64,9 +64,8 @@ export default function ExamplesPage() {
     : examples.filter((ex) => ex.category === selectedCategory);
 
   return (
-    <AuthProvider>
-      <div className="min-h-screen flex flex-col bg-white text-[#111111] antialiased selection:bg-[#F2EFE9]">
-        <Header />
+    <div className="min-h-screen flex flex-col bg-white text-[#111111] antialiased selection:bg-[#F2EFE9]">
+      <Header />
 
         <main className="flex-1 max-w-[1240px] mx-auto w-full px-6 py-14 sm:py-20">
           {/* Header Section */}
@@ -168,8 +167,6 @@ export default function ExamplesPage() {
         </main>
 
         <Footer />
-        <AuthModal />
       </div>
-    </AuthProvider>
   );
 }

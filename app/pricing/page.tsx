@@ -230,15 +230,10 @@ function PricingContent() {
       </main>
 
       <MinimalFooter />
-      <AuthModal />
     </div>
   );
 }
 
 export default function PricingPage() {
-  return (
-    <AuthProvider>
-      <PricingContent />
-    </AuthProvider>
-  );
+  return <PricingContent />;
 }
