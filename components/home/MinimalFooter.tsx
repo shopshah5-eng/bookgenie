@@ -85,7 +85,7 @@ export function MinimalFooter() {
               </li>
               <li>
                 <Link
-                  href="/pricing"
+                  href="/#pricing"
                   className="text-[13px] sm:text-[14px] text-[#666666] hover:text-[#111111] transition-colors"
                 >
                   Pricing
@@ -105,6 +105,14 @@ export function MinimalFooter() {
                   className="text-[13px] sm:text-[14px] text-[#666666] hover:text-[#111111] transition-colors"
                 >
                   Features
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/how-it-works"
+                  className="text-[13px] sm:text-[14px] text-[#666666] hover:text-[#111111] transition-colors"
+                >
+                  How It Works
                 </Link>
               </li>
             </ul>
@@ -130,6 +138,14 @@ export function MinimalFooter() {
                   className="text-[13px] sm:text-[14px] text-[#666666] hover:text-[#111111] transition-colors"
                 >
                   Help Center
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/faq"
+                  className="text-[13px] sm:text-[14px] text-[#666666] hover:text-[#111111] transition-colors"
+                >
+                  FAQ
                 </Link>
               </li>
               <li>
@@ -167,6 +183,14 @@ export function MinimalFooter() {
               </li>
               <li>
                 <Link
+                  href="/affiliate"
+                  className="text-[13px] sm:text-[14px] text-[#666666] hover:text-[#111111] transition-colors"
+                >
+                  Affiliate Program
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/privacy"
                   className="text-[13px] sm:text-[14px] text-[#666666] hover:text-[#111111] transition-colors"
                 >
@@ -179,6 +203,14 @@ export function MinimalFooter() {
                   className="text-[13px] sm:text-[14px] text-[#666666] hover:text-[#111111] transition-colors"
                 >
                   Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/cookies"
+                  className="text-[13px] sm:text-[14px] text-[#666666] hover:text-[#111111] transition-colors"
+                >
+                  Cookie Policy
                 </Link>
               </li>
               <li>
@@ -211,13 +243,21 @@ export function MinimalFooter() {
             <p>© 2026 BookGenie. All rights reserved.</p>
 
             {/* Right: Legal Links */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap justify-center sm:justify-end">
               <Link href="/privacy" className="hover:text-[#111111] transition-colors">
                 Privacy
               </Link>
               <span className="text-[#DDDDDD]">|</span>
               <Link href="/terms" className="hover:text-[#111111] transition-colors">
                 Terms
+              </Link>
+              <span className="text-[#DDDDDD]">|</span>
+              <Link href="/cookies" className="hover:text-[#111111] transition-colors">
+                Cookies
+              </Link>
+              <span className="text-[#DDDDDD]">|</span>
+              <Link href="/refunds" className="hover:text-[#111111] transition-colors">
+                Refunds
               </Link>
               <span className="text-[#DDDDDD]">|</span>
               <Link href="/contact" className="hover:text-[#111111] transition-colors">

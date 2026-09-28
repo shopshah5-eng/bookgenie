@@ -8,10 +8,11 @@ Allow: /affiliate
 Allow: /faq
 Allow: /privacy
 Allow: /terms
-Allow: /refund
+Allow: /refunds
 Allow: /cookies
 Allow: /shared/
 Disallow: /api/
 Disallow: /create
+Disallow: /my-ebooks
 
 Sitemap: https://bookgenie-app.netlify.app/sitemap.xml
