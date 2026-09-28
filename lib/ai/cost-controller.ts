@@ -61,8 +61,8 @@ export class AICostController {
    * Selects the most cost-effective text model based on task complexity and book type
    */
   static selectTextModel(task: TextTaskType, bookType?: BookType): ModelSelection {
-    const devModel = process.env.AI_TEXT_MODEL_DEV || 'openrouter/free';
-    const standardModel = process.env.AI_TEXT_MODEL_STANDARD || 'meta-llama/llama-3.3-70b-instruct';
+    const devModel = process.env.AI_TEXT_MODEL_DEV || 'meta-llama/llama-3.1-8b-instruct';
+    const standardModel = process.env.AI_TEXT_MODEL_STANDARD || 'meta-llama/llama-3.1-8b-instruct';
     const premiumModel = process.env.AI_TEXT_MODEL_PREMIUM || 'anthropic/claude-3.5-sonnet';
 
     // Tier 1: Cheap / Free for deterministic metadata, classification & QC
