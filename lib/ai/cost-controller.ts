@@ -60,6 +60,7 @@ export class AICostController {
   /**
    * Selects the most cost-effective text model based on task complexity and book type
    */
+  static selectTextModel(task: TextTaskType, bookType?: BookType): ModelSelection {
     const fastModel = 'meta-llama/llama-3.1-8b-instruct';
     const rawDev = process.env.AI_TEXT_MODEL_DEV || fastModel;
     const devModel = rawDev.includes('free') ? fastModel : rawDev;
