@@ -79,7 +79,7 @@ export function Modal({
               </button>
             )}
 
-            <div className="overflow-y-auto pr-0.5">{children}</div>
+            <div className="overflow-y-auto pr-0.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">{children}</div>
           </motion.div>
         </div>
       )}

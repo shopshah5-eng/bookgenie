@@ -172,9 +172,9 @@ export function AuthModal() {
               type="button"
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl border border-outline-variant/30 bg-surface-container-low hover:bg-surface-container text-sm font-semibold text-on-surface dark:text-white transition-all shadow-xs active:scale-[0.98] disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-[#111111] hover:bg-black text-white text-sm font-medium transition-all shadow-xs active:scale-[0.98] disabled:opacity-60 cursor-pointer border border-[#111111]"
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -196,11 +196,11 @@ export function AuthModal() {
             </button>
 
             <div className="w-full flex items-center my-4">
-              <div className="flex-1 h-px bg-outline-variant/30" />
-              <span className="px-3 text-xs text-outline uppercase tracking-wider font-label-caps">
+              <div className="flex-1 h-px bg-[#EAEAEA]" />
+              <span className="px-3 text-xs text-[#888888] uppercase tracking-wider font-label-caps">
                 or
               </span>
-              <div className="flex-1 h-px bg-outline-variant/30" />
+              <div className="flex-1 h-px bg-[#EAEAEA]" />
             </div>
           </>
         )}
@@ -247,7 +247,7 @@ export function AuthModal() {
                   <button
                     type="button"
                     onClick={() => setAuthView('forgot_password')}
-                    className="text-xs text-[#9A6F3C] hover:text-[#845D30] font-medium"
+                    className="text-xs text-[#111111] hover:underline font-medium cursor-pointer"
                   >
                     Forgot password?
                   </button>
@@ -274,7 +274,12 @@ export function AuthModal() {
             </div>
           )}
 
-          <Button type="submit" isLoading={isLoading} className="w-full mt-2" size="lg">
+          <Button
+            type="submit"
+            isLoading={isLoading}
+            className="w-full mt-2 py-3 text-sm font-medium bg-[#111111] hover:bg-black text-white rounded-xl shadow-xs transition-all border border-[#111111] cursor-pointer"
+            size="lg"
+          >
             {authView === 'signup'
               ? 'Create account →'
               : authView === 'signin'
@@ -305,7 +310,7 @@ export function AuthModal() {
               <button
                 type="button"
                 onClick={() => setAuthView('signin')}
-                className="font-semibold text-[#9A6F3C] hover:text-[#845D30]"
+                className="font-semibold text-[#111111] hover:underline ml-1 cursor-pointer"
               >
                 Sign in
               </button>
@@ -316,7 +321,7 @@ export function AuthModal() {
               <button
                 type="button"
                 onClick={() => setAuthView('signup')}
-                className="font-semibold text-[#9A6F3C] hover:text-[#845D30]"
+                className="font-semibold text-[#111111] hover:underline ml-1 cursor-pointer"
               >
                 Create account
               </button>
