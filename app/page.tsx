@@ -3,70 +3,49 @@
 import React from 'react';
 import { AuthProvider } from '@/components/auth/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
-import { Header } from '@/components/landing/Header';
-import { HeroSection } from '@/components/landing/HeroSection';
-import { PromptBarSection } from '@/components/landing/PromptBarSection';
-import { PromptToPageShowcase } from '@/components/landing/PromptToPageShowcase';
-import { BookShowcase } from '@/components/landing/BookShowcase';
-import { StudioWorkflowSection } from '@/components/landing/StudioWorkflowSection';
-import { ExportFormatsSection } from '@/components/landing/ExportFormatsSection';
-import { Testimonials } from '@/components/landing/Testimonials';
-import { PricingTeaserSection } from '@/components/landing/PricingTeaserSection';
-import { FAQSection } from '@/components/landing/FAQSection';
-import { CallToActionBanner } from '@/components/landing/CallToActionBanner';
-import { Footer } from '@/components/landing/Footer';
+import { MinimalHeader } from '@/components/home/MinimalHeader';
+import { MinimalHero } from '@/components/home/MinimalHero';
+import { BookCreatorCard } from '@/components/home/BookCreatorCard';
+import { MinimalFeatureStrip } from '@/components/home/MinimalFeatureStrip';
+import { MinimalExamples } from '@/components/home/MinimalExamples';
+import { MinimalHowItWorks } from '@/components/home/MinimalHowItWorks';
+import { MinimalFAQ } from '@/components/home/MinimalFAQ';
+import { MinimalFooter } from '@/components/home/MinimalFooter';
 
 export default function HomePage() {
   return (
     <AuthProvider>
-      <div className="min-h-screen flex flex-col bg-surface-container-lowest dark:bg-[#121217] text-on-surface dark:text-[#f1effa] transition-colors duration-300">
-        {/* 01 Sticky Editorial Atelier Header */}
-        <Header />
+      <div className="min-h-screen flex flex-col bg-white text-[#111111] font-sans selection:bg-[#111111] selection:text-white">
+        {/* Fixed transparent minimal header */}
+        <MinimalHeader />
 
-        {/* Main Landing Page Flow */}
-        <main className="flex-1">
-          {/* 01 Editorial Hero: AI Publishing Studio + Standing Book Mockup */}
-          <HeroSection />
+        {/* Main Content Flow */}
+        <main className="flex-1 w-full flex flex-col">
+          {/* 1. Hero Section (Turn Your Ideas Into Beautiful Books + Still Life) */}
+          <MinimalHero />
 
-          {/* 02 What do you want to create today? Real Controls: Upload, Category, Lang, Style */}
-          <PromptBarSection />
+          {/* 2. Main Book Creation Card with Prompt & Synchronized Page Count Slider */}
+          <BookCreatorCard />
 
-          {/* 03 From blank page to bound book: 7-Stage Publishing Architecture */}
-          <div id="workflow">
-            <PromptToPageShowcase />
-          </div>
+          {/* 3. 4-Column Feature Strip (Powered by AI, Unique Illustrations, etc.) */}
+          <MinimalFeatureStrip />
 
-          {/* 04 Explore the BookGenie Library: Real Showcase with Preview & Create Similar */}
-          <div id="examples">
-            <BookShowcase />
-          </div>
+          {/* 4. Examples Section (See What You Can Create: 4 Book Mockups) */}
+          <MinimalExamples />
 
-          {/* 05 Meet your publishing studio: 6-Stage Studio Workspace & Typeset Canvas */}
-          <StudioWorkflowSection />
+          {/* 5. How It Works (Create Your eBook in 3 Simple Steps: 1, 2, 3) */}
+          <MinimalHowItWorks />
 
-          {/* 06 One book. Every format: 300 DPI CMYK PDF, Reflowable EPUB3, Private Web Reader */}
-          <ExportFormatsSection />
-
-          {/* 07 Your work stays yours: Supabase Row-Level Security & 100% Commercial Rights */}
-          <Testimonials />
-
-          {/* 08 Transparent Pricing Teaser: Free Creator Studio vs Pro Edition */}
-          <PricingTeaserSection />
-
-          {/* 09 Frequently Asked Questions */}
-          <FAQSection />
-
-          {/* 10 Final Call to Action Banner + Book Spine Still Life */}
-          <CallToActionBanner />
+          {/* 6. Frequently Asked Questions (2-Column Accordion + View All) */}
+          <MinimalFAQ />
         </main>
 
-        {/* 16 Comprehensive 4-Column Footer */}
-        <Footer />
+        {/* Minimal Pure White Footer */}
+        <MinimalFooter />
 
-        {/* Centered Backdrop-Blur Authentication Modal */}
+        {/* Global Auth Modal */}
         <AuthModal />
       </div>
     </AuthProvider>
   );
 }
-
