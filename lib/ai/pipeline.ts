@@ -450,9 +450,24 @@ export class GenerationPipeline {
         const ownerId = book?.user_id;
         if (!ownerId) throw new Error('Book owner is missing; cannot persist illustration.');
         const visualPlan = blueprint.visualPlan || [];
+        const completedVisualsCount = visualPlan.filter((item) => item.visualType !== 'none' && item.assetId).length;
+        const totalVisualsCount = Math.max(visualPlan.filter((item) => item.visualType !== 'none').length, 1);
+        const currentProgress = Math.min(80, 65 + Math.round((completedVisualsCount / totalVisualsCount) * 15));
+
         const nextVisual = visualPlan.find((item) => item.visualType !== 'none' && !item.assetId);
 
         if (nextVisual) {
+          const attempts = ((nextVisual as any)._attempts || 0) + 1;
+          if (attempts > 3) {
+            console.warn(`[Pipeline] Visual item on page ${nextVisual.pageNumber} exceeded retry limit. Skipping...`);
+            const updatedVisualPlan = visualPlan.map((item) =>
+              item === nextVisual ? { ...item, assetId: 'skipped' } : item
+            );
+            const nextProgress = Math.min(80, 65 + Math.round(((completedVisualsCount + 1) / totalVisualsCount) * 15));
+            await supabase.from('books').update({ blueprint: { ...blueprint, visualPlan: updatedVisualPlan }, progress: nextProgress }).eq('id', bookId);
+            return { id: jobId, book_id: bookId, status: 'processing', stage: 'illustrations', progress: nextProgress };
+          }
+
           const imagePrompt = nextVisual.promptSpec || `${book?.title || promptText}, editorial illustration`;
           let result;
           try {
@@ -467,12 +482,16 @@ export class GenerationPipeline {
             ]);
           } catch (imgErr: any) {
             console.warn(`[Pipeline] Illustration attempt timed out or failed: ${imgErr.message}. Retrying on next poll...`);
+            const updatedVisualPlan = visualPlan.map((item) =>
+              item === nextVisual ? { ...item, _attempts: attempts } : item
+            );
+            await supabase.from('books').update({ blueprint: { ...blueprint, visualPlan: updatedVisualPlan } }).eq('id', bookId);
             return {
               id: jobId,
               book_id: bookId,
               status: 'processing',
               stage: 'illustrations',
-              progress: 65,
+              progress: currentProgress,
             };
           }
           const asset = await persistGeneratedImage({

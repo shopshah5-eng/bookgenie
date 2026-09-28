@@ -18,16 +18,24 @@ ${params.isCover ? 'Composition: Centered portrait, luxury book cover compositio
 `.trim();
 
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${this.apiKey}`;
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: productionPrompt }] }],
-            generationConfig: {
-              responseModalities: ['IMAGE'],
-            },
-          }),
-        });
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 3500);
+        let response: Response;
+        try {
+          response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: productionPrompt }] }],
+              generationConfig: {
+                responseModalities: ['IMAGE'],
+              },
+            }),
+          });
+        } finally {
+          clearTimeout(timer);
+        }
 
         if (response.ok) {
           const data = await response.json();
