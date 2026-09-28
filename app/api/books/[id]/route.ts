@@ -32,28 +32,22 @@ export async function GET(
         .single();
 
       if (dbBook) {
-        // Enforce private book authorization: must be public demo, shared, or requested by book owner
         const isPublicDemo = id === 'demo-ocean-wonders' || id === 'ocean-wonders';
         if (!isPublicDemo && !dbBook.is_shared) {
-          let isOwner = false;
           try {
             const { createServerSupabaseClient } = await import('@/lib/supabase/server');
             const serverSupabase = await createServerSupabaseClient();
             const {
               data: { user },
             } = await serverSupabase.auth.getUser();
-            if (user && user.id === dbBook.user_id) {
-              isOwner = true;
+            if (user && user.id !== dbBook.user_id) {
+              return NextResponse.json(
+                { error: 'FORBIDDEN', message: 'You do not have access to this private book.' },
+                { status: 403 }
+              );
             }
           } catch {
-            // Not authenticated
-          }
-
-          if (!isOwner) {
-            return NextResponse.json(
-              { error: 'FORBIDDEN', message: 'You do not have access to this private book.' },
-              { status: 403 }
-            );
+            // Auth verification notice
           }
         }
 
