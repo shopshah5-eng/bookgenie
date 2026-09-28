@@ -9,6 +9,7 @@ import { BookCreatorCard } from '@/components/home/BookCreatorCard';
 import { MinimalFeatureStrip } from '@/components/home/MinimalFeatureStrip';
 import { MinimalExamples } from '@/components/home/MinimalExamples';
 import { MinimalHowItWorks } from '@/components/home/MinimalHowItWorks';
+import { MinimalPricing } from '@/components/home/MinimalPricing';
 import { MinimalFAQ } from '@/components/home/MinimalFAQ';
 import { MinimalFooter } from '@/components/home/MinimalFooter';
 
@@ -36,7 +37,10 @@ export default function HomePage() {
           {/* 5. How It Works (Create Your eBook in 3 Simple Steps: 1, 2, 3) */}
           <MinimalHowItWorks />
 
-          {/* 6. Frequently Asked Questions (2-Column Accordion + View All) */}
+          {/* 6. Pricing Plans (Transparent Publishing Plans & Single Book Pass) */}
+          <MinimalPricing />
+
+          {/* 7. Frequently Asked Questions (2-Column Accordion + View All) */}
           <MinimalFAQ />
         </main>
 
