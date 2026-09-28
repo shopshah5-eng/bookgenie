@@ -206,21 +206,20 @@ export async function POST(
       .eq('user_id', user.id);
     if (updateError) throw updateError;
 
-    for (const page of revisedPages) {
-      const { error: pageError } = await admin.from('book_pages').upsert(
-        {
-          book_id: book.id,
-          page_number: page.pageNumber,
-          chapter_index: page.chapterIndex || 1,
-          title: page.title || '',
-          page_type: page.pageType || 'illustrated_content',
-          layout: page.layout || 'standard',
-          blocks: page.blocks,
-        },
-        { onConflict: 'book_id,page_number' }
-      );
-      if (pageError) throw pageError;
-    }
+    const pagesToUpsert = revisedPages.map((page) => ({
+      book_id: book.id,
+      page_number: page.pageNumber,
+      chapter_index: page.chapterIndex || 1,
+      title: page.title || '',
+      page_type: page.pageType || 'illustrated_content',
+      layout: page.layout || 'standard',
+      blocks: page.blocks,
+    }));
+
+    const { error: pageError } = await admin
+      .from('book_pages')
+      .upsert(pagesToUpsert, { onConflict: 'book_id,page_number' });
+    if (pageError) throw pageError;
 
     return NextResponse.json({
       success: true,

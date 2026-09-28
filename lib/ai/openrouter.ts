@@ -102,33 +102,42 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
     const rawInstruction = params.instruction.toLowerCase();
     const isVisual = ['image', 'illustration', 'picture', 'drawing', 'color'].some((word) => rawInstruction.includes(word));
     const modelConfig = AICostController.selectTextModel(isVisual ? 'complex_revision' : 'micro_revision', params.blueprint.bookType);
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://bookgenie.ai',
-        'X-Title': 'BookGenie',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: modelConfig.modelId,
-        messages: [
-          {
-            role: 'system',
-            content: 'You are BookGenie’s targeted editorial revision engine. Return only JSON: {"pages": BookPageDocument[], "requiresImageRegeneration": boolean, "imageInstructions": [{"pageNumber": number, "prompt": string}]}. Never request new images unless the instruction explicitly changes a visual.',
-          },
-          {
-            role: 'user',
-            content: `Instruction: ${params.instruction}\nTarget pages: ${JSON.stringify(params.targetPageNumbers || 'all relevant')}\nCurrent pages: ${JSON.stringify(params.existingPages)}`,
-          },
-        ],
-        response_format: { type: 'json_object' },
-      }),
-    });
-    if (!response.ok) throw new Error(`OpenRouter returned HTTP ${response.status}.`);
-    const data = await response.json();
-    const result = JSON.parse(data.choices?.[0]?.message?.content || '{}');
-    if (!Array.isArray(result.pages)) throw new Error('OpenRouter returned no revised pages.');
-    return result;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20_000);
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://bookgenie.ai',
+          'X-Title': 'BookGenie',
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: modelConfig.modelId,
+          messages: [
+            {
+              role: 'system',
+              content: 'You are BookGenie’s targeted editorial revision engine. Return only JSON: {"pages": BookPageDocument[], "requiresImageRegeneration": boolean, "imageInstructions": [{"pageNumber": number, "prompt": string}]}. Never request new images unless the instruction explicitly changes a visual.',
+            },
+            {
+              role: 'user',
+              content: `Instruction: ${params.instruction}\nTarget pages: ${JSON.stringify(params.targetPageNumbers || 'all relevant')}\nCurrent pages: ${JSON.stringify(params.existingPages)}`,
+            },
+          ],
+          response_format: { type: 'json_object' },
+          temperature: modelConfig.temperature,
+          max_tokens: modelConfig.maxTokens,
+        }),
+      });
+      if (!response.ok) throw new Error(`OpenRouter returned HTTP ${response.status}.`);
+      const data = await response.json();
+      const result = JSON.parse(data.choices?.[0]?.message?.content || '{}');
+      if (!Array.isArray(result.pages)) throw new Error('OpenRouter returned no revised pages.');
+      return result;
+    } finally {
+      clearTimeout(timeoutId);
+    }
   }
 }

@@ -293,13 +293,17 @@ async function run() {
     }),
   });
   console.log('Regenerate status:', regenRes.status, regenRes.statusText);
+  if (!regenRes.ok) {
+    const errText = await regenRes.text();
+    throw new Error(`Regenerate failed with status ${regenRes.status}: ${errText}`);
+  }
   const regenJson = await regenRes.json();
   console.log('Regenerate response:', regenJson);
 
   // Check version in book_versions table
   const { data: versions, error: versionsError } = await adminSupabase
     .from('book_versions')
-    .select('version_number, revision_prompt, created_at')
+    .select('version_number, change_instruction, created_at')
     .eq('book_id', bookId)
     .order('version_number', { ascending: false });
   if (versionsError) throw versionsError;
