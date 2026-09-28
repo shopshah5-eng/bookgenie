@@ -1,12 +1,55 @@
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { BookDocument, BookPageDocument } from '@/lib/book/types';
 import { getOceanWondersDemoBook, getDemoBook } from '@/lib/book/demo-book';
+import { toPublicBookDocument } from './public-book';
+
+function pagesFromRows(rows: Array<Record<string, unknown>>): BookPageDocument[] {
+  return rows.map((page) => ({
+    pageNumber: Number(page.page_number),
+    chapterIndex: Number(page.chapter_index || 0),
+    title: typeof page.title === 'string' ? page.title : undefined,
+    pageType: (page.page_type || 'illustrated_content') as BookPageDocument['pageType'],
+    layout: (page.layout || 'standard') as BookPageDocument['layout'],
+    blocks: Array.isArray(page.blocks) ? page.blocks : [],
+  }));
+}
+
+function documentFromRows(book: Record<string, any>, pages: BookPageDocument[]): BookDocument {
+  return {
+    schemaVersion: 1,
+    id: String(book.id),
+    userId: String(book.user_id),
+    title: String(book.title),
+    subtitle: book.subtitle || undefined,
+    bookType: book.book_type,
+    language: book.language || 'English',
+    style: book.style || 'Modern',
+    pageCount: Number(book.page_count || pages.length),
+    coverUrl: book.cover_url || book.cover_image_url || undefined,
+    blueprint: book.blueprint || {
+      title: String(book.title),
+      bookType: book.book_type,
+      audience: 'General Readers',
+      language: book.language || 'English',
+      style: book.style || 'Modern',
+      pageTarget: Number(book.page_target || pages.length || 16),
+      chapters: [],
+      visualPlan: [],
+    },
+    versionNumber: Number(book.version_number || 1),
+    isShared: Boolean(book.is_shared),
+    shareToken: book.share_token || undefined,
+    pages,
+    createdAt: String(book.created_at),
+    updatedAt: String(book.updated_at),
+  };
+}
 
 export async function getServerBook(id: string): Promise<BookDocument | null> {
   const demo = getDemoBook(id);
-  if (demo) {
-    return demo;
-  }
+  if (demo) return demo;
+  if (id === 'ocean-wonders' || id === 'demo-ocean-wonders') return getOceanWondersDemoBook();
 
   try {
     const supabase = createAdminClient();
@@ -16,121 +59,75 @@ export async function getServerBook(id: string): Promise<BookDocument | null> {
       .eq('id', id)
       .maybeSingle();
 
-    if (bookError || !dbBook) {
-      return null;
-    }
+    if (bookError || !dbBook) return null;
+
+    // /book/[id] is the private authoring reader. Public readers must use the
+    // opaque /shared/[token] route so an ID can never grant edit access.
+    const sessionClient = await createServerSupabaseClient();
+    const { data: { user } } = await sessionClient.auth.getUser();
+    if (!user || user.id !== dbBook.user_id) return null;
 
     const { data: dbPages, error: pagesError } = await supabase
       .from('book_pages')
       .select('*')
       .eq('book_id', id)
       .order('page_number', { ascending: true });
+    if (pagesError || !dbPages) return null;
 
-    if (pagesError || !dbPages || dbPages.length === 0) {
-      return null;
-    }
-
-    const pages: BookPageDocument[] = dbPages.map((p) => ({
-      pageNumber: p.page_number,
-      chapterIndex: p.chapter_index,
-      title: p.title,
-      pageType: p.page_type,
-      layout: p.layout,
-      blocks: p.blocks || [],
-    }));
-
-    return {
-      schemaVersion: 1,
-      id: dbBook.id,
-      userId: dbBook.user_id,
-      title: dbBook.title,
-      subtitle: dbBook.subtitle,
-      bookType: dbBook.book_type,
-      language: dbBook.language,
-      style: dbBook.style,
-      pageCount: dbBook.page_count,
-      coverUrl: dbBook.cover_url,
-      blueprint: dbBook.blueprint,
-      versionNumber: dbBook.version_number,
-      isShared: dbBook.is_shared,
-      shareToken: dbBook.share_token,
-      pages,
-      createdAt: dbBook.created_at,
-      updatedAt: dbBook.updated_at,
-    };
+    return documentFromRows(dbBook, pagesFromRows(dbPages));
   } catch (err) {
     console.error('getServerBook error:', err);
   }
 
-  // Fallback to in-memory generation pipeline store
+  // This fallback is only useful in a single local process. It still enforces
+  // ownership and never makes an in-memory book public by accident.
   try {
     const { GenerationPipeline } = await import('@/lib/ai/pipeline');
     const pipelineBook = GenerationPipeline.getBook(id);
-    if (pipelineBook) {
-      return pipelineBook;
-    }
-  } catch (_) {}
+    if (!pipelineBook) return null;
 
-  return null;
+    const sessionClient = await createServerSupabaseClient();
+    const { data: { user } } = await sessionClient.auth.getUser();
+    return user && user.id === pipelineBook.userId ? pipelineBook : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function getServerSharedBook(token: string): Promise<BookDocument | null> {
   const demo = getDemoBook(token);
-  if (demo) {
-    return { ...demo, isShared: true };
+  if (demo) return toPublicBookDocument({ ...demo, isShared: true });
+  if (token === 'ocean-wonders' || token === 'demo-ocean-wonders') {
+    return toPublicBookDocument({ ...getOceanWondersDemoBook(), isShared: true });
   }
+
+  // Share tokens are UUIDs generated by Postgres. Reject arbitrary filter
+  // expressions and never fall back to looking up a private book by its ID.
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!uuidPattern.test(token)) return null;
 
   try {
     const supabase = createAdminClient();
     const { data: dbBook, error: bookError } = await supabase
       .from('books')
       .select('*')
-      .or(`share_token.eq.${token},id.eq.${token}`)
+      .eq('share_token', token)
       .eq('is_shared', true)
       .maybeSingle();
 
-    if (bookError || !dbBook) {
-      return null;
-    }
+    if (bookError || !dbBook) return null;
 
     const { data: dbPages, error: pagesError } = await supabase
       .from('book_pages')
       .select('*')
       .eq('book_id', dbBook.id)
       .order('page_number', { ascending: true });
+    if (pagesError || !dbPages || dbPages.length === 0) return null;
 
-    if (pagesError || !dbPages || dbPages.length === 0) {
-      return null;
-    }
-
-    const pages: BookPageDocument[] = dbPages.map((p) => ({
-      pageNumber: p.page_number,
-      chapterIndex: p.chapter_index,
-      title: p.title,
-      pageType: p.page_type,
-      layout: p.layout,
-      blocks: p.blocks || [],
-    }));
-
-    return {
-      schemaVersion: 1,
-      id: dbBook.id,
-      userId: dbBook.user_id,
-      title: dbBook.title,
-      subtitle: dbBook.subtitle,
-      bookType: dbBook.book_type,
-      language: dbBook.language,
-      style: dbBook.style,
-      pageCount: dbBook.page_count,
-      coverUrl: dbBook.cover_url,
-      blueprint: dbBook.blueprint,
-      versionNumber: dbBook.version_number,
+    return toPublicBookDocument({
+      ...documentFromRows(dbBook, pagesFromRows(dbPages)),
       isShared: true,
-      shareToken: dbBook.share_token,
-      pages,
-      createdAt: dbBook.created_at,
-      updatedAt: dbBook.updated_at,
-    };
+    });
   } catch (err) {
     console.error('getServerSharedBook error:', err);
     return null;

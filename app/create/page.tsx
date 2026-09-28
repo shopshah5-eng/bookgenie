@@ -26,7 +26,9 @@ function SearchParamsSync({
     const initialStyle = searchParams.get('style');
 
     onSync({
-      prompt: initialPrompt ? decodeURIComponent(initialPrompt) : undefined,
+      // URLSearchParams.get already decodes query escapes; decoding again can
+      // throw on valid prompts containing a literal percent sign.
+      prompt: initialPrompt || undefined,
       type: initialType || undefined,
       lang: initialLang || undefined,
       style: initialStyle || undefined,
@@ -50,7 +52,9 @@ function CreatePageContent() {
   const [bookType, setBookType] = useState('novel');
   const [language, setLanguage] = useState('english');
   const [voiceTone, setVoiceTone] = useState('mccarthy');
-  const [chapterScale, setChapterScale] = useState(2); // 1 = 5, 2 = 12, 3 = 24
+  // Free accounts are limited to one book of up to 16 pages. Start inside
+  // that entitlement so the primary Create action does not fail by default.
+  const [chapterScale, setChapterScale] = useState(1); // 1 = 16, 2 = 36, 3 = 72
   const [uploadedFiles, setUploadedFiles] = useState<
     Array<{ name: string; size: string; content?: string }>
   >([]);
@@ -196,6 +200,12 @@ function CreatePageContent() {
       sessionStorage.setItem('bg_pending_draft', JSON.stringify(draft));
       sessionStorage.setItem('bg_pending_prompt', finalPrompt);
       sessionStorage.setItem('bg_pending_type', bookType);
+      sessionStorage.setItem('bg_pending_pages', (chapterScale === 1 ? 16 : chapterScale === 2 ? 36 : 72).toString());
+      sessionStorage.setItem('bg_pending_lang', language);
+      sessionStorage.setItem(
+        'bg_pending_style',
+        voiceTone === 'mccarthy' ? 'editorial' : voiceTone === 'academic' ? 'academic' : voiceTone === 'lyrical' ? 'playful' : 'minimal'
+      );
       openAuthModal('signup', '/create');
       return;
     }

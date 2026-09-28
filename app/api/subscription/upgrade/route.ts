@@ -1,98 +1,59 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function POST(req: NextRequest) {
-  const supabaseAdmin = createAdminClient();
   try {
-    let body: any;
-    try {
-      body = await req.json();
-    } catch {
+    const body: unknown = await req.json().catch(() => null);
+    const tier = body && typeof body === 'object' && 'tier' in body
+      ? (body as { tier?: unknown }).tier
+      : undefined;
+
+    if (tier !== 'free' && tier !== 'creator' && tier !== 'pro') {
       return NextResponse.json(
-        { error: 'Invalid JSON body. Please provide a valid payload.' },
+        { error: 'INVALID_TIER', message: 'Valid plan tiers are free, creator, and pro.' },
         { status: 400 }
       );
     }
 
-    const { tier } = body || {};
-    // Supports standard tiers: free, creator (Pro $15), pro (Premium $39)
-    const validTiers = ['free', 'creator', 'pro', 'author-single', 'studio-atelier', 'boutique-press'];
-    const normalizedTier = tier === 'author-single' || tier === 'creator' ? 'creator' : tier === 'studio-atelier' || tier === 'boutique-press' || tier === 'pro' ? 'pro' : 'free';
-
-    if (!tier || !validTiers.includes(tier)) {
-      return NextResponse.json(
-        { error: `Invalid plan tier. Valid options are: free, creator, pro.` },
-        { status: 400 }
-      );
-    }
-
-    // Authenticate user session
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll();
-          },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {
-              // Read-only in route handler context
-            }
-          },
-        },
-      }
-    );
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
+    const sessionClient = await createServerSupabaseClient();
+    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Authentication required. Please sign in to upgrade or modify your subscription.' },
+        { error: 'UNAUTHORIZED', message: 'Sign in before changing a subscription.' },
         { status: 401 }
       );
     }
 
-    // Update profile tier using supabaseAdmin to bypass RLS restrictions on tier field
-    const { data: updatedProfile, error: updateError } = await supabaseAdmin
-      .from('profiles')
-      .update({
-        tier: normalizedTier,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', user.id)
-      .select('id, email, tier')
-      .single();
-
-    if (updateError) {
-      console.error('[Subscription Upgrade Error]:', updateError);
+    // There is no payment provider or webhook in this repository. Never grant
+    // paid entitlements just because a browser posted { tier: "pro" }.
+    if (tier !== 'free') {
       return NextResponse.json(
-        { error: 'Failed to update subscription tier. Please contact support.' },
-        { status: 500 }
+        { error: 'PAYMENT_NOT_CONFIGURED', message: 'Paid plan checkout is not configured yet.' },
+        { status: 501 }
       );
     }
 
+    const admin = createAdminClient();
+    const { data: profile, error } = await admin
+      .from('profiles')
+      .update({ tier: 'free', updated_at: new Date().toISOString() })
+      .eq('id', user.id)
+      .select('id, email, tier')
+      .maybeSingle();
+    if (error) throw error;
+
     return NextResponse.json({
       success: true,
-      subscriptionTier: normalizedTier,
-      tier: normalizedTier,
-      message: `Your subscription has been updated to the ${tier.toUpperCase()} plan.`,
-      profile: updatedProfile,
+      subscriptionTier: 'free',
+      tier: 'free',
+      message: 'Your account is using the Free plan.',
+      profile,
     });
-  } catch (err: any) {
-    console.error('[Subscription Upgrade Handler Error]:', err);
+  } catch (err) {
+    console.error('Subscription handler error:', err);
     return NextResponse.json(
-      { error: 'An unexpected error occurred while processing subscription upgrade.' },
+      { error: 'SUBSCRIPTION_FAILED', message: 'Could not update your subscription.' },
       { status: 500 }
     );
   }

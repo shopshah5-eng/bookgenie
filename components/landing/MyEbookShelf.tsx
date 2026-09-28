@@ -30,6 +30,7 @@ export function MyEbookShelf() {
       setLoading(true);
       try {
         const supabase = createClient();
+        if (!supabase) return;
         const { data, error } = await supabase
           .from('books')
           .select('id, title, book_type, page_count, created_at')

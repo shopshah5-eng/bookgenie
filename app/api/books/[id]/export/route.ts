@@ -5,12 +5,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GenerationPipeline } from '@/lib/ai/pipeline';
 import { getDemoBook, getOceanWondersDemoBook } from '@/lib/book/demo-book';
 import { generateBookPdfBuffer } from '@/lib/book/pdf-generator';
-import { escapeHtml, sanitizeFilename } from '@/lib/utils/sanitize';
+import { sanitizeFilename } from '@/lib/utils/sanitize';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import type { BookDocument } from '@/lib/book/types';
-import JSZip from 'jszip';
-
 import { generateEpub3Buffer } from '@/lib/book/epub-builder';
 
 export async function GET(

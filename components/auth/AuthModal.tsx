@@ -30,12 +30,14 @@ export function AuthModal() {
 
     try {
       const supabase = createClient();
+      if (!supabase) {
+        throw new Error('Authentication is not configured yet. Add the Supabase environment variables and try again.');
+      }
 
       if (authView === 'signup') {
         const callbackOrigin =
-          typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost')
-            ? window.location.origin
-            : 'https://bookgenie-app.netlify.app';
+          process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '') ||
+          (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
 
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
@@ -88,16 +90,25 @@ export function AuthModal() {
     try {
       const pendingPrompt = typeof window !== 'undefined' ? sessionStorage.getItem('bg_pending_prompt') : null;
       const pendingPages = typeof window !== 'undefined' ? sessionStorage.getItem('bg_pending_pages') : null;
+      const pendingType = typeof window !== 'undefined' ? sessionStorage.getItem('bg_pending_type') : null;
+      const pendingLanguage = typeof window !== 'undefined' ? sessionStorage.getItem('bg_pending_lang') : null;
+      const pendingStyle = typeof window !== 'undefined' ? sessionStorage.getItem('bg_pending_style') : null;
 
       if (pendingPrompt) {
         sessionStorage.removeItem('bg_pending_prompt');
         sessionStorage.removeItem('bg_pending_pages');
+        sessionStorage.removeItem('bg_pending_type');
+        sessionStorage.removeItem('bg_pending_lang');
+        sessionStorage.removeItem('bg_pending_style');
         const res = await fetch('/api/books/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             prompt: pendingPrompt,
-            pageTarget: pendingPages ? parseInt(pendingPages, 10) : 30,
+            bookType: pendingType || 'auto',
+            language: pendingLanguage || 'english',
+            style: pendingStyle || 'modern',
+            pageTarget: pendingPages ? parseInt(pendingPages, 10) : 16,
           }),
         });
         if (res.ok) {
@@ -120,10 +131,12 @@ export function AuthModal() {
     setError(null);
     try {
       const supabase = createClient();
+      if (!supabase) {
+        throw new Error('Authentication is not configured yet. Add the Supabase environment variables and try again.');
+      }
       const callbackOrigin =
-        typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost')
-          ? window.location.origin
-          : 'https://bookgenie-app.netlify.app';
+        process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '') ||
+        (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
 
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',

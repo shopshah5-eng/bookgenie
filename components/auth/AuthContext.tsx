@@ -30,6 +30,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const supabase = createClient();
+    if (!supabase) {
+      // Public/demo pages are allowed to render without auth configuration.
+      // Authenticated actions will show a configuration error in the modal instead
+      // of crashing the whole application during hydration.
+      setIsLoading(false);
+      return;
+    }
 
     // Check if URL has an auth code (fallback if redirected directly to homepage)
     if (typeof window !== 'undefined' && window.location.search.includes('code=')) {
@@ -91,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       const supabase = createClient();
-      await supabase.auth.signOut();
+      if (supabase) await supabase.auth.signOut();
     } catch {
       // Ignore network errors
     }
@@ -133,6 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Fallback directly via client Supabase
     try {
       const supabase = createClient();
+      if (!supabase) return false;
       const { data, error } = await supabase.auth.updateUser({
         data: { full_name: trimmed, name: trimmed },
       });

@@ -10,7 +10,7 @@ export function BookCreatorCard() {
   const { user, openAuthModal } = useAuth();
 
   const [prompt, setPrompt] = useState('');
-  const [pages, setPages] = useState<number>(30);
+  const [pages, setPages] = useState<number>(16);
   const [maxPages, setMaxPages] = useState<number>(300);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

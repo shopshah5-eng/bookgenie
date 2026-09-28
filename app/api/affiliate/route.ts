@@ -90,9 +90,14 @@ export async function POST(req: NextRequest) {
     // Persist to Supabase if configured
     try {
       const supabase = createAdminClient();
-      await supabase.from('affiliate_applications').insert(application);
+      const { error: insertError } = await supabase.from('affiliate_applications').insert(application);
+      if (insertError) throw insertError;
     } catch (dbErr) {
-      console.warn('Affiliate application database notice:', dbErr);
+      console.error('Affiliate application database error:', dbErr);
+      return NextResponse.json(
+        { error: 'PERSISTENCE_FAILED', message: 'The application could not be saved. Please try again later.' },
+        { status: 503 }
+      );
     }
 
     return NextResponse.json({

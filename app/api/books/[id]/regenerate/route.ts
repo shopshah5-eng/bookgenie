@@ -1,4 +1,3 @@
-// app/api/books/[id]/regenerate/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { GenerationPipeline } from '@/lib/ai/pipeline';
 import { OpenRouterTextProvider } from '@/lib/ai/openrouter';
@@ -6,8 +5,9 @@ import { GeminiImageProvider } from '@/lib/ai/gemini';
 import { PollinationsImageProvider } from '@/lib/ai/pollinations';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { getOceanWondersDemoBook } from '../route';
 import type { BookDocument } from '@/lib/book/types';
+
+const DEMO_IDS = new Set(['ocean-wonders', 'demo-ocean-wonders']);
 
 export async function POST(
   req: NextRequest,
@@ -15,156 +15,152 @@ export async function POST(
 ) {
   try {
     const { id } = await context.params;
-    const body = await req.json();
-    const { instruction, targetPageNumbers } = body;
-
-    if (!instruction || typeof instruction !== 'string') {
+    if (DEMO_IDS.has(id)) {
       return NextResponse.json(
-        { error: 'An editorial revision instruction is required.' },
+        { error: 'Demo publications are read-only.' },
+        { status: 403 }
+      );
+    }
+
+    const body: unknown = await req.json().catch(() => null);
+    const instruction = body && typeof body === 'object' && 'instruction' in body
+      ? (body as { instruction?: unknown }).instruction
+      : undefined;
+    const requestedTargets = body && typeof body === 'object' && 'targetPageNumbers' in body
+      ? (body as { targetPageNumbers?: unknown }).targetPageNumbers
+      : undefined;
+
+    if (typeof instruction !== 'string' || instruction.trim().length < 3 || instruction.length > 4000) {
+      return NextResponse.json(
+        { error: 'An editorial revision instruction between 3 and 4,000 characters is required.' },
         { status: 400 }
       );
     }
 
+    const targetPageNumbers = requestedTargets === undefined
+      ? undefined
+      : Array.isArray(requestedTargets) && requestedTargets.every(
+          (page): page is number => Number.isInteger(page) && page > 0 && page <= 1000
+        )
+        ? requestedTargets
+        : null;
+    if (targetPageNumbers === null) {
+      return NextResponse.json({ error: 'targetPageNumbers must contain positive page numbers.' }, { status: 400 });
+    }
+
+    const sessionClient = await createServerSupabaseClient();
+    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'UNAUTHORIZED', message: 'Authentication required to revise a book.' },
+        { status: 401 }
+      );
+    }
+
     const admin = createAdminClient();
+    const { data: dbBook, error: bookError } = await admin
+      .from('books')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (bookError) throw bookError;
 
-    // 1. Verify user authentication & ownership if in authenticated mode
-    let currentUserId: string | null = null;
-    try {
-      const serverSupabase = await createServerSupabaseClient();
-      const { data: { user } } = await serverSupabase.auth.getUser();
-      if (user) currentUserId = user.id;
-    } catch {
-      // Local development or simulated session
-    }
-
-    // 2. Fetch current book from Supabase
     let book: BookDocument | null = null;
-    let dbBookRecord: any = null;
+    if (dbBook) {
+      if (dbBook.user_id !== user.id) {
+        return NextResponse.json(
+          { error: 'FORBIDDEN', message: 'You cannot modify another creator’s publication.' },
+          { status: 403 }
+        );
+      }
 
-    try {
-      const { data: dbBook } = await admin
-        .from('books')
+      const { data: dbPages, error: pagesError } = await admin
+        .from('book_pages')
         .select('*')
-        .eq('id', id)
-        .single();
+        .eq('book_id', id)
+        .order('page_number', { ascending: true });
+      if (pagesError) throw pagesError;
 
-      if (dbBook) {
-        dbBookRecord = dbBook;
-        if (currentUserId && dbBook.user_id !== currentUserId) {
-          return NextResponse.json(
-            { error: 'Unauthorized. You cannot modify publications belonging to another creator.' },
-            { status: 403 }
-          );
-        }
-
-        const { data: dbPages } = await admin
-          .from('book_pages')
-          .select('*')
-          .eq('book_id', id)
-          .order('page_number', { ascending: true });
-
-        book = {
-          schemaVersion: 1,
-          id: dbBook.id,
-          userId: dbBook.user_id,
-          title: dbBook.title,
-          subtitle: dbBook.subtitle || undefined,
-          bookType: dbBook.book_type,
-          language: dbBook.language || 'English',
-          style: dbBook.style || 'Modern',
-          pageCount: dbBook.page_count || dbPages?.length || 0,
-          coverUrl: dbBook.cover_url || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
-          blueprint: dbBook.blueprint,
-          pages: (dbPages || []).map((p) => ({
-            pageNumber: p.page_number,
-            chapterIndex: p.chapter_index,
-            title: p.title,
-            pageType: p.page_type,
-            layout: p.layout,
-            blocks: p.blocks,
-          })),
-          versionNumber: dbBook.version_number || 1,
-          createdAt: dbBook.created_at,
-          updatedAt: dbBook.updated_at,
-        };
+      book = {
+        schemaVersion: 1,
+        id: dbBook.id,
+        userId: dbBook.user_id,
+        title: dbBook.title,
+        subtitle: dbBook.subtitle || undefined,
+        bookType: dbBook.book_type,
+        language: dbBook.language || 'English',
+        style: dbBook.style || 'Modern',
+        pageCount: dbBook.page_count || dbPages?.length || 0,
+        coverUrl: dbBook.cover_url || dbBook.cover_image_url || undefined,
+        blueprint: dbBook.blueprint,
+        pages: (dbPages || []).map((page) => ({
+          pageNumber: page.page_number,
+          chapterIndex: page.chapter_index,
+          title: page.title,
+          pageType: page.page_type,
+          layout: page.layout,
+          blocks: page.blocks,
+        })),
+        versionNumber: dbBook.version_number || 1,
+        isShared: dbBook.is_shared,
+        shareToken: dbBook.share_token,
+        createdAt: dbBook.created_at,
+        updatedAt: dbBook.updated_at,
+      };
+    } else {
+      const memoryBook = GenerationPipeline.getBook(id);
+      if (!memoryBook || memoryBook.userId !== user.id) {
+        return NextResponse.json({ error: 'NOT_FOUND', message: 'Publication not found.' }, { status: 404 });
       }
-    } catch (dbErr) {
-      console.warn('Supabase book lookup for revision warning:', dbErr);
-    }
-
-    if (!book) {
-      book = GenerationPipeline.getBook(id) || null;
-    }
-
-    if (!book) {
-      if (id === 'ocean-wonders' || id === 'demo-ocean-wonders') {
-        book = getOceanWondersDemoBook();
-      } else {
-        return NextResponse.json({ error: 'Publication not found.' }, { status: 404 });
-      }
+      book = memoryBook;
     }
 
     const textProvider = new OpenRouterTextProvider();
-    const imageProvider = process.env.AI_IMAGE_PROVIDER === 'gemini' && process.env.GEMINI_API_KEY
+    const imageProvider = process.env.AI_IMAGE_PROVIDER === 'gemini'
       ? new GeminiImageProvider()
       : new PollinationsImageProvider();
 
-    // 3. Save snapshot of CURRENT version to book_versions before applying changes
     const previousVersion = book.versionNumber || 1;
     const newVersion = previousVersion + 1;
 
-    try {
-      await admin.from('book_versions').insert({
-        book_id: book.id,
-        version_number: previousVersion,
-        document_snapshot: book as any,
-        change_instruction: instruction,
-      });
-    } catch (snapshotErr) {
-      console.warn('Version snapshot notice:', snapshotErr);
-    }
+    const { error: snapshotError } = await admin.from('book_versions').insert({
+      book_id: book.id,
+      version_number: previousVersion,
+      document_snapshot: book,
+      change_instruction: instruction.trim(),
+    });
+    if (snapshotError) throw snapshotError;
 
-    // 4. Perform targeted natural-language page revision
     const result = await textProvider.regeneratePages({
       blueprint: book.blueprint,
       existingPages: book.pages,
-      instruction,
+      instruction: instruction.trim(),
       targetPageNumbers,
     });
 
     let updatedCoverUrl = book.coverUrl;
-    const isCoverChange = instruction.toLowerCase().includes('cover') || (targetPageNumbers && targetPageNumbers.includes(1));
-
+    const isCoverChange = instruction.toLowerCase().includes('cover') || Boolean(targetPageNumbers?.includes(1));
     if (isCoverChange) {
-      try {
-        const coverPrompt = `${book.title}, ${instruction}, professional book cover illustration, cinematic, editorial publication`;
-        const coverRes = await imageProvider.generateImage({
-          prompt: coverPrompt,
-          bookTitle: book.title,
-          style: book.style,
-          isCover: true,
-        });
-        if (coverRes && coverRes.url) {
-          updatedCoverUrl = coverRes.url;
-        }
-      } catch (covErr) {
-        console.warn('Cover regeneration warning:', covErr);
-      }
+      const coverResult = await imageProvider.generateImage({
+        prompt: `${book.title}, ${instruction.trim()}, professional book cover illustration`,
+        bookTitle: book.title,
+        style: book.style,
+        isCover: true,
+      });
+      updatedCoverUrl = coverResult.url || updatedCoverUrl;
     }
 
-    // 5. Only regenerate an image if explicitly requested
     if (result.requiresImageRegeneration && result.imageInstructions) {
-      for (const imgReq of result.imageInstructions) {
+      for (const imageRequest of result.imageInstructions) {
         await imageProvider.generateImage({
-          prompt: imgReq.prompt,
+          prompt: imageRequest.prompt,
           bookTitle: book.title,
           style: book.style,
-          isCover: imgReq.pageNumber === 1,
+          isCover: imageRequest.pageNumber === 1,
         });
       }
     }
 
-    // 6. Assemble updated canonical document
     const updatedBook: BookDocument = {
       ...book,
       coverUrl: updatedCoverUrl,
@@ -173,48 +169,45 @@ export async function POST(
       updatedAt: new Date().toISOString(),
     };
 
-    GenerationPipeline.saveBook(updatedBook);
+    const { error: updateError } = await admin
+      .from('books')
+      .update({
+        cover_url: updatedCoverUrl,
+        cover_image_url: updatedCoverUrl,
+        version_number: newVersion,
+        updated_at: updatedBook.updatedAt,
+      })
+      .eq('id', book.id)
+      .eq('user_id', user.id);
+    if (updateError) throw updateError;
 
-    // 7. Persist updated version and pages to Supabase
-    try {
-      await admin
-        .from('books')
-        .update({
-          cover_url: updatedCoverUrl,
-          cover_image_url: updatedCoverUrl,
-          version_number: newVersion,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', book.id);
-
-      for (const page of result.pages) {
-        await admin.from('book_pages').upsert(
-          {
-            book_id: book.id,
-            page_number: page.pageNumber,
-            chapter_index: page.chapterIndex || 1,
-            title: page.title || '',
-            page_type: page.pageType || 'illustrated_content',
-            layout: page.layout || 'standard',
-            blocks: page.blocks,
-          },
-          { onConflict: 'book_id,page_number' }
-        );
-      }
-    } catch (persistErr) {
-      console.warn('Supabase revision persistence warning:', persistErr);
+    for (const page of result.pages) {
+      const { error: pageError } = await admin.from('book_pages').upsert(
+        {
+          book_id: book.id,
+          page_number: page.pageNumber,
+          chapter_index: page.chapterIndex || 1,
+          title: page.title || '',
+          page_type: page.pageType || 'illustrated_content',
+          layout: page.layout || 'standard',
+          blocks: page.blocks,
+        },
+        { onConflict: 'book_id,page_number' }
+      );
+      if (pageError) throw pageError;
     }
 
+    GenerationPipeline.saveBook(updatedBook);
     return NextResponse.json({
       success: true,
       book: updatedBook,
       versionNumber: newVersion,
       message: `Version ${newVersion} successfully compiled.`,
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error('Regenerate error:', err);
     return NextResponse.json(
-      { error: err.message || 'Failed to apply editorial revision.' },
+      { error: 'REVISION_FAILED', message: 'Failed to apply editorial revision.' },
       { status: 500 }
     );
   }

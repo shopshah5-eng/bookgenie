@@ -87,9 +87,14 @@ export async function POST(req: NextRequest) {
     // Persist to Supabase if configured
     try {
       const supabase = createAdminClient();
-      await supabase.from('contact_submissions').insert(submission);
+      const { error: insertError } = await supabase.from('contact_submissions').insert(submission);
+      if (insertError) throw insertError;
     } catch (dbErr) {
-      console.warn('Contact submission database notice:', dbErr);
+      console.error('Contact submission database error:', dbErr);
+      return NextResponse.json(
+        { error: 'PERSISTENCE_FAILED', message: 'Your message could not be saved. Please try again later.' },
+        { status: 503 }
+      );
     }
 
     return NextResponse.json({

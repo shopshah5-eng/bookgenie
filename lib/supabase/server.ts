@@ -1,15 +1,13 @@
-// lib/supabase/server.ts
+// Server Supabase client that reads/writes the user's auth cookies.
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { requireSupabaseConfig } from './config';
 
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies();
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://olewesighfxtgmflllgh.supabase.co';
-  const supabaseAnonKey =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    Buffer.from('ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW05c1pYZGxjMmxuYUdaNGRHZHRabXhzYkdkb0lpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzT1RBd056STJNREFzSW1WNGNDSTZNakV3TlRZME9EWXdNSDAuVEU2U2Q0eVBCTE9YM1MwSk1RVmN2UDV1SUFJTFNpam1lMWxWS0lVSjd4Yw==', 'base64').toString('ascii');
+  const { url, anonKey } = requireSupabaseConfig();
 
-  return createServerClient(supabaseUrl, supabaseAnonKey, {
+  return createServerClient(url, anonKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -20,7 +18,7 @@ export async function createServerSupabaseClient() {
             cookieStore.set(name, value, options)
           );
         } catch {
-          // Can be ignored if called from Server Component
+          // Server components may expose read-only cookies. Route handlers can write them.
         }
       },
     },

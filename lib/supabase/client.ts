@@ -1,11 +1,12 @@
-// lib/supabase/client.ts
+// Browser Supabase client. This returns null when authentication is not configured
+// so the public/demo pages can still render without pretending auth is available.
 import { createBrowserClient } from '@supabase/ssr';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { getSupabaseConfig } from './config';
 
-export function createClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://olewesighfxtgmflllgh.supabase.co';
-  const supabaseAnonKey =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    Buffer.from('ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW05c1pYZGxjMmxuYUdaNGRHZHRabXhzYkdkb0lpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzT1RBd056STJNREFzSW1WNGNDSTZNakV3TlRZME9EWXdNSDAuVEU2U2Q0eVBCTE9YM1MwSk1RVmN2UDV1SUFJTFNpam1lMWxWS0lVSjd4Yw==', 'base64').toString('ascii');
+export function createClient(): SupabaseClient | null {
+  const config = getSupabaseConfig();
+  if (!config) return null;
 
-  return createBrowserClient(supabaseUrl, supabaseAnonKey);
+  return createBrowserClient(config.url, config.anonKey);
 }

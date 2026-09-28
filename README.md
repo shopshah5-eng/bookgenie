@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BookGenie
 
-## Getting Started
+BookGenie is a Next.js publishing studio for the workflow **PROMPT → PLAN → GENERATE → DESIGN → DOWNLOAD**.
 
-First, run the development server:
+## Why a fresh checkout may look like it is not working
+
+Authenticated generation is intentionally not usable until Supabase is configured. This repository must not contain Supabase keys or AI provider keys, so a fresh checkout can render the public/demo pages but cannot sign in or generate a user book until you add environment variables.
+
+Copy the example file and fill in real values:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Required values:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (server-only; never expose it to the browser)
+- `OPENROUTER_API_KEY` for live text generation
+- `GEMINI_API_KEY` when `AI_IMAGE_PROVIDER=gemini`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Apply the SQL migrations in `supabase/migrations/` to the same Supabase project. The first migration creates the core schema and the later migrations add compatibility columns, public-form tables, and corrected grants.
 
-## Learn More
+For a local, zero-cost pipeline test only, set `GENERATION_MODE=mock`. Mock mode is not a production generation provider and should never be enabled for a deployed user-facing environment.
 
-To learn more about Next.js, take a look at the following resources:
+## Development
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm ci
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open [http://localhost:3000](http://localhost:3000).
 
-## Deploy on Vercel
+## Checks
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run lint       # currently reports existing lint debt in legacy UI files
+npm run build      # production compilation and TypeScript check
+npx tsc --noEmit   # type check only
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`npm run build` is the production readiness check. The API requires a configured authenticated Supabase session for private book operations; demo routes such as `/examples/ocean-wonders` work without signing in.
+
+## Deployment notes
+
+Set the same environment variables in the hosting provider, configure the Supabase OAuth redirect URL to point to `/api/auth/callback`, and run all migrations before enabling generation. Never restore the removed hardcoded keys from older revisions: a service-role key grants administrative database access and must be rotated if it was ever deployed or shared.

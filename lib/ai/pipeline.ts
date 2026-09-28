@@ -29,7 +29,9 @@ const devJobsStore = new Map<
 
 export class GenerationPipeline {
   private static textProvider = new OpenRouterTextProvider();
-  private static imageProvider = process.env.AI_IMAGE_PROVIDER === 'gemini' && process.env.GEMINI_API_KEY ? new GeminiImageProvider() : new PollinationsImageProvider();
+  private static imageProvider = process.env.AI_IMAGE_PROVIDER === 'gemini'
+    ? new GeminiImageProvider()
+    : new PollinationsImageProvider();
 
   /**
    * Fast initialization: inserts Book and Job, returns IDs in <250ms
@@ -47,9 +49,13 @@ export class GenerationPipeline {
     const bookId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `00000000-0000-4000-8000-${Date.now().toString(16).padStart(12, '0')}`;
     const jobId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `00000000-0000-4000-9000-${Date.now().toString(16).padStart(12, '0')}`;
 
-    // Ensure userId is a valid UUID or fallback to authentic user
+    // Supabase user IDs are UUIDs. Never replace an invalid identity with a
+    // shared/fallback user: that would attach one creator's book to another.
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    const validUserId = uuidRegex.test(params.userId) ? params.userId : 'f3bf61f7-7f5c-422a-9ae3-5cdf38c19efc';
+    if (!uuidRegex.test(params.userId)) {
+      throw new Error('Authenticated user ID is invalid.');
+    }
+    const validUserId = params.userId;
 
     const targetPages = Number(params.pageTarget) || 16;
 
@@ -112,7 +118,7 @@ export class GenerationPipeline {
         blueprint: initialDoc.blueprint as any,
       });
       if (bErr) {
-        console.error('Supabase books insertion error:', bErr);
+        throw new Error(`Could not create book record: ${bErr.message}`);
       }
 
       const { error: jErr } = await supabase.from('jobs').insert({
@@ -123,10 +129,13 @@ export class GenerationPipeline {
         progress: 5,
       });
       if (jErr) {
-        console.error('Supabase jobs insertion error:', jErr);
+        // Avoid leaving an orphaned book if the paired job cannot be queued.
+        await supabase.from('books').delete().eq('id', bookId);
+        throw new Error(`Could not queue generation job: ${jErr.message}`);
       }
     } catch (dbErr) {
-      console.warn('Supabase initial insertion notice:', dbErr);
+      console.error('Supabase initial insertion failed:', dbErr);
+      throw dbErr;
     }
 
     // Trigger initial progression immediately (non-blocking)
@@ -213,8 +222,12 @@ export class GenerationPipeline {
             }),
             timeoutPromise,
           ]);
-        } catch {
-          // Robust creative fallback
+        } catch (err) {
+          // Production generation must report provider failures instead of
+          // presenting synthetic content as a successful publication.
+          if (process.env.GENERATION_MODE !== 'mock') {
+            throw err;
+          }
           const rawTitle = promptText.length > 50 ? promptText.slice(0, 42).trim() + '...' : promptText;
           generatedBlueprint = {
             title: rawTitle.charAt(0).toUpperCase() + rawTitle.slice(1),
@@ -304,8 +317,9 @@ export class GenerationPipeline {
             timeoutPromise,
           ]);
           if (result.url) coverUrl = result.url;
-        } catch {
-          // Keep default high-res cover
+        } catch (err) {
+          if (process.env.GENERATION_MODE !== 'mock') throw err;
+          // Mock mode may continue with the deterministic editorial fallback.
         }
 
         // Persist cover to Supabase
@@ -424,7 +438,8 @@ export class GenerationPipeline {
                 return written;
               }
               return fallbackChapterPages;
-            } catch {
+            } catch (err) {
+              if (process.env.GENERATION_MODE !== 'mock') throw err;
               return fallbackChapterPages;
             }
           })
@@ -563,7 +578,7 @@ export class GenerationPipeline {
         const finalDoc: BookDocument = {
           schemaVersion: 1,
           id: bookId,
-          userId: book?.user_id || 'f3bf61f7-7f5c-422a-9ae3-5cdf38c19efc',
+          userId: book?.user_id || devBooksStore.get(bookId)?.userId || '',
           title: book?.title || blueprint.title || 'Untitled eBook',
           subtitle: book?.subtitle || blueprint.subtitle || '',
           bookType: book?.book_type || blueprint.bookType || 'novel',
@@ -624,9 +639,37 @@ export class GenerationPipeline {
       }
 
       return currentJob;
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Generation stage failed.';
       console.error('advanceJob error:', err);
-      return null;
+      try {
+        const failureClient = createAdminClient();
+        await failureClient
+          .from('jobs')
+          .update({ status: 'failed', stage: 'failed', error_message: message })
+          .eq('id', jobId)
+          .eq('book_id', bookId);
+        await failureClient
+          .from('books')
+          .update({ status: 'failed' })
+          .eq('id', bookId);
+      } catch (persistError) {
+        console.error('Could not persist generation failure:', persistError);
+      }
+      const failedJob = devJobsStore.get(jobId);
+      if (failedJob) {
+        failedJob.status = 'failed';
+        failedJob.stage = 'failed';
+        failedJob.error = message;
+      }
+      return {
+        id: jobId,
+        book_id: bookId,
+        status: 'failed',
+        stage: 'failed',
+        progress: 0,
+        error_message: message,
+      };
     } finally {
       this.activeAdvancingLocks.delete(jobId);
     }

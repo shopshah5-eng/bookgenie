@@ -12,15 +12,16 @@ export class OpenRouterTextProvider implements ITextProvider {
   private mockFallback = new MockTextProvider();
 
   constructor() {
-    this.apiKey =
-      process.env.OPENROUTER_API_KEY ||
-      Buffer.from('c2stb3ItdjEtYTgxMWJkOGQ1YzFiNDQ2Nzg3Y2QzMjM4ZDEyOTg5MzY3NjI1MGRjMzU2YTY2ZDczOTEzMmY5YWNjNjk1YmQwZg==', 'base64').toString('ascii');
-    this.isMockMode = process.env.GENERATION_MODE === 'mock' || !this.apiKey || this.apiKey.includes('placeholder');
+    this.apiKey = process.env.OPENROUTER_API_KEY?.trim();
+    this.isMockMode = process.env.GENERATION_MODE === 'mock';
   }
 
   async generateBlueprint(params: GenerateBlueprintParams): Promise<BookBlueprint> {
-    if (this.isMockMode || !this.apiKey) {
+    if (this.isMockMode) {
       return this.mockFallback.generateBlueprint(params);
+    }
+    if (!this.apiKey) {
+      throw new Error('OPENROUTER_API_KEY is not configured. Set GENERATION_MODE=mock only for local tests.');
     }
 
     const modelConfig = AICostController.selectTextModel('planning', params.bookType === 'auto' ? undefined : params.bookType);
@@ -72,22 +73,24 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
       });
 
       if (!response.ok) {
-        console.warn(`OpenRouter error (${response.status}), falling back to mock provider.`);
-        return this.mockFallback.generateBlueprint(params);
+        throw new Error(`OpenRouter returned HTTP ${response.status}.`);
       }
 
       const data = await response.json();
       const content = data.choices?.[0]?.message?.content;
       return JSON.parse(content) as BookBlueprint;
     } catch (err) {
-      console.warn('OpenRouter blueprint generation exception, using mock fallback:', err);
-      return this.mockFallback.generateBlueprint(params);
+      console.error('OpenRouter blueprint generation failed:', err);
+      throw err;
     }
   }
 
   async generateChapter(params: GenerateChapterParams): Promise<BookPageDocument[]> {
-    if (this.isMockMode || !this.apiKey) {
+    if (this.isMockMode) {
       return this.mockFallback.generateChapter(params);
+    }
+    if (!this.apiKey) {
+      throw new Error('OPENROUTER_API_KEY is not configured. Set GENERATION_MODE=mock only for local tests.');
     }
 
     const modelConfig = AICostController.selectTextModel('chapter_writing', params.blueprint.bookType);
@@ -124,15 +127,15 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
       });
 
       if (!response.ok) {
-        return this.mockFallback.generateChapter(params);
+        throw new Error(`OpenRouter returned HTTP ${response.status}.`);
       }
 
       const data = await response.json();
       const parsed = JSON.parse(data.choices?.[0]?.message?.content);
       return (parsed.pages || parsed) as BookPageDocument[];
     } catch (err) {
-      console.warn('OpenRouter chapter generation exception, using fallback:', err);
-      return this.mockFallback.generateChapter(params);
+      console.error('OpenRouter chapter generation failed:', err);
+      throw err;
     }
   }
 
@@ -150,8 +153,11 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
       rawInstruction.includes('drawing') ||
       rawInstruction.includes('color');
 
-    if (this.isMockMode || !this.apiKey) {
+    if (this.isMockMode) {
       return this.mockFallback.regeneratePages(params);
+    }
+    if (!this.apiKey) {
+      throw new Error('OPENROUTER_API_KEY is not configured. Set GENERATION_MODE=mock only for local tests.');
     }
 
     const modelConfig = AICostController.selectTextModel(
@@ -189,13 +195,14 @@ Current Pages: ${JSON.stringify(params.existingPages)}`,
       });
 
       if (!response.ok) {
-        return this.mockFallback.regeneratePages(params);
+        throw new Error(`OpenRouter returned HTTP ${response.status}.`);
       }
 
       const data = await response.json();
       return JSON.parse(data.choices?.[0]?.message?.content);
-    } catch {
-      return this.mockFallback.regeneratePages(params);
+    } catch (err) {
+      console.error('OpenRouter page revision failed:', err);
+      throw err;
     }
   }
 }

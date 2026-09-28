@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { GenerationPipeline } from '@/lib/ai/pipeline';
+import type { BookDocument } from '@/lib/book/types';
+
+function isBookDocument(value: unknown): value is BookDocument {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as Partial<BookDocument>;
+  return candidate.id !== undefined && Array.isArray(candidate.pages) && typeof candidate.title === 'string';
+}
 
 export async function POST(
   req: NextRequest,
@@ -9,75 +16,81 @@ export async function POST(
 ) {
   try {
     const { id } = await context.params;
-    const body = await req.json().catch(() => ({}));
-    const { bookData } = body;
+    const body: unknown = await req.json().catch(() => null);
+    const bookData = body && typeof body === 'object' && 'bookData' in body
+      ? (body as { bookData?: unknown }).bookData
+      : undefined;
 
-    const admin = createAdminClient();
-
-    // Check ownership if authenticated
-    try {
-      const serverSupabase = await createServerSupabaseClient();
-      const { data: { user } } = await serverSupabase.auth.getUser();
-      if (user && id !== 'ocean-wonders') {
-        const { data: b } = await admin
-          .from('books')
-          .select('user_id')
-          .eq('id', id)
-          .single();
-        if (b && b.user_id && b.user_id !== user.id) {
-          return NextResponse.json(
-            { error: 'Unauthorized to save changes to this book.' },
-            { status: 403 }
-          );
-        }
-      }
-    } catch (_) {}
-
-    if (bookData) {
-      GenerationPipeline.saveBook(bookData);
-
-      try {
-        await admin
-          .from('books')
-          .update({
-            title: bookData.title,
-            subtitle: bookData.subtitle,
-            cover_url: bookData.coverUrl,
-            cover_image_url: bookData.coverUrl,
-            page_count: bookData.pageCount || bookData.pages?.length,
-            version_number: bookData.versionNumber || 1,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', id);
-
-        if (bookData.pages && Array.isArray(bookData.pages)) {
-          for (const page of bookData.pages) {
-            await admin.from('book_pages').upsert(
-              {
-                book_id: id,
-                page_number: page.pageNumber,
-                chapter_index: page.chapterIndex || 1,
-                title: page.title || '',
-                page_type: page.pageType || 'illustrated_content',
-                layout: page.layout || 'standard',
-                blocks: page.blocks,
-              },
-              { onConflict: 'book_id,page_number' }
-            );
-          }
-        }
-      } catch (dbErr) {
-        console.warn('Supabase save error:', dbErr);
-      }
+    if (!isBookDocument(bookData) || bookData.id !== id) {
+      return NextResponse.json(
+        { error: 'INVALID_BOOK', message: 'A valid book document for this book is required.' },
+        { status: 400 }
+      );
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Changes saved successfully.',
-    });
-  } catch (err: any) {
+    const sessionClient = await createServerSupabaseClient();
+    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'UNAUTHORIZED', message: 'Authentication required to save changes.' },
+        { status: 401 }
+      );
+    }
+
+    const admin = createAdminClient();
+    const { data: dbBook, error: bookError } = await admin
+      .from('books')
+      .select('id, user_id')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (bookError) throw bookError;
+    if (!dbBook) {
+      return NextResponse.json({ error: 'NOT_FOUND', message: 'Book not found.' }, { status: 404 });
+    }
+    if (dbBook.user_id !== user.id) {
+      return NextResponse.json(
+        { error: 'FORBIDDEN', message: 'You do not own this book.' },
+        { status: 403 }
+      );
+    }
+
+    const { error: updateError } = await admin
+      .from('books')
+      .update({
+        title: bookData.title,
+        subtitle: bookData.subtitle,
+        cover_url: bookData.coverUrl,
+        cover_image_url: bookData.coverUrl,
+        page_count: bookData.pageCount || bookData.pages.length,
+        version_number: bookData.versionNumber || 1,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id);
+    if (updateError) throw updateError;
+
+    for (const page of bookData.pages) {
+      const { error: pageError } = await admin.from('book_pages').upsert(
+        {
+          book_id: id,
+          page_number: page.pageNumber,
+          chapter_index: page.chapterIndex || 1,
+          title: page.title || '',
+          page_type: page.pageType || 'illustrated_content',
+          layout: page.layout || 'standard',
+          blocks: page.blocks,
+        },
+        { onConflict: 'book_id,page_number' }
+      );
+      if (pageError) throw pageError;
+    }
+
+    GenerationPipeline.saveBook(bookData);
+    return NextResponse.json({ success: true, message: 'Changes saved successfully.' });
+  } catch (err) {
+    console.error('Save book error:', err);
     return NextResponse.json(
-      { error: err.message || 'Failed to save changes.' },
+      { error: 'SAVE_FAILED', message: 'Failed to save changes.' },
       { status: 500 }
     );
   }

@@ -45,9 +45,16 @@ const ALLOWED_STYLES: string[] = [
 export async function POST(req: NextRequest) {
   try {
     // 1. Safe JSON parsing (handles malformed JSON / null body with 400 instead of 500)
-    let body: any;
+    let body: Record<string, unknown>;
     try {
-      body = await req.json();
+      const parsedBody: unknown = await req.json();
+      if (!parsedBody || typeof parsedBody !== 'object' || Array.isArray(parsedBody)) {
+        return NextResponse.json(
+          { error: 'INVALID_BODY', message: 'Request body must be a valid JSON object.' },
+          { status: 400 }
+        );
+      }
+      body = parsedBody as Record<string, unknown>;
     } catch {
       return NextResponse.json(
         { error: 'INVALID_JSON', message: 'Malformed JSON payload.' },
@@ -122,11 +129,13 @@ export async function POST(req: NextRequest) {
     else if (rawStyle.includes('whimsical')) normalizedStyle = 'whimsical';
     else if (ALLOWED_STYLES.includes(rawStyle)) normalizedStyle = rawStyle;
 
-    const calculatedPages = Number(pageTarget) || (body.chapterScale === 1 ? 16 : body.chapterScale === 2 ? 36 : body.chapterScale === 3 ? 72 : 16);
+    const chapterScale = Number(body.chapterScale);
+    const calculatedPages = Number(pageTarget) || (chapterScale === 2 ? 36 : chapterScale === 3 ? 72 : 16);
     const targetPages = Math.min(Math.max(calculatedPages, 4), 150);
 
     // 3. Server Authentication Boundary (Strictly require verified Supabase user)
     let authenticatedUserId: string | null = null;
+    let authConfigurationError = false;
     try {
       const supabase = await createServerSupabaseClient();
       const {
@@ -138,7 +147,15 @@ export async function POST(req: NextRequest) {
         authenticatedUserId = user.id;
       }
     } catch (authErr) {
+      authConfigurationError = authErr instanceof Error && authErr.message.includes('Supabase is not configured');
       console.warn('Auth verification warning:', authErr);
+    }
+
+    if (authConfigurationError) {
+      return NextResponse.json(
+        { error: 'CONFIGURATION_ERROR', message: 'Supabase authentication is not configured on this deployment.' },
+        { status: 503 }
+      );
     }
 
     if (!authenticatedUserId) {
@@ -174,7 +191,7 @@ export async function POST(req: NextRequest) {
       style: normalizedStyle,
       uploadedContext: typeof uploadedContext === 'string' ? uploadedContext.slice(0, 25000) : undefined,
       pageTarget: targetPages,
-      chapterScale: Number(body.chapterScale) || 2,
+      chapterScale: chapterScale || 1,
     });
 
     return NextResponse.json({
@@ -183,10 +200,11 @@ export async function POST(req: NextRequest) {
       status: 'planning',
       message: 'Generation job successfully queued.',
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error('Create book API error:', err);
+    const message = err instanceof Error ? err.message : 'Failed to initiate book generation.';
     return NextResponse.json(
-      { error: 'SERVER_ERROR', message: err.message || 'Failed to initiate book generation.' },
+      { error: 'SERVER_ERROR', message },
       { status: 500 }
     );
   }

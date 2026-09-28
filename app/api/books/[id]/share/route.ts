@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+const PUBLIC_DEMO_IDS = new Set(['ocean-wonders', 'demo-ocean-wonders']);
+
 export async function POST(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -9,62 +11,63 @@ export async function POST(
   try {
     const { id } = await context.params;
 
-    // 1. Verify user session
-    let userId: string | null = null;
-    try {
-      const serverSupabase = await createServerSupabaseClient();
-      const { data: { user } } = await serverSupabase.auth.getUser();
-      if (user) userId = user.id;
-    } catch {
-      // Local dev check
-    }
-
-    const admin = createAdminClient();
-
-    // 2. Fetch the book
-    const { data: book, error: fetchErr } = await admin
-      .from('books')
-      .select('id, user_id, is_shared, share_token, version_number')
-      .eq('id', id)
-      .single();
-
-    if (fetchErr || !book) {
-      // If book is only in dev memory, handle gracefully
+    // Demo publications already have a public, immutable route.
+    if (PUBLIC_DEMO_IDS.has(id)) {
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '') || req.nextUrl.origin;
       return NextResponse.json({
-        shareToken: id,
-        shareUrl: `${req.nextUrl.origin}/shared/${id}`,
+        success: true,
+        shareToken: 'ocean-wonders',
+        shareUrl: `${baseUrl}/shared/ocean-wonders`,
         isShared: true,
       });
     }
 
-    // 3. Verify ownership if user is logged in
-    if (userId && book.user_id !== userId) {
+    const sessionClient = await createServerSupabaseClient();
+    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+    if (authError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized. You do not own this publication.' },
+        { error: 'UNAUTHORIZED', message: 'Authentication required to share a book.' },
+        { status: 401 }
+      );
+    }
+
+    const admin = createAdminClient();
+    const { data: book, error: fetchError } = await admin
+      .from('books')
+      .select('id, user_id, is_shared, share_token')
+      .eq('id', id)
+      .maybeSingle();
+    if (fetchError) throw fetchError;
+
+    if (!book) {
+      return NextResponse.json({ error: 'NOT_FOUND', message: 'Book not found.' }, { status: 404 });
+    }
+    if (book.user_id !== user.id) {
+      return NextResponse.json(
+        { error: 'FORBIDDEN', message: 'You do not own this publication.' },
         { status: 403 }
       );
     }
 
-    // 4. Generate or preserve share token and set is_shared = true
-    const shareToken = book.share_token || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : id);
-
-    await admin
+    const shareToken = book.share_token || crypto.randomUUID();
+    const { error: updateError } = await admin
       .from('books')
-      .update({
-        is_shared: true,
-        share_token: shareToken,
-      })
-      .eq('id', id);
+      .update({ is_shared: true, share_token: shareToken })
+      .eq('id', id)
+      .eq('user_id', user.id);
+    if (updateError) throw updateError;
 
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '') || req.nextUrl.origin;
     return NextResponse.json({
       success: true,
       shareToken,
-      shareUrl: `${req.nextUrl.origin}/shared/${shareToken}`,
+      shareUrl: `${baseUrl}/shared/${shareToken}`,
       isShared: true,
     });
-  } catch (err: any) {
+  } catch (err) {
+    console.error('Share book error:', err);
     return NextResponse.json(
-      { error: err.message || 'Failed to generate share link.' },
+      { error: 'SHARE_FAILED', message: 'Failed to generate a share link.' },
       { status: 500 }
     );
   }

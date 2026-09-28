@@ -1,10 +1,33 @@
-// app/api/books/[id]/status/route.ts
-// Secure job status endpoint with path-to-job ID validation and ownership checks
-
 import { NextRequest, NextResponse } from 'next/server';
 import { GenerationPipeline } from '@/lib/ai/pipeline';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+
+interface JobRecord {
+  id: string;
+  book_id: string;
+  status: string;
+  stage: string;
+  progress: number;
+  title?: string;
+  subtitle?: string;
+  cover_url?: string;
+  page_count?: number;
+  error_message?: string;
+}
+
+const stageDescriptions: Record<string, string[]> = {
+  planning: ['Idea Analyzed', 'Crafting Book Blueprint'],
+  metadata: ['Idea Analyzed', 'Forming Book Metadata'],
+  cover: ['Idea Analyzed', 'Creating Book Cover'],
+  outline: ['Idea Analyzed', 'Structure & Chapters Crafted'],
+  writing: ['Idea Analyzed', 'Writing Chapter Content'],
+  illustrations: ['Idea Analyzed', 'Rendering Visual Artworks'],
+  designing: ['Idea Analyzed', 'Composing Page Layouts'],
+  finalizing: ['Preparing PDF and EPUB Downloads'],
+  completed: ['Your Book Is Ready'],
+  failed: ['Publishing interrupted'],
+};
 
 export async function GET(
   req: NextRequest,
@@ -12,187 +35,121 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
-    const url = new URL(req.url);
-    const jobIdParam = url.searchParams.get('jobId');
-    const effectiveJobId = jobIdParam || id;
+    const jobIdParam = new URL(req.url).searchParams.get('jobId');
 
-    // 1. Query Supabase PostgreSQL jobs table
-    try {
-      const supabase = createAdminClient();
-      let dbJob: any = null;
+    // Status is private operational data. Require the owner before querying a
+    // job, otherwise a guessed job ID could be used to enumerate book metadata.
+    const sessionClient = await createServerSupabaseClient();
+    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'UNAUTHORIZED', message: 'Authentication required to view generation status.' },
+        { status: 401 }
+      );
+    }
 
-      // If jobId was passed and is not the book id, search by jobId
-      if (jobIdParam && jobIdParam !== id) {
-        const { data } = await supabase.from('jobs').select('*').eq('id', jobIdParam).maybeSingle();
-        if (data) dbJob = data;
+    const admin = createAdminClient();
+    const { data: dbBook, error: bookError } = await admin
+      .from('books')
+      .select('id, user_id, title, subtitle, cover_url, cover_image_url, page_count')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (bookError) throw bookError;
+
+    if (dbBook) {
+      if (dbBook.user_id !== user.id) {
+        return NextResponse.json(
+          { error: 'FORBIDDEN', message: 'You do not have access to this generation job.' },
+          { status: 403 }
+        );
       }
 
-      // If no job found by jobId, search by book_id
-      if (!dbJob) {
-        const { data: jobList } = await supabase
+      let dbJob: JobRecord | null = null;
+      if (jobIdParam) {
+        const { data, error } = await admin
+          .from('jobs')
+          .select('*')
+          .eq('id', jobIdParam)
+          .maybeSingle();
+        if (error) throw error;
+        if (data && data.book_id !== id) {
+          return NextResponse.json(
+            { error: 'NOT_FOUND', message: 'Job ID does not match the requested book.' },
+            { status: 404 }
+          );
+        }
+        dbJob = data as JobRecord | null;
+      } else {
+        const { data, error } = await admin
           .from('jobs')
           .select('*')
           .eq('book_id', id)
           .order('created_at', { ascending: false })
-          .limit(1);
-        if (jobList && jobList.length > 0) {
-          dbJob = jobList[0];
-        }
-      }
-
-      // If still no job record, check if the book exists in books table
-      if (!dbJob) {
-        const { data: bData } = await supabase
-          .from('books')
-          .select('*')
-          .eq('id', id)
+          .limit(1)
           .maybeSingle();
-
-        if (bData) {
-          const newJobId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `job-${Date.now()}`;
-          const isDone = bData.status === 'completed';
-          const { data: createdJob } = await supabase
-            .from('jobs')
-            .insert({
-              id: newJobId,
-              book_id: id,
-              status: isDone ? 'completed' : 'processing',
-              stage: isDone ? 'completed' : 'planning',
-              progress: isDone ? 100 : (bData.progress || 10),
-            })
-            .select()
-            .single();
-          if (createdJob) dbJob = createdJob;
-        }
+        if (error) throw error;
+        dbJob = data as JobRecord | null;
       }
 
-      if (dbJob) {
-
-        // Check ownership if user is authenticated and not public demo
-        if (id !== 'ocean-wonders' && id !== 'demo-ocean-wonders') {
-          try {
-            const serverSupabase = await createServerSupabaseClient();
-            const {
-              data: { user },
-            } = await serverSupabase.auth.getUser();
-
-            if (user) {
-              const { data: book } = await supabase
-                .from('books')
-                .select('user_id, is_shared')
-                .eq('id', id)
-                .single();
-
-              if (book && book.user_id && book.user_id !== user.id && !book.is_shared) {
-                return NextResponse.json(
-                  { error: 'FORBIDDEN', message: 'You do not have access to this generation job.' },
-                  { status: 403 }
-                );
-              }
-            }
-          } catch (authErr) {
-            console.warn('Status auth verification check notice:', authErr);
-          }
-        }
-
-        // Active serverless progression: advance the job by one stage during this poll
-        let activeJob = dbJob;
-        if (dbJob.status !== 'completed' && dbJob.status !== 'failed') {
-          try {
-            const advanced = await GenerationPipeline.advanceJob(dbJob.id, id);
-            if (advanced) {
-              activeJob = { ...activeJob, ...advanced };
-            }
-          } catch (advErr) {
-            console.warn('Status poller job advancement notice:', advErr);
-          }
-        }
-
-        let bookMeta: any = null;
-        try {
-          const { data: bData } = await supabase
-            .from('books')
-            .select('title, subtitle, cover_url, cover_image_url, page_count')
-            .eq('id', id)
-            .maybeSingle();
-          if (bData) bookMeta = bData;
-        } catch (_) {}
-
-        const stageDescriptions: Record<string, string[]> = {
-          planning: ['Idea Analyzed', 'Crafting Book Blueprint'],
-          metadata: ['Idea Analyzed', 'Forming Book Metadata'],
-          cover: ['Idea Analyzed', 'Creating Book Cover'],
-          outline: ['Idea Analyzed', 'Structure & Chapters Crafted'],
-          writing: ['Idea Analyzed', 'Writing Chapter Content'],
-          illustrations: ['Idea Analyzed', 'Rendering Visual Artworks'],
-          designing: ['Idea Analyzed', 'Composing Page Layouts'],
-          finalizing: ['Preparing PDF and EPUB Downloads'],
-          completed: ['Your Book Is Ready'],
-          failed: ['Publishing interrupted'],
-        };
-
-        return NextResponse.json({
-          id: activeJob.id,
-          bookId: activeJob.book_id,
-          status: activeJob.status,
-          stage: activeJob.stage,
-          progress: activeJob.progress,
-          title: bookMeta?.title || activeJob.title || 'Untitled eBook',
-          subtitle: bookMeta?.subtitle || activeJob.subtitle || '',
-          cover_url: bookMeta?.cover_url || bookMeta?.cover_image_url || activeJob.cover_url || null,
-          page_count: bookMeta?.page_count || activeJob.pageCount || 16,
-          stepsCompleted: stageDescriptions[activeJob.stage] || ['Analyzing creative tone'],
-          error: activeJob.error_message || null,
-        });
-      }
-    } catch (dbErr) {
-      console.warn('Supabase job status fetch warning:', dbErr);
-    }
-
-    // 2. Query in-memory dev store fallback
-    const job = GenerationPipeline.getJobState(effectiveJobId);
-    if (job) {
-      // Enforce ID Match in dev store
-      if (job.bookId !== id) {
+      if (!dbJob) {
         return NextResponse.json(
-          {
-            error: 'NOT_FOUND',
-            message: 'Job ID does not match the requested book path.',
-          },
+          { error: 'NOT_FOUND', message: 'Generation job not found.' },
           { status: 404 }
         );
       }
 
-      const memBook = GenerationPipeline.getBook(id);
+      let activeJob: JobRecord = dbJob;
+      if (dbJob.status !== 'completed' && dbJob.status !== 'failed') {
+        const advanced = await GenerationPipeline.advanceJob(dbJob.id, id);
+        if (advanced) activeJob = { ...dbJob, ...advanced } as JobRecord;
+      }
 
       return NextResponse.json({
-        id: job.id,
-        bookId: job.bookId,
-        status: job.status,
-        stage: job.stage,
-        progress: job.progress,
-        title: job.title || memBook?.title || 'Untitled eBook',
-        subtitle: job.subtitle || memBook?.subtitle || '',
-        cover_url: job.coverUrl || memBook?.coverUrl || null,
-        page_count: job.pageCount || memBook?.pageCount || 16,
-        stepsCompleted: job.stepsCompleted,
-        error: job.error || null,
+        id: activeJob.id,
+        bookId: activeJob.book_id,
+        status: activeJob.status,
+        stage: activeJob.stage,
+        progress: activeJob.progress,
+        title: dbBook.title || activeJob.title || 'Untitled eBook',
+        subtitle: dbBook.subtitle || activeJob.subtitle || '',
+        cover_url: dbBook.cover_url || dbBook.cover_image_url || activeJob.cover_url || null,
+        page_count: dbBook.page_count ?? activeJob.page_count ?? 0,
+        stepsCompleted: stageDescriptions[activeJob.stage] || ['Analyzing creative tone'],
+        error: activeJob.error_message || null,
       });
     }
 
-    // 3. Genuine 404 - never fake success
+    // A local in-memory job is only valid when it belongs to the authenticated
+    // user. It is never treated as a durable production job.
+    const effectiveJobId = jobIdParam || id;
+    const memoryJob = GenerationPipeline.getJobState(effectiveJobId);
+    const memoryBook = GenerationPipeline.getBook(id);
+    if (memoryJob && memoryBook && memoryJob.bookId === id && memoryBook.userId === user.id) {
+      return NextResponse.json({
+        id: memoryJob.id,
+        bookId: memoryJob.bookId,
+        status: memoryJob.status,
+        stage: memoryJob.stage,
+        progress: memoryJob.progress,
+        title: memoryJob.title || memoryBook.title,
+        subtitle: memoryJob.subtitle || memoryBook.subtitle || '',
+        cover_url: memoryJob.coverUrl || memoryBook.coverUrl || null,
+        page_count: memoryJob.pageCount ?? memoryBook.pageCount,
+        stepsCompleted: memoryJob.stepsCompleted,
+        error: memoryJob.error || null,
+      });
+    }
+
     return NextResponse.json(
-      {
-        id: effectiveJobId,
-        status: 'not_found',
-        error: 'Job not found or has expired.',
-      },
+      { id: effectiveJobId, status: 'not_found', error: 'Job not found or has expired.' },
       { status: 404 }
     );
-  } catch (err: any) {
+  } catch (err) {
+    console.error('Generation status error:', err);
     return NextResponse.json(
-      { error: err.message || 'Failed to fetch status.' },
-      { status: 500 }
+      { error: 'STATUS_UNAVAILABLE', message: 'Generation status is temporarily unavailable.' },
+      { status: 503 }
     );
   }
 }
