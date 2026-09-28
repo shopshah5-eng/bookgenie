@@ -104,30 +104,23 @@ export function AuthModal() {
   return (
     <Modal isOpen={isAuthModalOpen} onClose={closeAuthModal} className="max-w-[440px]">
       <div className="flex flex-col items-center text-center">
-        {/* BookGenie Atelier Monogram */}
-        <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-secondary-container/20 dark:bg-white/5 text-secondary dark:text-secondary-fixed border border-secondary/20 mb-3 shadow-xs">
-          <MonogramLogo size={28} iconOnly />
+        {/* BookGenie Monogram */}
+        <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-[#F5F5F3] dark:bg-white/5 text-[#111111] dark:text-white border border-[#EAEAEA] dark:border-white/10 mb-4 shadow-xs">
+          <MonogramLogo size={24} iconOnly />
         </div>
 
-        <div className="font-headline-sm text-xl text-on-surface dark:text-white tracking-tight">
-          BookGenie Atelier
-        </div>
-        <p className="font-label-caps text-[10px] uppercase tracking-widest text-outline mb-3">
-          Autonomous Craft & Architecture
-        </p>
-
-        <h2 className="font-headline-sm text-2xl text-on-surface dark:text-white tracking-tight mb-1.5">
+        <h2 className="text-2xl font-bold text-[#111111] dark:text-white tracking-tight mb-1.5">
           {authView === 'signup'
             ? 'Create your account'
             : authView === 'signin'
             ? 'Welcome back'
             : 'Reset your password'}
         </h2>
-        <p className="font-body-md text-xs sm:text-sm text-on-surface-variant dark:text-[#c4c7c5] mb-6">
+        <p className="text-xs sm:text-sm text-[#666666] dark:text-[#c4c7c5] mb-6">
           {authView === 'signup'
-            ? 'Start turning your ideas into masterwork folios.'
+            ? 'Start turning your ideas into beautiful books.'
             : authView === 'signin'
-            ? 'Sign in to access your atelier workbench and library.'
+            ? 'Sign in to access your books and library.'
             : 'Enter your email address to receive a secure reset link.'}
         </p>
 
