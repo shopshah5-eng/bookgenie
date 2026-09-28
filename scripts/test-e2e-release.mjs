@@ -238,15 +238,15 @@ async function run() {
 
   const { data: dbAssets, error: dbAssetsError } = await adminSupabase
     .from('assets')
-    .select('id, bucket, path, asset_type')
+    .select('id, type, storage_path, prompt, provider')
     .eq('book_id', bookId);
   if (dbAssetsError) throw dbAssetsError;
 
   console.log(`Verified ${dbAssets.length} assets recorded for book:`);
   for (const asset of dbAssets) {
-    console.log(` - [${asset.asset_type}] ${asset.bucket}/${asset.path}`);
-    if (asset.bucket === 'demo') {
-      throw new Error('CRITICAL: Asset was saved in demo bucket!');
+    console.log(` - [${asset.type}] ${asset.storage_path} (${asset.provider})`);
+    if (asset.storage_path.includes('demo')) {
+      throw new Error('CRITICAL: Asset was saved with demo path!');
     }
   }
 

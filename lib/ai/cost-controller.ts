@@ -61,8 +61,12 @@ export class AICostController {
    * Selects the most cost-effective text model based on task complexity and book type
    */
   static selectTextModel(task: TextTaskType, bookType?: BookType): ModelSelection {
-    const devModel = process.env.AI_TEXT_MODEL_DEV || 'meta-llama/llama-3.1-8b-instruct';
-    const standardModel = process.env.AI_TEXT_MODEL_STANDARD || 'meta-llama/llama-3.1-8b-instruct';
+    const fastModel = 'meta-llama/llama-3.1-8b-instruct';
+    const devModel = process.env.AI_TEXT_MODEL_DEV || fastModel;
+    // Serverless functions have strict 26s execution limits.
+    // If standardModel is configured to a heavy 70b+ model, use fastModel for synchronous serverless generation.
+    const rawStandard = process.env.AI_TEXT_MODEL_STANDARD || fastModel;
+    const standardModel = rawStandard.includes('70b') ? fastModel : rawStandard;
     const premiumModel = process.env.AI_TEXT_MODEL_PREMIUM || 'anthropic/claude-3.5-sonnet';
 
     // Tier 1: Cheap / Free for deterministic metadata, classification & QC
@@ -92,7 +96,7 @@ export class AICostController {
     return {
       tier: 'standard',
       modelId: standardModel,
-      maxTokens: 1800,
+      maxTokens: 3000,
       temperature: 0.6,
     };
   }
