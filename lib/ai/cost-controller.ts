@@ -96,7 +96,7 @@ export class AICostController {
     return {
       tier: 'standard',
       modelId: standardModel,
-      maxTokens: 3000,
+      maxTokens: task === 'planning' ? 2000 : 3000,
       temperature: 0.6,
     };
   }

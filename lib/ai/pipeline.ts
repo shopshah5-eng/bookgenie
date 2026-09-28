@@ -170,16 +170,28 @@ export class GenerationPipeline {
       // STAGE 1: PLANNING & METADATA (5% -> 25%)
       // -------------------------------------------------------------
       if (stage === 'planning' || stage === 'metadata') {
-        const generatedBlueprint = await Promise.race([
-          this.textProvider.generateBlueprint({
-            prompt: promptText,
-            bookType: blueprint.bookType,
-            language: blueprint.language,
-            style: blueprint.style,
-            uploadedContext: (blueprint as any).uploadedContext,
-          }),
-          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Blueprint provider timeout')), 25_000)),
-        ]);
+        let generatedBlueprint;
+        try {
+          generatedBlueprint = await Promise.race([
+            this.textProvider.generateBlueprint({
+              prompt: promptText,
+              bookType: blueprint.bookType,
+              language: blueprint.language,
+              style: blueprint.style,
+              uploadedContext: (blueprint as any).uploadedContext,
+            }),
+            new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Blueprint provider timeout')), 22_000)),
+          ]);
+        } catch (planErr: any) {
+          console.warn(`[Pipeline] Blueprint generation attempt failed: ${planErr.message}. Retrying on next poll...`);
+          return {
+            id: jobId,
+            book_id: bookId,
+            status: 'processing',
+            stage: 'planning',
+            progress: 5,
+          };
+        }
 
         const generatedVisualPlan = Array.isArray(generatedBlueprint.visualPlan) ? generatedBlueprint.visualPlan : [];
         const visualPlan = generatedVisualPlan.some((item) => item.visualType === 'cover')
