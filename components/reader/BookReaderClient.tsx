@@ -280,11 +280,19 @@ export function BookReaderClient({ initialBook, bookId }: BookReaderClientProps)
           <a
             href={`/api/books/${bookId}/export?format=epub`}
             download
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary dark:bg-white text-on-primary dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-label-ui font-semibold shadow-xs transition-all"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-surface-container-highest dark:border-white/10 bg-surface-container-lowest dark:bg-white/5 hover:bg-surface-container dark:hover:bg-white/10 text-xs font-label-ui text-on-surface dark:text-[#f1effa] transition-all shadow-xs"
           >
-            <Download className="w-3.5 h-3.5 text-secondary-container dark:text-amber-600" />
+            <Download className="w-3.5 h-3.5 text-secondary dark:text-[#fcba64]" />
             <span className="hidden sm:inline">Download</span> EPUB
           </a>
+
+          {/* Edit Your eBook */}
+          <Link
+            href={`/book/${bookId}/preview`}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#111111] hover:bg-[#222222] text-xs font-semibold text-white transition-all shadow-xs"
+          >
+            <span>Edit Your eBook</span>
+          </Link>
         </div>
       </header>
 

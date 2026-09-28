@@ -315,7 +315,7 @@ export default function MyEbooksPage() {
 
                     {isCompleted && (
                       <Link
-                        href={`/book/${book.id}`}
+                        href={`/book/${book.id}/preview`}
                         className="flex-1 py-2.5 px-4 rounded-xl bg-[#111111] hover:bg-[#222222] text-white text-xs font-semibold text-center transition-all flex items-center justify-center gap-1.5"
                       >
                         <span>Open Book</span>

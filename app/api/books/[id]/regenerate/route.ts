@@ -132,6 +132,26 @@ export async function POST(
       targetPageNumbers,
     });
 
+    let updatedCoverUrl = book.coverUrl;
+    const isCoverChange = instruction.toLowerCase().includes('cover') || (targetPageNumbers && targetPageNumbers.includes(1));
+
+    if (isCoverChange) {
+      try {
+        const coverPrompt = `${book.title}, ${instruction}, professional book cover illustration, cinematic, editorial publication`;
+        const coverRes = await imageProvider.generateImage({
+          prompt: coverPrompt,
+          bookTitle: book.title,
+          style: book.style,
+          isCover: true,
+        });
+        if (coverRes && coverRes.url) {
+          updatedCoverUrl = coverRes.url;
+        }
+      } catch (covErr) {
+        console.warn('Cover regeneration warning:', covErr);
+      }
+    }
+
     // 5. Only regenerate an image if explicitly requested
     if (result.requiresImageRegeneration && result.imageInstructions) {
       for (const imgReq of result.imageInstructions) {
@@ -147,6 +167,7 @@ export async function POST(
     // 6. Assemble updated canonical document
     const updatedBook: BookDocument = {
       ...book,
+      coverUrl: updatedCoverUrl,
       pages: result.pages,
       versionNumber: newVersion,
       updatedAt: new Date().toISOString(),
@@ -159,6 +180,8 @@ export async function POST(
       await admin
         .from('books')
         .update({
+          cover_url: updatedCoverUrl,
+          cover_image_url: updatedCoverUrl,
           version_number: newVersion,
           updated_at: new Date().toISOString(),
         })

@@ -104,7 +104,12 @@ export default function BookGeneratingPage({
           setIsLoadingInitial(false);
         }
 
-        if (json.status === 'completed' || json.status === 'failed') {
+        if (json.status === 'completed' || json.stage === 'completed') {
+          clearInterval(pollInterval);
+          setTimeout(() => {
+            router.push(`/book/${bookId}/preview`);
+          }, 600);
+        } else if (json.status === 'failed') {
           clearInterval(pollInterval);
         }
       } catch (err) {
