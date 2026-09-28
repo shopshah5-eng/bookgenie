@@ -8,7 +8,7 @@ const cspHeader = `
   script-src-attr 'none';
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com data:;
-  img-src 'self' data: blob: https://image.pollinations.ai https://images.unsplash.com https://*.supabase.co;
+  img-src 'self' data: blob: https://image.pollinations.ai https://*.supabase.co;
   connect-src 'self' https://*.supabase.co ws: wss:;
   object-src 'none';
   base-uri 'self';
@@ -21,10 +21,6 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
       {
         protocol: 'https',
         hostname: 'image.pollinations.ai',
