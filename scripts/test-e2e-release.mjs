@@ -157,11 +157,17 @@ async function run() {
     attempts++;
     await new Promise(r => setTimeout(r, 4000));
 
-    const pollRes = await fetch(`${PREVIEW_URL}/api/books/${bookId}/status?jobId=${jobId}`, {
-      headers: {
-        Cookie: cookieHeader,
-      },
-    });
+    let pollRes;
+    try {
+      pollRes = await fetch(`${PREVIEW_URL}/api/books/${bookId}/status?jobId=${jobId}`, {
+        headers: {
+          Cookie: cookieHeader,
+        },
+      });
+    } catch (netErr) {
+      console.warn(`[Attempt ${attempts}] Network fetch error: ${netErr.message}. Retrying in 4s...`);
+      continue;
+    }
 
     if (pollRes.status !== 200) {
       console.error(`Poll returned ${pollRes.status}:`, await pollRes.text());

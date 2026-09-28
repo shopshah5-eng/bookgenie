@@ -242,15 +242,27 @@ export class GenerationPipeline {
         const ownerId = book?.user_id;
         if (!ownerId) throw new Error('Book owner is missing; cannot persist cover asset.');
 
-        const result = await Promise.race([
-          this.imageProvider.generateImage({
-            prompt: coverPrompt,
-            bookTitle: book?.title || 'Book',
-            style: book?.style || 'editorial',
-            isCover: true,
-          }),
-          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Cover image provider timeout')), 25_000)),
-        ]);
+        let result;
+        try {
+          result = await Promise.race([
+            this.imageProvider.generateImage({
+              prompt: coverPrompt,
+              bookTitle: book?.title || 'Book',
+              style: book?.style || 'editorial',
+              isCover: true,
+            }),
+            new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Cover image provider timeout')), 22_000)),
+          ]);
+        } catch (imgErr: any) {
+          console.warn(`[Pipeline] Cover image attempt timed out or failed: ${imgErr.message}. Retrying on next poll...`);
+          return {
+            id: jobId,
+            book_id: bookId,
+            status: 'processing',
+            stage: 'cover',
+            progress: 25,
+          };
+        }
         const asset = await persistGeneratedImage({
           bookId,
           userId: ownerId,
@@ -309,13 +321,25 @@ export class GenerationPipeline {
           const timeoutPromise = new Promise<BookPageDocument[]>((_, reject) =>
             setTimeout(() => reject(new Error('Chapter provider timeout')), 22_000)
           );
-          const rawPages = await Promise.race([
-            this.textProvider.generateChapter({
-              blueprint,
-              chapterIndex,
-            }),
-            timeoutPromise,
-          ]);
+          let rawPages: BookPageDocument[];
+          try {
+            rawPages = await Promise.race([
+              this.textProvider.generateChapter({
+                blueprint,
+                chapterIndex,
+              }),
+              timeoutPromise,
+            ]);
+          } catch (err: any) {
+            console.warn(`[Pipeline] Chapter ${chapterIndex} generation failed or timed out: ${err.message}. Retrying on next poll...`);
+            return {
+              id: jobId,
+              book_id: bookId,
+              status: 'processing',
+              stage: 'writing',
+              progress: Math.min(64, 50 + Math.round((existingPages.length / Math.max(chapters.length * 2, 1)) * 15)),
+            };
+          }
 
           const newChapterPages = rawPages.map((p) => ({
             ...p,
@@ -430,15 +454,27 @@ export class GenerationPipeline {
 
         if (nextVisual) {
           const imagePrompt = nextVisual.promptSpec || `${book?.title || promptText}, editorial illustration`;
-          const result = await Promise.race([
-            this.imageProvider.generateImage({
-              prompt: imagePrompt,
-              bookTitle: book?.title || 'Book',
-              style: book?.style || 'editorial',
-              isCover: nextVisual.visualType === 'cover',
-            }),
-            new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Illustration provider timeout')), 25_000)),
-          ]);
+          let result;
+          try {
+            result = await Promise.race([
+              this.imageProvider.generateImage({
+                prompt: imagePrompt,
+                bookTitle: book?.title || 'Book',
+                style: book?.style || 'editorial',
+                isCover: nextVisual.visualType === 'cover',
+              }),
+              new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Illustration provider timeout')), 22_000)),
+            ]);
+          } catch (imgErr: any) {
+            console.warn(`[Pipeline] Illustration attempt timed out or failed: ${imgErr.message}. Retrying on next poll...`);
+            return {
+              id: jobId,
+              book_id: bookId,
+              status: 'processing',
+              stage: 'illustrations',
+              progress: 65,
+            };
+          }
           const asset = await persistGeneratedImage({
             bookId,
             userId: ownerId,

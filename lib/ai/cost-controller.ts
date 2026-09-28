@@ -92,7 +92,7 @@ export class AICostController {
     return {
       tier: 'standard',
       modelId: standardModel,
-      maxTokens: 3500,
+      maxTokens: 1800,
       temperature: 0.6,
     };
   }
