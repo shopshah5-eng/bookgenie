@@ -70,13 +70,22 @@ export class AICostController {
     const standardModel = rawStandard.includes('70b') ? fastModel : rawStandard;
     const premiumModel = process.env.AI_TEXT_MODEL_PREMIUM || 'anthropic/claude-3.5-sonnet';
 
-    // Tier 1: Cheap / Free for deterministic metadata, classification & QC
+    // Tier 1: Fast & deterministic for metadata, classification, QC & micro-revisions
     if (task === 'classification' || task === 'qc_check' || task === 'micro_revision') {
       return {
         tier: 'free_or_cheap',
-        modelId: devModel,
-        maxTokens: task === 'micro_revision' ? 2000 : 1200,
+        modelId: fastModel,
+        maxTokens: task === 'micro_revision' ? 1500 : 1200,
         temperature: 0.2, // low temp for deterministic JSON extraction
+      };
+    }
+
+    if (task === 'complex_revision') {
+      return {
+        tier: 'standard',
+        modelId: fastModel,
+        maxTokens: 2000,
+        temperature: 0.4,
       };
     }
 

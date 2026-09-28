@@ -349,7 +349,7 @@ export class GenerationPipeline {
               book_id: bookId,
               status: 'processing',
               stage: 'writing',
-              progress: Math.min(64, 50 + Math.round((existingPages.length / Math.max(chapters.length * 2, 1)) * 15)),
+              progress: Math.max(currentJob.progress || 50, 50),
             };
           }
 
