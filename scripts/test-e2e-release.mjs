@@ -64,14 +64,20 @@ async function run() {
   }
 
   // Ensure profile exists and plan tier is pro so quota allows 16 pages
-  await adminSupabase.from('profiles').upsert({
+  const { error: profileErr } = await adminSupabase.from('profiles').upsert({
     id: userId,
-    display_name: 'Release Tester',
+    full_name: 'Release Tester',
     email: testEmail,
-    plan_tier: 'pro',
-    monthly_books_limit: 100,
-    max_pages_per_book: 50,
+    tier: 'pro',
   });
+  if (profileErr) {
+    console.error('Profile update error:', profileErr);
+    throw profileErr;
+  }
+  console.log('User profile set to tier: pro');
+
+  // Clean previous test books for this test user
+  await adminSupabase.from('books').delete().eq('user_id', userId);
 
   // 2. Sign in with password to obtain authenticated session
   console.log('\n2. Signing in to obtain authenticated session...');
