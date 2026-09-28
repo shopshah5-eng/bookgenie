@@ -26,6 +26,11 @@ function PricingContent() {
       return;
     }
 
+    if (planId === 'free') {
+      router.push('/create');
+      return;
+    }
+
     setUpgradingTier(planId);
 
     try {
@@ -38,13 +43,8 @@ function PricingContent() {
       const data = await response.json();
 
       if (response.ok) {
-        if (planId === 'author-single') {
-          setSuccessMessage('Single Book Pass activated! Redirecting to creator studio...');
-          setTimeout(() => router.push('/create'), 1200);
-        } else {
-          const tierName = (data.subscriptionTier || data.tier || data.profile?.tier || planId).toUpperCase();
-          setSuccessMessage(`Plan successfully updated to ${tierName}! Enjoy extended studio features.`);
-        }
+        const tierName = (data.subscriptionTier || data.tier || data.profile?.tier || planId).toUpperCase();
+        setSuccessMessage(`Plan successfully updated to ${tierName}! Enjoy extended studio features.`);
       } else {
         setErrorMessage(data.error || 'Upgrade failed. Please try again.');
       }
@@ -81,7 +81,7 @@ function PricingContent() {
             </h1>
 
             <p className="font-body-lg text-body-lg text-on-surface-variant dark:text-neutral-400 max-w-2xl mx-auto mb-8 leading-relaxed">
-              Retain 100% of your copyright, royalties, and generated files. Choose a single book pass or recurring plans for ongoing publishing volume.
+              Retain 100% of your copyright, royalties, and generated files. Simple plans designed for independent authors, boutique imprints, and creative studios.
             </p>
 
             {/* Open Beta Callout Banner */}
@@ -132,160 +132,107 @@ function PricingContent() {
             </div>
           )}
 
-          {/* Pricing Cards Grid - 4 Tiers */}
-          <div className="max-w-7xl mx-auto px-6 lg:px-8 pb-16">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+          {/* Pricing Cards Grid - Free, Pro, Premium */}
+          <div className="max-w-6xl mx-auto px-6 lg:px-8 pb-16">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
               
-              {/* Card 1: Free Starter */}
-              <div className="flex flex-col justify-between rounded-2xl bg-surface-container-lowest dark:bg-[#181820] border border-surface-container-highest dark:border-white/10 p-6 lg:p-7 shadow-xs transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+              {/* Card 1: Free */}
+              <div className="flex flex-col justify-between rounded-2xl bg-surface-container-lowest dark:bg-[#181820] border border-surface-container-highest dark:border-white/10 p-7 lg:p-8 shadow-xs transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                 <div>
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-4">
                     <span className="font-code-spec text-xs text-on-surface-variant dark:text-neutral-400 uppercase tracking-wider">
                       Discovery
                     </span>
                     <BookOpen className="w-4 h-4 text-outline" />
                   </div>
-                  <h3 className="font-headline-md text-xl font-serif text-primary dark:text-[#f1effa] mb-1">
-                    Free Starter
+                  <h3 className="font-headline-md text-2xl font-serif text-primary dark:text-[#f1effa] mb-2">
+                    Free
                   </h3>
-                  <p className="text-xs text-on-surface-variant dark:text-neutral-400 mb-5 leading-relaxed">
+                  <p className="text-xs text-on-surface-variant dark:text-neutral-400 mb-6 leading-relaxed">
                     Test the publishing studio risk-free. Create your first book and experience the reading folio.
                   </p>
                   <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-surface-container-highest dark:border-white/10">
-                    <span className="text-3xl font-serif font-bold text-primary dark:text-[#f1effa]">
+                    <span className="text-4xl font-serif font-bold text-primary dark:text-[#f1effa]">
                       $0
                     </span>
                     <span className="text-xs text-on-surface-variant dark:text-neutral-400">
                       / forever free
                     </span>
                   </div>
-                  <ul className="space-y-3 mb-6 text-xs text-on-surface dark:text-[#f1effa]">
+                  <ul className="space-y-3.5 mb-8 text-xs text-on-surface dark:text-[#f1effa]">
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0" />
+                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0 mt-0.5" />
                       <span><strong>1 Complete Book</strong> (up to 16 pages)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0" />
+                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0 mt-0.5" />
                       <span>4 Illustrated Plates &amp; Cover Art</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0" />
+                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0 mt-0.5" />
                       <span>Private Interactive Web Reader</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0" />
+                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0 mt-0.5" />
                       <span>Notes &amp; Document Ingestion</span>
                     </li>
                   </ul>
                 </div>
                 <button
                   onClick={() => handleSelectPlan('free')}
-                  className="w-full py-3 px-4 rounded-xl text-center text-xs font-semibold text-primary dark:text-black bg-surface-container-low dark:bg-white hover:bg-surface-container-high transition-colors cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-xl text-center text-xs font-semibold text-primary dark:text-black bg-surface-container-low dark:bg-white hover:bg-surface-container-high transition-colors cursor-pointer"
                 >
                   Start Creating Free
                 </button>
               </div>
 
-              {/* Card 2: Single Book Pass (Pay-As-You-Go) */}
-              <div className="flex flex-col justify-between rounded-2xl bg-surface-container-lowest dark:bg-[#181820] border-2 border-[#111111]/15 dark:border-white/20 p-6 lg:p-7 shadow-xs transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-code-spec text-xs font-semibold text-secondary dark:text-[#fcba64] uppercase tracking-wider">
-                      Pay As You Go
-                    </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary/10 text-secondary font-medium">
-                      No Subscription
-                    </span>
-                  </div>
-                  <h3 className="font-headline-md text-xl font-serif text-primary dark:text-[#f1effa] mb-1">
-                    Single Book Pass
-                  </h3>
-                  <p className="text-xs text-on-surface-variant dark:text-neutral-400 mb-5 leading-relaxed">
-                    Ideal for single memoirs, gift books, bedtime stories, or lead magnets. Buy once, own forever.
-                  </p>
-                  <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-surface-container-highest dark:border-white/10">
-                    <span className="text-3xl font-serif font-bold text-primary dark:text-[#f1effa]">
-                      $19
-                    </span>
-                    <span className="text-xs text-on-surface-variant dark:text-neutral-400">
-                      / one-time payment
-                    </span>
-                  </div>
-                  <ul className="space-y-3 mb-6 text-xs text-on-surface dark:text-[#f1effa]">
-                    <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0" />
-                      <span><strong>1 Complete Book</strong> (up to 120 pages)</span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0" />
-                      <span>300 DPI Press PDF + EPUB3 Export</span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0" />
-                      <span>100% Commercial License (Sell anywhere)</span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0" />
-                      <span>Zero Watermarks &amp; Clean Colophon</span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0" />
-                      <span>In-Reader Chapter Revision Dock</span>
-                    </li>
-                  </ul>
-                </div>
-                <button
-                  onClick={() => handleSelectPlan('author-single')}
-                  disabled={upgradingTier === 'author-single'}
-                  className="w-full py-3 px-4 rounded-xl text-center text-xs font-semibold text-white bg-[#111111] hover:bg-black transition-colors cursor-pointer"
-                >
-                  {upgradingTier === 'author-single' ? 'Activating Pass...' : 'Get Single Book Pass ($19)'}
-                </button>
-              </div>
-
-              {/* Card 3: Pro Creator (Featured Elevation) */}
-              <div className="relative flex flex-col justify-between rounded-2xl bg-primary dark:bg-[#000000] text-on-primary border border-secondary/40 dark:border-white/20 p-6 lg:p-7 shadow-2xl transition-all duration-300 hover:-translate-y-1.5 overflow-hidden">
+              {/* Card 2: Pro (Featured Elevation) */}
+              <div className="relative flex flex-col justify-between rounded-2xl bg-primary dark:bg-[#000000] text-on-primary border border-secondary/40 dark:border-white/20 p-7 lg:p-8 shadow-2xl transition-all duration-300 hover:-translate-y-1.5 overflow-hidden">
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#fcba64] to-transparent" />
                 <div>
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-4">
                     <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-secondary-container text-secondary dark:bg-amber-950 dark:text-amber-300 font-semibold tracking-wider uppercase">
                       Most Popular
                     </span>
                     <Sparkles className="w-4 h-4 text-[#fcba64]" />
                   </div>
-                  <h3 className="font-headline-md text-xl font-serif text-white mb-1">
-                    Pro Creator
+                  <h3 className="font-headline-md text-2xl font-serif text-white mb-2">
+                    Pro
                   </h3>
-                  <p className="text-xs text-neutral-300 mb-5 leading-relaxed">
-                    For active authors, teachers, and creators publishing full series ready for Amazon KDP.
+                  <p className="text-xs text-neutral-300 mb-6 leading-relaxed">
+                    For active authors, teachers, and creators publishing full books ready for Amazon KDP &amp; Apple Books.
                   </p>
                   <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-white/10">
-                    <span className="text-3xl font-serif font-bold text-white">
+                    <span className="text-4xl font-serif font-bold text-white">
                       {billingCycle === 'annual' ? '$12' : '$15'}
                     </span>
                     <span className="text-xs text-neutral-400">
                       / month {billingCycle === 'annual' ? '($144/yr)' : ''}
                     </span>
                   </div>
-                  <ul className="space-y-3 mb-6 text-xs text-neutral-200">
+                  <ul className="space-y-3.5 mb-8 text-xs text-neutral-200">
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-[#fcba64] shrink-0" />
-                      <span><strong>15 Complete Books</strong> / month</span>
+                      <Check className="w-4 h-4 text-[#fcba64] shrink-0 mt-0.5" />
+                      <span><strong>15 Complete Books</strong> / month (up to 64 pages)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-[#fcba64] shrink-0" />
-                      <span><strong>Unlimited EPUB &amp; 300 DPI PDF</strong></span>
+                      <Check className="w-4 h-4 text-[#fcba64] shrink-0 mt-0.5" />
+                      <span><strong>Unlimited EPUB &amp; 300 DPI PDF Exports</strong></span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-[#fcba64] shrink-0" />
+                      <Check className="w-4 h-4 text-[#fcba64] shrink-0 mt-0.5" />
                       <span>100% Commercial Copyright Retention</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-[#fcba64] shrink-0" />
+                      <Check className="w-4 h-4 text-[#fcba64] shrink-0 mt-0.5" />
                       <span>In-Reader Chapter Revision Dock</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-[#fcba64] shrink-0" />
+                      <Check className="w-4 h-4 text-[#fcba64] shrink-0 mt-0.5" />
+                      <span>Zero Watermarks / Clean Colophon</span>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-4 h-4 text-[#fcba64] shrink-0 mt-0.5" />
                       <span>Persistent Bookshelf Cloud Storage</span>
                     </li>
                   </ul>
@@ -293,7 +240,7 @@ function PricingContent() {
                 <button
                   onClick={() => handleSelectPlan('creator')}
                   disabled={upgradingTier === 'creator'}
-                  className="w-full py-3 px-4 rounded-xl text-center text-xs font-semibold text-black bg-[#fcba64] hover:bg-[#ffddb6] transition-all cursor-pointer shadow-md"
+                  className="w-full py-3.5 px-4 rounded-xl text-center text-xs font-semibold text-black bg-[#fcba64] hover:bg-[#ffddb6] transition-all cursor-pointer shadow-md"
                 >
                   {upgradingTier === 'creator'
                     ? 'Activating Pro...'
@@ -303,48 +250,48 @@ function PricingContent() {
                 </button>
               </div>
 
-              {/* Card 4: Premium Atelier */}
-              <div className="flex flex-col justify-between rounded-2xl bg-surface-container-lowest dark:bg-[#181820] border border-surface-container-highest dark:border-white/10 p-6 lg:p-7 shadow-xs transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+              {/* Card 3: Premium */}
+              <div className="flex flex-col justify-between rounded-2xl bg-surface-container-lowest dark:bg-[#181820] border border-surface-container-highest dark:border-white/10 p-7 lg:p-8 shadow-xs transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                 <div>
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-4">
                     <span className="font-code-spec text-xs text-on-surface-variant dark:text-neutral-400 uppercase tracking-wider">
-                      Imprint / Agency
+                      Imprint &amp; Agency
                     </span>
                     <ShieldCheck className="w-4 h-4 text-outline" />
                   </div>
-                  <h3 className="font-headline-md text-xl font-serif text-primary dark:text-[#f1effa] mb-1">
-                    Premium Atelier
+                  <h3 className="font-headline-md text-2xl font-serif text-primary dark:text-[#f1effa] mb-2">
+                    Premium
                   </h3>
-                  <p className="text-xs text-on-surface-variant dark:text-neutral-400 mb-5 leading-relaxed">
-                    Designed for serial publishers and marketing agencies scaling continuous volume.
+                  <p className="text-xs text-on-surface-variant dark:text-neutral-400 mb-6 leading-relaxed">
+                    Designed for serial publishers, design agencies, and boutique imprints scaling continuous catalogs.
                   </p>
                   <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-surface-container-highest dark:border-white/10">
-                    <span className="text-3xl font-serif font-bold text-primary dark:text-[#f1effa]">
+                    <span className="text-4xl font-serif font-bold text-primary dark:text-[#f1effa]">
                       {billingCycle === 'annual' ? '$32' : '$39'}
                     </span>
                     <span className="text-xs text-on-surface-variant dark:text-neutral-400">
                       / month {billingCycle === 'annual' ? '($384/yr)' : ''}
                     </span>
                   </div>
-                  <ul className="space-y-3 mb-6 text-xs text-on-surface dark:text-[#f1effa]">
+                  <ul className="space-y-3.5 mb-8 text-xs text-on-surface dark:text-[#f1effa]">
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0" />
+                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0 mt-0.5" />
                       <span><strong>50 Books</strong> / mo (up to 300 pages)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0" />
-                      <span><strong>250 Visual Plates</strong> / mo with character lock</span>
+                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0 mt-0.5" />
+                      <span><strong>250 Visual Plates</strong> with character lock</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0" />
-                      <span>Priority High-Speed Processing Queue</span>
+                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0 mt-0.5" />
+                      <span>Priority High-Speed Studio Queue</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0" />
-                      <span>Custom Publisher Imprint &amp; ISBN Ingestion</span>
+                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0 mt-0.5" />
+                      <span>Custom Imprint, Colophon &amp; ISBN Ingestion</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0" />
+                      <Check className="w-4 h-4 text-secondary dark:text-[#fcba64] shrink-0 mt-0.5" />
                       <span>Full Archive (Markdown, Raw Assets)</span>
                     </li>
                   </ul>
@@ -352,13 +299,13 @@ function PricingContent() {
                 <button
                   onClick={() => handleSelectPlan('pro')}
                   disabled={upgradingTier === 'pro'}
-                  className="w-full py-3 px-4 rounded-xl text-center text-xs font-semibold text-primary dark:text-black bg-surface-container-low dark:bg-white hover:bg-surface-container-high transition-colors cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-xl text-center text-xs font-semibold text-primary dark:text-black bg-surface-container-low dark:bg-white hover:bg-surface-container-high transition-colors cursor-pointer"
                 >
                   {upgradingTier === 'pro'
-                    ? 'Activating Atelier...'
+                    ? 'Activating Premium...'
                     : billingCycle === 'annual'
-                    ? 'Join Atelier ($32/mo)'
-                    : 'Join Atelier ($39/mo)'}
+                    ? 'Join Premium ($32/mo)'
+                    : 'Join Premium ($39/mo)'}
                 </button>
               </div>
 
@@ -375,7 +322,7 @@ function PricingContent() {
                 Turn Your Digital Files into Tangible Assets
               </h2>
               <p className="text-xs sm:text-sm text-on-surface-variant dark:text-neutral-400 mt-2">
-                No monthly subscription required. Add these publishing services to any book whenever you are ready to distribute.
+                Available to all tiers. Add these publishing services to any book whenever you are ready to distribute.
               </p>
             </div>
 

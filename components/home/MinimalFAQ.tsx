@@ -46,7 +46,7 @@ export function MinimalFAQ() {
     {
       id: 'q-5',
       q: 'How does pricing work?',
-      a: 'You can start completely free—create and read your first book with 0 credit card required. When you want to publish commercially, choose between a Single Book Pass ($19 one-time, no subscription) or our Pro Creator ($15/mo) and Atelier plans for high-volume publishing.',
+      a: 'You can start completely free—create and read your first book with 0 credit card required. When you want to publish commercially or scale volume, upgrade to our Pro ($15/mo) or Premium ($39/mo) plans for unlimited downloads, commercial rights, and extended capacities.',
     },
     {
       id: 'q-6',
