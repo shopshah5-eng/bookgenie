@@ -61,7 +61,7 @@ export function BookCreatorCard() {
         sessionStorage.setItem('bg_pending_prompt', cleanPrompt);
         sessionStorage.setItem('bg_pending_pages', pages.toString());
       } catch (_) {}
-      openAuthModal('signup');
+      openAuthModal('signup', '/');
       return;
     }
 
@@ -165,7 +165,7 @@ export function BookCreatorCard() {
                   <button
                     type="button"
                     onClick={() => router.push('/pricing')}
-                    className="underline hover:text-[#111111]"
+                    className="underline hover:text-[#111111] cursor-pointer"
                   >
                     Upgrade for up to 300 pages.
                   </button>
@@ -186,7 +186,8 @@ export function BookCreatorCard() {
                 </>
               ) : (
                 <>
-                  <span>{isSubmitting ? 'Opening Studio...' : 'Generate Your eBook →'}</span>
+                  <span>{isSubmitting ? 'Starting Book Creation...' : 'Generate Your eBook →'}</span>
+                  <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>

@@ -43,7 +43,7 @@ export function AuthModal() {
           options: {
             data: { full_name: name },
             emailRedirectTo: `${callbackOrigin}/api/auth/callback?next=${encodeURIComponent(
-              redirectUrl || '/create'
+              redirectUrl || '/'
             )}`,
           },
         });
@@ -72,7 +72,7 @@ export function AuthModal() {
         }
       } else if (authView === 'forgot_password') {
         const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/api/auth/callback?next=/create`,
+          redirectTo: `${window.location.origin}/api/auth/callback?next=/`,
         });
         if (resetError) throw resetError;
         setSuccessMessage('Password reset link sent to your email.');
@@ -112,7 +112,7 @@ export function AuthModal() {
     }
 
     closeAuthModal();
-    router.push(redirectUrl || '/create');
+    router.push(redirectUrl || '/');
   };
 
   const handleGoogleSignIn = async () => {
@@ -120,11 +120,16 @@ export function AuthModal() {
     setError(null);
     try {
       const supabase = createClient();
+      const callbackOrigin =
+        typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost')
+          ? window.location.origin
+          : 'https://bookgenie-app.netlify.app';
+
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(
-            redirectUrl || '/create'
+          redirectTo: `${callbackOrigin}/api/auth/callback?next=${encodeURIComponent(
+            redirectUrl || '/'
           )}`,
         },
       });

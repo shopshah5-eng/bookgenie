@@ -89,7 +89,7 @@ export function MinimalHeader() {
           </a>
         </nav>
 
-        {/* Right: Auth Buttons */}
+        {/* Right: User Profile / Auth Buttons */}
         <div className="hidden md:flex items-center gap-3">
           {user ? (
             <div className="flex items-center gap-3">
@@ -99,9 +99,30 @@ export function MinimalHeader() {
               >
                 My eBooks
               </Link>
-              <div className="w-8 h-8 rounded-full bg-[#F2EFE9] text-[#111111] flex items-center justify-center text-xs font-semibold select-none border border-[#EAEAEA]">
-                {(user.email?.[0] || 'U').toUpperCase()}
-              </div>
+
+              {/* Corner User Profile Badge (Google avatar + Name) */}
+              <Link
+                href="/my-ebooks"
+                className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-full bg-[#F6F5F2] hover:bg-[#EAE8E3] border border-[#EAEAEA] transition-all group"
+                title={user.email || 'My Account'}
+              >
+                {(user.user_metadata?.avatar_url || user.user_metadata?.picture) ? (
+                  <img
+                    src={user.user_metadata?.avatar_url || user.user_metadata?.picture}
+                    alt={user.user_metadata?.full_name || user.user_metadata?.name || 'Profile'}
+                    className="w-7 h-7 rounded-full object-cover border border-black/10 shrink-0"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-[#111111] text-white flex items-center justify-center text-xs font-semibold select-none shrink-0">
+                    {((user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'U')[0]).toUpperCase()}
+                  </div>
+                )}
+                <span className="text-[13px] font-medium text-[#111111] max-w-[130px] truncate">
+                  {user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0]}
+                </span>
+              </Link>
+
               <button
                 onClick={() => signOut()}
                 className="text-[12px] font-medium text-[#777777] hover:text-[#111111] transition-colors px-1 cursor-pointer"
@@ -112,13 +133,13 @@ export function MinimalHeader() {
           ) : (
             <>
               <button
-                onClick={() => openAuthModal('signin')}
+                onClick={() => openAuthModal('signin', '/')}
                 className="px-4 py-2 rounded-full border border-[#EAEAEA] text-[13px] font-medium text-[#111111] hover:border-[#111111] transition-all cursor-pointer"
               >
                 Sign In
               </button>
               <button
-                onClick={() => openAuthModal('signup')}
+                onClick={() => openAuthModal('signup', '/')}
                 className="px-5 py-2 rounded-full bg-[#111111] hover:bg-[#222222] text-[13px] font-medium text-white transition-all shadow-xs cursor-pointer"
               >
                 Sign Up
@@ -157,41 +178,68 @@ export function MinimalHeader() {
 
           <div className="pt-4 border-t border-[#F0F0F0] flex flex-col gap-3">
             {user ? (
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-3">
                 <Link
                   href="/my-ebooks"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-sm font-medium text-[#111111]"
+                  className="flex items-center gap-2.5 py-1"
                 >
-                  My eBooks
+                  {(user.user_metadata?.avatar_url || user.user_metadata?.picture) ? (
+                    <img
+                      src={user.user_metadata?.avatar_url || user.user_metadata?.picture}
+                      alt={user.user_metadata?.full_name || 'Profile'}
+                      className="w-8 h-8 rounded-full object-cover border border-black/10 shrink-0"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-[#111111] text-white flex items-center justify-center text-xs font-semibold shrink-0">
+                      {((user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'U')[0]).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-semibold text-[#111111] truncate">
+                      {user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0]}
+                    </span>
+                    <span className="text-[11px] text-[#888888] truncate">{user.email}</span>
+                  </div>
                 </Link>
-                <button
-                  onClick={() => {
-                    signOut();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="text-xs text-[#888888] hover:text-[#111111]"
-                >
-                  Sign Out
-                </button>
+
+                <div className="flex items-center justify-between pt-2 border-t border-[#F0F0F0]">
+                  <Link
+                    href="/my-ebooks"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-sm font-medium text-[#111111]"
+                  >
+                    My eBooks
+                  </Link>
+                  <button
+                    onClick={() => {
+                      signOut();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="text-xs text-[#888888] hover:text-[#111111] cursor-pointer"
+                  >
+                    Sign Out
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => {
-                    openAuthModal('signin');
+                    openAuthModal('signin', '/');
                     setMobileMenuOpen(false);
                   }}
-                  className="flex-1 py-2 rounded-full border border-[#EAEAEA] text-xs font-medium text-[#111111] text-center"
+                  className="flex-1 py-2 rounded-full border border-[#EAEAEA] text-xs font-medium text-[#111111] text-center cursor-pointer"
                 >
                   Sign In
                 </button>
                 <button
                   onClick={() => {
-                    openAuthModal('signup');
+                    openAuthModal('signup', '/');
                     setMobileMenuOpen(false);
                   }}
-                  className="flex-1 py-2 rounded-full bg-[#111111] text-white text-xs font-medium text-center"
+                  className="flex-1 py-2 rounded-full bg-[#111111] text-white text-xs font-medium text-center cursor-pointer"
                 >
                   Sign Up
                 </button>
