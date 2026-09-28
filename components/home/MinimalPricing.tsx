@@ -28,7 +28,7 @@ export function MinimalPricing() {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F5F5F3] text-[#666666] text-xs font-semibold uppercase tracking-wider mb-4 border border-[#EAEAEA]">
             Plans &amp; Pricing
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-serif font-bold text-[#111111] tracking-tight leading-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#111111] tracking-tight leading-tight">
             Simple, transparent publishing plans.
           </h2>
           <p className="text-sm sm:text-base text-[#666666] mt-3 font-sans leading-relaxed">
@@ -74,14 +74,14 @@ export function MinimalPricing() {
                   Discovery
                 </span>
               </div>
-              <h3 className="text-2xl font-serif font-bold text-[#111111] mb-1">
+              <h3 className="text-2xl font-bold text-[#111111] mb-1">
                 Free
               </h3>
               <p className="text-xs text-[#666666] mb-5 leading-relaxed">
                 Test the studio risk-free. Create your first book and experience the reading folio.
               </p>
               <div className="flex items-baseline gap-1 mb-5 pb-5 border-b border-[#F0F0F0]">
-                <span className="text-3xl font-serif font-bold text-[#111111]">$0</span>
+                <span className="text-3xl font-bold text-[#111111]">$0</span>
                 <span className="text-xs text-[#888888]">/ forever free</span>
               </div>
               <ul className="space-y-3 mb-6 text-xs text-[#333333]">
@@ -120,14 +120,14 @@ export function MinimalPricing() {
                 </span>
                 <Sparkles className="w-4 h-4 text-amber-300" />
               </div>
-              <h3 className="text-2xl font-serif font-bold text-white mb-1">
+              <h3 className="text-2xl font-bold text-white mb-1">
                 Pro
               </h3>
               <p className="text-xs text-[#AAAAAA] mb-5 leading-relaxed">
                 For authors and creators publishing complete books ready for Amazon KDP.
               </p>
               <div className="flex items-baseline gap-1 mb-5 pb-5 border-b border-white/10">
-                <span className="text-3xl font-serif font-bold text-white">
+                <span className="text-3xl font-bold text-white">
                   {billingCycle === 'annual' ? '$12' : '$15'}
                 </span>
                 <span className="text-xs text-[#AAAAAA]">
@@ -173,14 +173,14 @@ export function MinimalPricing() {
                   Imprint &amp; Agency
                 </span>
               </div>
-              <h3 className="text-2xl font-serif font-bold text-[#111111] mb-1">
+              <h3 className="text-2xl font-bold text-[#111111] mb-1">
                 Premium
               </h3>
               <p className="text-xs text-[#666666] mb-5 leading-relaxed">
                 For serial publishers and marketing agencies scaling continuous volume.
               </p>
               <div className="flex items-baseline gap-1 mb-5 pb-5 border-b border-[#F0F0F0]">
-                <span className="text-3xl font-serif font-bold text-[#111111]">
+                <span className="text-3xl font-bold text-[#111111]">
                   {billingCycle === 'annual' ? '$32' : '$39'}
                 </span>
                 <span className="text-xs text-[#888888]">

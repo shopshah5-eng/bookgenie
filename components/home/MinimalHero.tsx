@@ -18,9 +18,9 @@ export function MinimalHero() {
           </div>
 
           {/* Main Headline */}
-          <h1 className="font-serif text-[42px] sm:text-[54px] md:text-[62px] text-[#111111] leading-[1.08] tracking-tight mb-5">
+          <h1 className="font-bold text-[42px] sm:text-[54px] md:text-[62px] text-[#111111] leading-[1.08] tracking-tight mb-5">
             Turn Your Ideas<br />
-            Into <span className="italic font-normal">Beautiful Books</span>
+            Into <span className="font-semibold text-[#333333]">Beautiful Books</span>
           </h1>
 
           {/* Subtitle */}

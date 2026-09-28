@@ -44,7 +44,7 @@ export function MinimalExamples() {
           <span className="font-sans text-[11px] font-semibold tracking-[0.2em] text-[#666666] uppercase block mb-3">
             EXAMPLES
           </span>
-          <h2 className="font-serif text-[34px] sm:text-[42px] text-[#111111] leading-tight tracking-tight mb-3">
+          <h2 className="font-bold text-[34px] sm:text-[42px] text-[#111111] leading-tight tracking-tight mb-3">
             See What You Can Create
           </h2>
           <p className="font-sans text-[15px] sm:text-[16px] text-[#666666] max-w-3xl">

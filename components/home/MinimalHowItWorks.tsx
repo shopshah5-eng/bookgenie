@@ -30,7 +30,7 @@ export function MinimalHowItWorks() {
           <span className="font-sans text-[11px] font-semibold tracking-[0.2em] text-[#666666] uppercase block mb-3">
             HOW IT WORKS
           </span>
-          <h2 className="font-serif text-[34px] sm:text-[42px] text-[#111111] leading-tight tracking-tight">
+          <h2 className="font-bold text-[34px] sm:text-[42px] text-[#111111] leading-tight tracking-tight">
             Create Your eBook in 3 Simple Steps
           </h2>
         </div>
@@ -42,7 +42,7 @@ export function MinimalHowItWorks() {
               {/* Step Card */}
               <div className="flex items-center gap-4 text-left flex-1">
                 {/* Circle Number */}
-                <div className="w-12 h-12 rounded-full border border-[#EAEAEA] bg-white flex items-center justify-center text-[18px] font-serif font-bold text-[#111111] shrink-0 shadow-2xs">
+                <div className="w-12 h-12 rounded-full border border-[#EAEAEA] bg-white flex items-center justify-center text-[18px] font-bold text-[#111111] shrink-0 shadow-2xs">
                   {step.num}
                 </div>
                 {/* Text */}
