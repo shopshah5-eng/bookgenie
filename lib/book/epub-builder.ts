@@ -4,6 +4,7 @@
 
 import JSZip from 'jszip';
 import type { BookDocument } from './types';
+import { loadBinaryAsset, extensionForContentType } from './asset-data';
 
 export async function generateEpub3Buffer(book: BookDocument): Promise<Buffer> {
   const zip = new JSZip();
@@ -86,34 +87,16 @@ blockquote {
   ];
   const spineItems: string[] = [];
 
-  // Embed Cover Image if local or remote URL provided
+  // Embed the generated cover image when available.
   let hasCoverImage = false;
-  try {
-    if (book.coverUrl) {
-      let imageBuffer: Buffer | null = null;
-      if (book.coverUrl.startsWith('/images/')) {
-        const fs = await import('fs');
-        const path = await import('path');
-        const localPath = path.join(process.cwd(), 'public', book.coverUrl);
-        if (fs.existsSync(localPath)) {
-          imageBuffer = fs.readFileSync(localPath);
-        }
-      } else if (book.coverUrl.startsWith('http')) {
-        const res = await fetch(book.coverUrl);
-        if (res.ok) {
-          const arr = await res.arrayBuffer();
-          imageBuffer = Buffer.from(arr);
-        }
-      }
-
-      if (imageBuffer) {
-        oebps.file('images/cover.jpg', imageBuffer);
-        manifestItems.push(`<item id="cover-image" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>`);
-        hasCoverImage = true;
-      }
-    }
-  } catch (imgErr) {
-    console.warn('[EPUB Builder] Cover image embedding warning:', imgErr);
+  let coverHref = '';
+  const coverAsset = await loadBinaryAsset(book.coverUrl);
+  if (coverAsset) {
+    const coverExtension = extensionForContentType(coverAsset.contentType);
+    coverHref = `images/cover.${coverExtension}`;
+    oebps.file(coverHref, coverAsset.bytes);
+    manifestItems.push(`<item id="cover-image" href="${coverHref}" media-type="${coverAsset.contentType}" properties="cover-image"/>`);
+    hasCoverImage = true;
   }
 
   // Cover Page
@@ -127,7 +110,7 @@ blockquote {
 </head>
 <body>
   <div class="cover-wrapper">
-    ${hasCoverImage ? '<p><img src="images/cover.jpg" alt="Cover" style="max-width:100%; height:auto; margin:0 auto 1.5em; border-radius:8px;"/></p>' : ''}
+    ${hasCoverImage ? `<p><img src="${coverHref}" alt="Cover" style="max-width:100%; height:auto; margin:0 auto 1.5em; border-radius:8px;"/></p>` : ''}
     <h1>${escapeXml(book.title)}</h1>
     <div class="subtitle">${escapeXml(book.subtitle || 'A publication crafted with BookGenie')}</div>
     <p><em>${escapeXml(book.bookType)} • BookGenie Edition</em></p>
@@ -139,38 +122,43 @@ blockquote {
   manifestItems.push(`<item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>`);
   spineItems.push(`<itemref idref="cover"/>`);
 
-  // Content Pages
-  book.pages.forEach((page, idx) => {
+  // Content Pages. Images are copied into the archive, rather than leaving
+  // broken external URLs inside the downloadable EPUB.
+  let interiorImageIndex = 0;
+  for (const [idx, page] of book.pages.entries()) {
     const pageId = `page_${idx + 1}`;
     const filename = `${pageId}.xhtml`;
+    const blockHtml: string[] = [];
 
-    const blocksHtml = page.blocks
-      .map((block) => {
-        if (block.type === 'heading') {
-          return `<h2>${escapeXml(block.text || '')}</h2>`;
+    for (const block of page.blocks) {
+      if (block.type === 'heading') {
+        blockHtml.push(`<h2>${escapeXml(block.text || '')}</h2>`);
+      } else if (block.type === 'quote') {
+        blockHtml.push(`<blockquote>${escapeXml(block.text || '')}</blockquote>`);
+      } else if (block.type === 'paragraph') {
+        blockHtml.push(`<p>${escapeXml(block.text || '')}</p>`);
+      } else if ((block.type === 'list' || (block.type as string) === 'bullet_list') && block.items) {
+        blockHtml.push(`<ul>${block.items.map((it) => `<li>${escapeXml(it)}</li>`).join('')}</ul>`);
+      } else if (block.type === 'callout' || (block.type as string) === 'field_notes') {
+        blockHtml.push(`<div style="background:#FAF7F0; padding:0.8em 1em; border-left:3px solid #9A6F3C; margin:1em 0; font-size:0.9em; color:#4A453E;">${escapeXml(block.text || '')}</div>`);
+      } else if (block.type === 'divider') {
+        blockHtml.push('<hr style="border:none; border-top:1px solid #EFECE6; margin:1.5em 0;" />');
+      } else if (block.type === 'image') {
+        const image = await loadBinaryAsset(block.url);
+        if (image) {
+          interiorImageIndex += 1;
+          const extension = extensionForContentType(image.contentType);
+          const imageHref = `images/interior-${interiorImageIndex}.${extension}`;
+          const imageId = `interior-image-${interiorImageIndex}`;
+          oebps.file(imageHref, image.bytes);
+          manifestItems.push(`<item id="${imageId}" href="${imageHref}" media-type="${image.contentType}"/>`);
+          blockHtml.push(`<p><img src="${imageHref}" alt="${escapeXml(block.caption || 'Illustration')}" style="max-width:100%; height:auto;"/></p>`);
         }
-        if (block.type === 'quote') {
-          return `<blockquote>${escapeXml(block.text || '')}</blockquote>`;
-        }
-        if (block.type === 'paragraph') {
-          return `<p>${escapeXml(block.text || '')}</p>`;
-        }
-        if ((block.type === 'list' || (block.type as string) === 'bullet_list') && block.items) {
-          return `<ul>${block.items.map((it) => `<li>${escapeXml(it)}</li>`).join('')}</ul>`;
-        }
-        if (block.type === 'callout' || (block.type as string) === 'field_notes') {
-          return `<div style="background:#FAF7F0; padding:0.8em 1em; border-left:3px solid #9A6F3C; margin:1em 0; font-size:0.9em; color:#4A453E;">${escapeXml(block.text || '')}</div>`;
-        }
-        if (block.type === 'divider') {
-          return `<hr style="border:none; border-top:1px solid #EFECE6; margin:1.5em 0;" />`;
-        }
-        if (block.type === 'image') {
-          return `<p><em>[Illustration: ${escapeXml(block.caption || 'Artwork')}]</em></p>`;
-        }
-        return '';
-      })
-      .join('\n');
+        blockHtml.push(`<p><em>${escapeXml(block.caption || 'Illustration')}</em></p>`);
+      }
+    }
 
+    const blocksHtml = blockHtml.join('\n');
     const pageContent = `<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="${book.language || 'en'}">
@@ -191,7 +179,7 @@ blockquote {
     oebps.file(filename, pageContent);
     manifestItems.push(`<item id="${pageId}" href="${filename}" media-type="application/xhtml+xml"/>`);
     spineItems.push(`<itemref idref="${pageId}"/>`);
-  });
+  }
 
   // 5. OEBPS/nav.xhtml (EPUB3 Navigation Document)
   // Filter out redundant "Title & Cover" entry if page 1 is already cover

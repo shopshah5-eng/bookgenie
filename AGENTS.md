@@ -43,7 +43,7 @@ The core product loop is strictly:
 
 ## 💎 LIVE-DATA & REAL INTEGRATION INTEGRITY RULE
 - **ZERO FAKE DATA IN AUTHENTICATED EXPERIENCE**: All user-facing books, accounts, bookshelf data, generation jobs, and downloadable files must be real data persisted in Supabase.
-- **ISOLATED DEMO CONTENT**: The only prebuilt demo is the public "Ocean Wonders" book in the showcase, completely isolated from user accounts.
+- **NO BUNDLED CONTENT**: The product ships without prebuilt books, placeholder assets, or mock generation paths. All user-facing publications come from the authenticated Supabase pipeline.
 - **REAL AI GENERATION**: OpenRouter (Text) and Gemini (Images) are used for live generation. If a call fails, reflect real error states; never fake completion.
 
 ---

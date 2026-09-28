@@ -263,8 +263,7 @@ create policy "usage_records_select" on public.usage_records for select using (a
 insert into storage.buckets (id, name, public) values
   ('uploads', 'uploads', false),
   ('assets', 'assets', false),
-  ('exports', 'exports', false),
-  ('demo', 'demo', true)
+  ('exports', 'exports', false)
 on conflict (id) do nothing;
 
 create policy "Uploads: user access own folder" on storage.objects
@@ -277,6 +276,3 @@ create policy "Assets: user access own book assets" on storage.objects
 create policy "Exports: user access own files" on storage.objects
   for all using (bucket_id = 'exports' and auth.uid()::text = (storage.foldername(name))[1])
   with check (bucket_id = 'exports' and auth.uid()::text = (storage.foldername(name))[1]);
-
-create policy "Demo: public read" on storage.objects
-  for select using (bucket_id = 'demo');

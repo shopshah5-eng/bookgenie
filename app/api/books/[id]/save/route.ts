@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { GenerationPipeline } from '@/lib/ai/pipeline';
 import type { BookDocument } from '@/lib/book/types';
 
 function isBookDocument(value: unknown): value is BookDocument {
@@ -60,6 +59,7 @@ export async function POST(
       .update({
         title: bookData.title,
         subtitle: bookData.subtitle,
+        cover_asset_id: bookData.coverAssetId || null,
         cover_url: bookData.coverUrl,
         cover_image_url: bookData.coverUrl,
         page_count: bookData.pageCount || bookData.pages.length,
@@ -85,7 +85,6 @@ export async function POST(
       if (pageError) throw pageError;
     }
 
-    GenerationPipeline.saveBook(bookData);
     return NextResponse.json({ success: true, message: 'Changes saved successfully.' });
   } catch (err) {
     console.error('Save book error:', err);

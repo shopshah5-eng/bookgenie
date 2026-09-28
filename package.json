@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "verify": "node --import tsx scripts/verify-all.mjs"
+    "verify": "node scripts/verify-production.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

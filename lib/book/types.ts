@@ -67,6 +67,8 @@ export interface VisualPlanItem {
   visualType: 'cover' | 'illustration' | 'diagram' | 'none';
   promptSpec: string;
   layout: PageLayout;
+  assetId?: string;
+  url?: string;
 }
 
 export interface BookBlueprint {
@@ -96,7 +98,7 @@ export interface BookDocument {
   style: string;
   pageCount: number;
   coverAssetId?: string;
-  coverUrl?: string; // Resolved signed or demo URL for rendering
+  coverUrl?: string; // Resolved signed URL for rendering
   blueprint: BookBlueprint;
   pages: BookPageDocument[];
   versionNumber: number;

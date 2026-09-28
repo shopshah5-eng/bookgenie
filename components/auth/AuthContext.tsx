@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const supabase = createClient();
     if (!supabase) {
-      // Public/demo pages are allowed to render without auth configuration.
+      // Public pages are allowed to render without auth configuration.
       // Authenticated actions will show a configuration error in the modal instead
       // of crashing the whole application during hydration.
       setIsLoading(false);

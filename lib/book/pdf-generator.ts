@@ -5,6 +5,7 @@
 import { jsPDF } from 'jspdf';
 import type { BookDocument, BookPageDocument } from '@/lib/book/types';
 import { stripHtml } from '@/lib/utils/sanitize';
+import { loadImageDataUri } from './asset-data';
 
 export async function generateBookPdfBuffer(book: BookDocument): Promise<Uint8Array> {
   // A4 portrait dimensions: 210mm x 297mm
@@ -74,6 +75,23 @@ export async function generateBookPdfBuffer(book: BookDocument): Promise<Uint8Ar
   doc.setLineWidth(0.7);
   const lineY = 85 + titleBlockHeight + 25 + subLines.length * 6;
   doc.line(pageWidth / 2 - 25, lineY, pageWidth / 2 + 25, lineY);
+
+  // Embed the generated cover image in the binary PDF when available.
+  const coverData = await loadImageDataUri(book.coverUrl);
+  if (coverData) {
+    try {
+      const properties = doc.getImageProperties(coverData);
+      const maxWidth = 92;
+      const maxHeight = 76;
+      const ratio = properties.width / properties.height;
+      const imageWidth = Math.min(maxWidth, maxHeight * ratio);
+      const imageHeight = imageWidth / ratio;
+      const format = coverData.startsWith('data:image/png') ? 'PNG' : coverData.startsWith('data:image/webp') ? 'WEBP' : 'JPEG';
+      doc.addImage(coverData, format, (pageWidth - imageWidth) / 2, 145, imageWidth, imageHeight, undefined, 'FAST');
+    } catch (error) {
+      console.warn('PDF cover image warning:', error);
+    }
+  }
 
   // Cover Bottom Metadata
   doc.setFont('helvetica', 'normal');
@@ -219,22 +237,34 @@ export async function generateBookPdfBuffer(book: BookDocument): Promise<Uint8Ar
         doc.text(pLines, margin, cursorY);
         cursorY += pLines.length * 5.2 + 5;
       } else if (block.type === 'image') {
-        // Render stylized archival illustration frame with caption
-        doc.setDrawColor(220, 210, 200);
-        doc.setFillColor(250, 248, 244);
-        const frameHeight = 45;
-        if (cursorY + frameHeight + 15 > pageHeight - 25) {
-          doc.addPage('a4', 'portrait');
-          cursorY = 25;
+        const imageData = await loadImageDataUri(block.url);
+        if (imageData) {
+          try {
+            const properties = doc.getImageProperties(imageData);
+            const maxWidth = contentWidth;
+            const maxHeight = 95;
+            const ratio = properties.width / properties.height;
+            const imageWidth = Math.min(maxWidth, maxHeight * ratio);
+            const imageHeight = imageWidth / ratio;
+            if (cursorY + imageHeight + 18 > pageHeight - 25) {
+              doc.addPage('a4', 'portrait');
+              cursorY = 25;
+            }
+            const format = imageData.startsWith('data:image/png') ? 'PNG' : imageData.startsWith('data:image/webp') ? 'WEBP' : 'JPEG';
+            doc.addImage(imageData, format, margin + (contentWidth - imageWidth) / 2, cursorY, imageWidth, imageHeight, undefined, 'FAST');
+            cursorY += imageHeight + 6;
+          } catch (error) {
+            console.warn('PDF interior image warning:', error);
+          }
         }
-        doc.rect(margin, cursorY, contentWidth, frameHeight, 'FD');
+        // Always retain a caption so a failed remote asset is understandable.
         doc.setFont('helvetica', 'italic');
         doc.setFontSize(8.5);
         doc.setTextColor(120, 110, 100);
-        const capText = block.caption ? `[Archival Illustration]: ${stripHtml(block.caption)}` : '[Archival Plate Illustration]';
+        const capText = block.caption ? stripHtml(block.caption) : 'Illustration';
         const capLines = doc.splitTextToSize(capText, contentWidth - 10);
-        doc.text(capLines, margin + 5, cursorY + frameHeight / 2 + 2);
-        cursorY += frameHeight + 6;
+        doc.text(capLines, margin + 5, cursorY + 4);
+        cursorY += capLines.length * 4 + 8;
       }
     }
 

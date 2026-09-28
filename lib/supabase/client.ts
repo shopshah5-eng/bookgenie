@@ -1,5 +1,5 @@
 // Browser Supabase client. This returns null when authentication is not configured
-// so the public/demo pages can still render without pretending auth is available.
+// so the public pages can still render without pretending auth is available.
 import { createBrowserClient } from '@supabase/ssr';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseConfig } from './config';

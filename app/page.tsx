@@ -7,7 +7,6 @@ import { MinimalHeader } from '@/components/home/MinimalHeader';
 import { MinimalHero } from '@/components/home/MinimalHero';
 import { BookCreatorCard } from '@/components/home/BookCreatorCard';
 import { MinimalFeatureStrip } from '@/components/home/MinimalFeatureStrip';
-import { MinimalExamples } from '@/components/home/MinimalExamples';
 import { MinimalHowItWorks } from '@/components/home/MinimalHowItWorks';
 import { MinimalPricing } from '@/components/home/MinimalPricing';
 import { MinimalFAQ } from '@/components/home/MinimalFAQ';
@@ -30,10 +29,7 @@ export default function HomePage() {
         {/* 3. 4-Column Feature Strip (Autonomous Writing, Unique Illustrations, etc.) */}
         <MinimalFeatureStrip />
 
-        {/* 4. Examples Section (See What You Can Create: 4 Book Mockups) */}
-        <MinimalExamples />
-
-        {/* 5. How It Works (Create Your eBook in 3 Simple Steps: 1, 2, 3) */}
+        {/* 4. How It Works (Create Your eBook in 3 Simple Steps: 1, 2, 3) */}
         <MinimalHowItWorks />
 
         {/* 6. Pricing Plans (Free, Book, Book Plus, Creator) */}

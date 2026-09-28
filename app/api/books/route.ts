@@ -41,26 +41,6 @@ export async function GET() {
       cover_image_url: book.cover_image_url || book.cover_url,
     }));
 
-    // Merge a same-process local job only when it is owned by the session.
-    const { GenerationPipeline } = await import('@/lib/ai/pipeline');
-    for (const memoryBook of GenerationPipeline.getUserBooks(user.id)) {
-      if (!booksList.some((book) => book.id === memoryBook.id)) {
-        booksList.push({
-          id: memoryBook.id,
-          title: memoryBook.title,
-          subtitle: memoryBook.subtitle || null,
-          cover_url: memoryBook.coverUrl || null,
-          cover_image_url: memoryBook.coverUrl || null,
-          status: 'completed',
-          page_count: memoryBook.pageCount || memoryBook.pages.length,
-          created_at: memoryBook.createdAt,
-          updated_at: memoryBook.updatedAt,
-          is_shared: Boolean(memoryBook.isShared),
-          share_token: memoryBook.shareToken || null,
-        });
-      }
-    }
-
     return NextResponse.json({ books: booksList });
   } catch (err) {
     console.error('[Books Route Error]:', err);

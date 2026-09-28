@@ -2,25 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-const PUBLIC_DEMO_IDS = new Set(['ocean-wonders', 'demo-ocean-wonders']);
-
 export async function POST(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await context.params;
-
-    // Demo publications already have a public, immutable route.
-    if (PUBLIC_DEMO_IDS.has(id)) {
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '') || req.nextUrl.origin;
-      return NextResponse.json({
-        success: true,
-        shareToken: 'ocean-wonders',
-        shareUrl: `${baseUrl}/shared/ocean-wonders`,
-        isShared: true,
-      });
-    }
 
     const sessionClient = await createServerSupabaseClient();
     const { data: { user }, error: authError } = await sessionClient.auth.getUser();

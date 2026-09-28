@@ -180,31 +180,18 @@ ${
     userId: string,
     requestedPages = 16
   ): Promise<{ allowed: boolean; reason?: string; tier: string; limits: PlanEntitlement }> {
-    // Local dev or non-persisted test sessions
-    if (!userId || userId === 'local-dev-user-id' || userId === 'google-dev-user-id') {
-      const limits = PLAN_LIMITS.free;
-      if (requestedPages > limits.maxPagesPerBook) {
-        return {
-          allowed: false,
-          reason: `The Free tier supports up to ${limits.maxPagesPerBook} pages per book. Upgrade to Creator for up to 60 pages.`,
-          tier: 'free',
-          limits,
-        };
-      }
-      return { allowed: true, tier: 'free', limits };
-    }
-
     try {
       const supabase = createAdminClient();
 
       // 1. Fetch user subscription tier
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('tier')
         .eq('id', userId)
         .single();
+      if (profileError || !profile) throw profileError || new Error('User profile not found.');
 
-      const userTier = (profile?.tier as 'free' | 'creator' | 'pro') || 'free';
+      const userTier = (profile.tier as 'free' | 'creator' | 'pro') || 'free';
       const limits = PLAN_LIMITS[userTier] || PLAN_LIMITS.free;
 
       // 2. Validate requested page limit
@@ -225,8 +212,8 @@ ${
         .eq('user_id', userId)
         .gte('created_at', startOfMonth);
 
-      if (!error && typeof count === 'number') {
-        if (count >= limits.maxBooksPerMonth) {
+      if (error || typeof count !== 'number') throw error || new Error('Usage count unavailable.');
+      if (count >= limits.maxBooksPerMonth) {
           return {
             allowed: false,
             reason: `You have reached your monthly limit of ${limits.maxBooksPerMonth} book${
@@ -236,12 +223,16 @@ ${
             limits,
           };
         }
-      }
 
       return { allowed: true, tier: userTier, limits };
     } catch (err) {
-      console.warn('Quota check fallback:', err);
-      return { allowed: true, tier: 'free', limits: PLAN_LIMITS.free };
+      console.error('Quota check failed:', err);
+      return {
+        allowed: false,
+        reason: 'Usage limits are temporarily unavailable. Please try again shortly.',
+        tier: 'unknown',
+        limits: PLAN_LIMITS.free,
+      };
     }
   }
 }

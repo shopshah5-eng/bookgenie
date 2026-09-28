@@ -296,13 +296,6 @@ function CreatePageContent() {
               <span>My Bookshelf</span>
             </Link>
             <Link
-              href="/examples/ocean-wonders"
-              className="flex items-center gap-3 px-4 py-2.5 rounded font-label-ui text-label-ui text-on-surface-variant dark:text-neutral-400 hover:bg-surface-container dark:hover:bg-white/5 hover:text-on-surface transition-colors"
-            >
-              <span className="material-symbols-outlined text-[18px]">menu_book</span>
-              <span>Sample Folio (Ocean Wonders)</span>
-            </Link>
-            <Link
               href="/how-it-works"
               className="flex items-center gap-3 px-4 py-2.5 rounded font-label-ui text-label-ui text-on-surface-variant dark:text-neutral-400 hover:bg-surface-container dark:hover:bg-white/5 hover:text-on-surface transition-colors"
             >
@@ -352,13 +345,6 @@ function CreatePageContent() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Link
-              href="/examples/ocean-wonders"
-              className="font-label-ui text-label-ui text-on-surface-variant dark:text-neutral-400 hover:text-on-surface dark:hover:text-white transition-colors flex items-center gap-1.5"
-            >
-              <span className="material-symbols-outlined text-[16px]">visibility</span>
-              <span>Proof Preview</span>
-            </Link>
             <button
               onClick={handleGenerate}
               disabled={isSubmitting}

@@ -120,29 +120,8 @@ export async function GET(
       });
     }
 
-    // A local in-memory job is only valid when it belongs to the authenticated
-    // user. It is never treated as a durable production job.
-    const effectiveJobId = jobIdParam || id;
-    const memoryJob = GenerationPipeline.getJobState(effectiveJobId);
-    const memoryBook = GenerationPipeline.getBook(id);
-    if (memoryJob && memoryBook && memoryJob.bookId === id && memoryBook.userId === user.id) {
-      return NextResponse.json({
-        id: memoryJob.id,
-        bookId: memoryJob.bookId,
-        status: memoryJob.status,
-        stage: memoryJob.stage,
-        progress: memoryJob.progress,
-        title: memoryJob.title || memoryBook.title,
-        subtitle: memoryJob.subtitle || memoryBook.subtitle || '',
-        cover_url: memoryJob.coverUrl || memoryBook.coverUrl || null,
-        page_count: memoryJob.pageCount ?? memoryBook.pageCount,
-        stepsCompleted: memoryJob.stepsCompleted,
-        error: memoryJob.error || null,
-      });
-    }
-
     return NextResponse.json(
-      { id: effectiveJobId, status: 'not_found', error: 'Job not found or has expired.' },
+      { id: jobIdParam || id, status: 'not_found', error: 'Book not found.' },
       { status: 404 }
     );
   } catch (err) {

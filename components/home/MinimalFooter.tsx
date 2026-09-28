@@ -150,14 +150,6 @@ export function MinimalFooter() {
               </li>
               <li>
                 <Link
-                  href="/examples"
-                  className="text-[13px] sm:text-[14px] text-[#666666] hover:text-[#111111] transition-colors"
-                >
-                  Examples
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/contact"
                   className="text-[13px] sm:text-[14px] text-[#666666] hover:text-[#111111] transition-colors"
                 >

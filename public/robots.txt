@@ -1,7 +1,6 @@
 User-agent: *
 Allow: /
 Allow: /pricing
-Allow: /examples
 Allow: /how-it-works
 Allow: /contact
 Allow: /affiliate

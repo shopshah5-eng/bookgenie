@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GenerationPipeline } from '@/lib/ai/pipeline';
 import { OpenRouterTextProvider } from '@/lib/ai/openrouter';
 import { GeminiImageProvider } from '@/lib/ai/gemini';
 import { PollinationsImageProvider } from '@/lib/ai/pollinations';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { persistGeneratedImage } from '@/lib/book/asset-storage';
 import type { BookDocument } from '@/lib/book/types';
-
-const DEMO_IDS = new Set(['ocean-wonders', 'demo-ocean-wonders']);
 
 export async function POST(
   req: NextRequest,
@@ -15,13 +13,6 @@ export async function POST(
 ) {
   try {
     const { id } = await context.params;
-    if (DEMO_IDS.has(id)) {
-      return NextResponse.json(
-        { error: 'Demo publications are read-only.' },
-        { status: 403 }
-      );
-    }
-
     const body: unknown = await req.json().catch(() => null);
     const instruction = body && typeof body === 'object' && 'instruction' in body
       ? (body as { instruction?: unknown }).instruction
@@ -108,11 +99,7 @@ export async function POST(
         updatedAt: dbBook.updated_at,
       };
     } else {
-      const memoryBook = GenerationPipeline.getBook(id);
-      if (!memoryBook || memoryBook.userId !== user.id) {
-        return NextResponse.json({ error: 'NOT_FOUND', message: 'Publication not found.' }, { status: 404 });
-      }
-      book = memoryBook;
+      return NextResponse.json({ error: 'NOT_FOUND', message: 'Publication not found.' }, { status: 404 });
     }
 
     const textProvider = new OpenRouterTextProvider();
@@ -139,32 +126,69 @@ export async function POST(
     });
 
     let updatedCoverUrl = book.coverUrl;
+    let updatedCoverAssetId = book.coverAssetId;
     const isCoverChange = instruction.toLowerCase().includes('cover') || Boolean(targetPageNumbers?.includes(1));
     if (isCoverChange) {
+      const coverPrompt = `${book.title}, ${instruction.trim()}, professional book cover illustration`;
       const coverResult = await imageProvider.generateImage({
-        prompt: `${book.title}, ${instruction.trim()}, professional book cover illustration`,
+        prompt: coverPrompt,
         bookTitle: book.title,
         style: book.style,
         isCover: true,
       });
-      updatedCoverUrl = coverResult.url || updatedCoverUrl;
+      const coverAsset = await persistGeneratedImage({
+        bookId: book.id,
+        userId: user.id,
+        type: 'cover',
+        prompt: coverPrompt,
+        result: coverResult,
+      });
+      updatedCoverAssetId = coverAsset.id;
+      updatedCoverUrl = coverAsset.url;
     }
 
+    let revisedPages = result.pages;
     if (result.requiresImageRegeneration && result.imageInstructions) {
       for (const imageRequest of result.imageInstructions) {
-        await imageProvider.generateImage({
+        const imageResult = await imageProvider.generateImage({
           prompt: imageRequest.prompt,
           bookTitle: book.title,
           style: book.style,
-          isCover: imageRequest.pageNumber === 1,
+          isCover: false,
+        });
+        const imageAsset = await persistGeneratedImage({
+          bookId: book.id,
+          userId: user.id,
+          type: 'illustration',
+          pageNumber: imageRequest.pageNumber,
+          prompt: imageRequest.prompt,
+          result: imageResult,
+        });
+        revisedPages = revisedPages.map((page) => {
+          if (page.pageNumber !== imageRequest.pageNumber) return page;
+          const nextImage = {
+            id: `asset-${imageAsset.id}`,
+            type: 'image' as const,
+            assetId: imageAsset.id,
+            url: imageAsset.url,
+            caption: imageRequest.prompt,
+          };
+          const imageExists = page.blocks.some((block) => block.type === 'image');
+          return {
+            ...page,
+            blocks: imageExists
+              ? page.blocks.map((block) => block.type === 'image' ? { ...block, ...nextImage } : block)
+              : [...page.blocks, nextImage],
+          };
         });
       }
     }
 
     const updatedBook: BookDocument = {
       ...book,
+      coverAssetId: updatedCoverAssetId,
       coverUrl: updatedCoverUrl,
-      pages: result.pages,
+      pages: revisedPages,
       versionNumber: newVersion,
       updatedAt: new Date().toISOString(),
     };
@@ -172,6 +196,7 @@ export async function POST(
     const { error: updateError } = await admin
       .from('books')
       .update({
+        cover_asset_id: updatedCoverAssetId,
         cover_url: updatedCoverUrl,
         cover_image_url: updatedCoverUrl,
         version_number: newVersion,
@@ -181,7 +206,7 @@ export async function POST(
       .eq('user_id', user.id);
     if (updateError) throw updateError;
 
-    for (const page of result.pages) {
+    for (const page of revisedPages) {
       const { error: pageError } = await admin.from('book_pages').upsert(
         {
           book_id: book.id,
@@ -197,7 +222,6 @@ export async function POST(
       if (pageError) throw pageError;
     }
 
-    GenerationPipeline.saveBook(updatedBook);
     return NextResponse.json({
       success: true,
       book: updatedBook,

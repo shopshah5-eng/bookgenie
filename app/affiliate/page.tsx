@@ -54,7 +54,7 @@ export default function AffiliatePage() {
     },
     {
       title: 'Promotional Resources & Assets',
-      desc: 'Get access to high-converting banners, demo books, copy templates, and product video clips.',
+      desc: 'Get access to high-converting banners, copy templates, and product video clips.',
       icon: <Award className="w-6 h-6 text-[#9A6F3C]" />,
     },
   ];

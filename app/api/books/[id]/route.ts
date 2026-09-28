@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getServerBook } from '@/lib/book/server-books';
-import { getOceanWondersDemoBook } from '@/lib/book/demo-book';
-
-export { getOceanWondersDemoBook };
 
 export async function GET(
   _req: NextRequest,
