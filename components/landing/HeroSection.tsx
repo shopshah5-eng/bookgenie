@@ -111,22 +111,25 @@ export function HeroSection() {
         {/* Quick Folio Prompt Synthesizer Bar */}
         <form
           onSubmit={handleSynthesize}
-          className="w-full max-w-2xl bg-surface-container-low dark:bg-[#1a1b22] border border-surface-container-highest dark:border-white/10 p-1.5 rounded-full shadow-md flex items-center gap-2 mb-16 transition-all focus-within:ring-2 focus-within:ring-secondary/40"
+          className="w-full max-w-2xl bg-surface-container-low dark:bg-[#1a1b22] border border-surface-container-highest dark:border-white/10 p-2 sm:p-1.5 rounded-2xl sm:rounded-full shadow-md flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-16 transition-all focus-within:ring-2 focus-within:ring-secondary/40"
         >
-          <div className="pl-4 pr-1 text-on-surface-variant dark:text-neutral-400 flex items-center">
-            <span className="material-symbols-outlined text-[20px]">auto_stories</span>
+          <div className="flex items-center flex-1 min-w-0">
+            <div className="pl-3 sm:pl-4 pr-1 text-on-surface-variant dark:text-neutral-400 flex items-center shrink-0">
+              <span className="material-symbols-outlined text-[20px]">auto_stories</span>
+            </div>
+            <input
+              type="text"
+              aria-label="Describe your book idea or manuscript fragment"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Describe your book idea or drop manuscript fragment..."
+              className="flex-1 min-w-0 bg-transparent border-0 outline-none text-on-surface dark:text-[#f1effa] font-body-md text-body-md placeholder:text-outline/70 dark:placeholder:text-neutral-500 px-2 py-2"
+            />
           </div>
-          <input
-            type="text"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Describe your book idea or drop manuscript fragment..."
-            className="flex-1 bg-transparent border-0 outline-none text-on-surface dark:text-[#f1effa] font-body-md text-body-md placeholder:text-outline/70 dark:placeholder:text-neutral-500 px-2 py-2"
-          />
           <button
             type="submit"
             disabled={isSynthesizing}
-            className="inline-flex items-center gap-1.5 bg-primary dark:bg-white text-on-primary dark:text-black hover:bg-primary/90 dark:hover:bg-neutral-200 px-5 py-2.5 rounded-full font-label-ui text-label-ui whitespace-nowrap shadow-sm transition-all cursor-pointer"
+            className="inline-flex items-center justify-center gap-1.5 bg-primary dark:bg-white text-on-primary dark:text-black hover:bg-primary/90 dark:hover:bg-neutral-200 px-5 py-2.5 rounded-full font-label-ui text-label-ui whitespace-nowrap shadow-sm transition-all cursor-pointer shrink-0"
           >
             <span className="material-symbols-outlined text-[16px] text-secondary-container dark:text-amber-600">
               {isSynthesizing ? 'sync' : 'magic_button'}

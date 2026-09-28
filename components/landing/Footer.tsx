@@ -39,8 +39,13 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/#pricing" className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-400 hover:text-on-surface dark:hover:text-white transition-colors">
+                <Link href="/pricing" className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-400 hover:text-on-surface dark:hover:text-white transition-colors">
                   Creator Plans
+                </Link>
+              </li>
+              <li>
+                <Link href="/library" className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-400 hover:text-on-surface dark:hover:text-white transition-colors">
+                  My Bookshelf
                 </Link>
               </li>
             </ul>

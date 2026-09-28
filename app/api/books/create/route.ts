@@ -100,29 +100,30 @@ export async function POST(req: NextRequest) {
       normalizedBookType = 'auto';
     }
 
-    const normalizedLanguage = String(language).toLowerCase().trim();
-    if (!ALLOWED_LANGUAGES.includes(normalizedLanguage)) {
-      return NextResponse.json(
-        {
-          error: 'INVALID_LANGUAGE',
-          message: `Unsupported language "${language}". Allowed languages: ${ALLOWED_LANGUAGES.join(', ')}`,
-        },
-        { status: 400 }
-      );
-    }
+    const rawLang = String(language || 'english').toLowerCase().trim();
+    let normalizedLanguage = 'english';
+    if (rawLang.includes('spanish')) normalizedLanguage = 'spanish';
+    else if (rawLang.includes('french')) normalizedLanguage = 'french';
+    else if (rawLang.includes('german')) normalizedLanguage = 'german';
+    else if (rawLang.includes('hindi')) normalizedLanguage = 'hindi';
+    else if (rawLang.includes('japanese')) normalizedLanguage = 'japanese';
+    else if (rawLang.includes('italian')) normalizedLanguage = 'italian';
+    else if (rawLang.includes('portuguese')) normalizedLanguage = 'portuguese';
+    else if (rawLang.includes('mandarin') || rawLang.includes('chinese')) normalizedLanguage = 'mandarin';
+    else if (ALLOWED_LANGUAGES.includes(rawLang)) normalizedLanguage = rawLang;
 
-    const normalizedStyle = String(style).toLowerCase().trim();
-    if (!ALLOWED_STYLES.includes(normalizedStyle)) {
-      return NextResponse.json(
-        {
-          error: 'INVALID_STYLE',
-          message: `Unsupported style "${style}". Allowed styles: ${ALLOWED_STYLES.join(', ')}`,
-        },
-        { status: 400 }
-      );
-    }
+    const rawStyle = String(style || 'modern').toLowerCase().trim();
+    let normalizedStyle = 'modern';
+    if (rawStyle.includes('editorial') || rawStyle.includes('mccarthy')) normalizedStyle = 'editorial';
+    else if (rawStyle.includes('academic')) normalizedStyle = 'academic';
+    else if (rawStyle.includes('playful') || rawStyle.includes('lyrical') || rawStyle.includes('watercolor')) normalizedStyle = 'playful';
+    else if (rawStyle.includes('minimal') || rawStyle.includes('executive')) normalizedStyle = 'minimal';
+    else if (rawStyle.includes('vintage')) normalizedStyle = 'vintage';
+    else if (rawStyle.includes('whimsical')) normalizedStyle = 'whimsical';
+    else if (ALLOWED_STYLES.includes(rawStyle)) normalizedStyle = rawStyle;
 
-    const targetPages = Math.min(Math.max(Number(pageTarget) || 16, 4), 150);
+    const calculatedPages = Number(pageTarget) || (body.chapterScale === 1 ? 16 : body.chapterScale === 2 ? 36 : body.chapterScale === 3 ? 72 : 16);
+    const targetPages = Math.min(Math.max(calculatedPages, 4), 150);
 
     // 3. Server Authentication Boundary (Strictly require verified Supabase user)
     let authenticatedUserId: string | null = null;
@@ -171,7 +172,9 @@ export async function POST(req: NextRequest) {
       bookType: (normalizedBookType as BookType | 'auto'),
       language: normalizedLanguage,
       style: normalizedStyle,
-      uploadedContext: typeof uploadedContext === 'string' ? uploadedContext.slice(0, 10000) : undefined,
+      uploadedContext: typeof uploadedContext === 'string' ? uploadedContext.slice(0, 25000) : undefined,
+      pageTarget: targetPages,
+      chapterScale: Number(body.chapterScale) || 2,
     });
 
     return NextResponse.json({

@@ -42,7 +42,8 @@ function PricingContent() {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccessMessage(`Plan successfully upgraded to ${data.subscriptionTier.toUpperCase()}!`);
+        const tierName = (data.subscriptionTier || data.tier || data.profile?.tier || planId).toUpperCase();
+        setSuccessMessage(`Plan successfully updated to ${tierName}! Enjoy extended studio features.`);
       } else {
         setErrorMessage(data.error || 'Upgrade failed. Please try again.');
       }
@@ -66,7 +67,7 @@ function PricingContent() {
           <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[980px] h-[480px] bg-gradient-to-b from-secondary/10 via-surface-container-low/40 to-transparent blur-3xl pointer-events-none -z-10" />
 
           {/* Editorial Header Section */}
-          <div className="max-w-6xl mx-auto px-6 lg:px-12 pt-8 pb-14 text-center">
+          <div className="max-w-6xl mx-auto px-6 lg:px-12 pt-8 pb-10 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container dark:bg-white/5 border border-surface-container-highest dark:border-white/10 text-on-surface-variant dark:text-neutral-400 mb-6 shadow-xs">
               <span className="w-1.5 h-1.5 rounded-full bg-secondary dark:bg-[#fcba64]" />
               <span className="font-label-caps text-label-caps tracking-widest text-on-surface dark:text-[#f1effa]">
@@ -81,9 +82,17 @@ function PricingContent() {
               </span>
             </h1>
 
-            <p className="font-body-lg text-body-lg text-on-surface-variant dark:text-neutral-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p className="font-body-lg text-body-lg text-on-surface-variant dark:text-neutral-400 max-w-2xl mx-auto mb-8 leading-relaxed">
               You retain 100% of your copyright, royalties, and generated master files. Transparent plans for independent novelists, boutique imprints, and creative studios.
             </p>
+
+            {/* Open Beta Callout Banner (BG-09 / BG-10) */}
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-sm max-w-xl mx-auto mb-8 text-left shadow-xs">
+              <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-lg shrink-0">info</span>
+              <span>
+                <strong>Open Beta Access:</strong> Upgrading is enabled in live sandbox mode. Selecting a tier instantly activates extended chapter limits and features on your authenticated profile without immediate billing.
+              </span>
+            </div>
 
             {/* Billing Cycle Toggle Switch */}
             <div className="inline-flex items-center gap-2 p-1.5 rounded-full bg-surface-container dark:bg-white/5 shadow-xs border border-surface-container-highest dark:border-white/10">
@@ -268,7 +277,11 @@ function PricingContent() {
                   disabled={upgradingTier === 'creator'}
                   className="w-full py-3.5 px-6 rounded-lg text-center font-label-ui text-label-ui text-black bg-[#fcba64] hover:bg-[#ffddb6] transition-all shadow-md font-semibold active:scale-[0.99] cursor-pointer"
                 >
-                  {upgradingTier === 'creator' ? 'Activating Pro...' : 'Upgrade to Pro Creator ($15/mo)'}
+                  {upgradingTier === 'creator'
+                    ? 'Activating Pro...'
+                    : billingCycle === 'annual'
+                    ? 'Upgrade to Pro Creator ($12/mo)'
+                    : 'Upgrade to Pro Creator ($15/mo)'}
                 </button>
               </div>
 
@@ -336,7 +349,11 @@ function PricingContent() {
                   disabled={upgradingTier === 'pro'}
                   className="w-full py-3.5 px-6 rounded-lg text-center font-label-ui text-label-ui text-primary dark:text-black bg-surface-container-low dark:bg-white hover:bg-surface-container-high transition-colors font-semibold active:scale-[0.99] cursor-pointer"
                 >
-                  {upgradingTier === 'pro' ? 'Activating Premium...' : 'Join Premium Atelier ($39/mo)'}
+                  {upgradingTier === 'pro'
+                    ? 'Activating Premium...'
+                    : billingCycle === 'annual'
+                    ? 'Join Premium Atelier ($32/mo)'
+                    : 'Join Premium Atelier ($39/mo)'}
                 </button>
               </div>
 

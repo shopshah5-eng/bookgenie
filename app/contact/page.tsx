@@ -13,6 +13,7 @@ export default function ContactPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [hpField, setHpField] = useState('');
   const [sent, setSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +27,7 @@ export default function ContactPage() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message }),
+        body: JSON.stringify({ name, email, message, hp_field: hpField }),
       });
 
       const data = await res.json();
@@ -100,6 +101,8 @@ export default function ContactPage() {
                 <input
                   type="text"
                   name="hp_field"
+                  value={hpField}
+                  onChange={(e) => setHpField(e.target.value)}
                   className="hidden"
                   tabIndex={-1}
                   autoComplete="off"

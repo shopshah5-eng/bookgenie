@@ -1,10 +1,11 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import type { BookDocument, BookPageDocument } from '@/lib/book/types';
-import { getOceanWondersDemoBook } from '@/lib/book/demo-book';
+import { getOceanWondersDemoBook, getDemoBook } from '@/lib/book/demo-book';
 
 export async function getServerBook(id: string): Promise<BookDocument | null> {
-  if (id === 'ocean-wonders' || id === 'demo-ocean-wonders') {
-    return getOceanWondersDemoBook();
+  const demo = getDemoBook(id);
+  if (demo) {
+    return demo;
   }
 
   try {
@@ -64,8 +65,9 @@ export async function getServerBook(id: string): Promise<BookDocument | null> {
 }
 
 export async function getServerSharedBook(token: string): Promise<BookDocument | null> {
-  if (token === 'ocean-wonders' || token === 'demo-ocean-wonders') {
-    return getOceanWondersDemoBook();
+  const demo = getDemoBook(token);
+  if (demo) {
+    return { ...demo, isShared: true };
   }
 
   try {

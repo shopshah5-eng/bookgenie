@@ -243,7 +243,8 @@ export function AuthModal() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9E968E] hover:text-[#1A1612]"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9E968E] hover:text-[#1A1612] p-1 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>

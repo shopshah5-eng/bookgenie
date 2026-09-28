@@ -122,3 +122,69 @@ export async function GET(
     );
   }
 }
+
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await context.params;
+
+    const { createServerSupabaseClient } = await import('@/lib/supabase/server');
+    const supabase = await createServerSupabaseClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'UNAUTHORIZED', message: 'Authentication required to delete a book.' },
+        { status: 401 }
+      );
+    }
+
+    const { createAdminClient } = await import('@/lib/supabase/admin');
+    const admin = createAdminClient();
+
+    // Verify ownership
+    const { data: dbBook } = await admin
+      .from('books')
+      .select('id, user_id')
+      .eq('id', id)
+      .single();
+
+    if (!dbBook) {
+      return NextResponse.json(
+        { error: 'NOT_FOUND', message: 'Book not found.' },
+        { status: 404 }
+      );
+    }
+
+    if (dbBook.user_id !== user.id) {
+      return NextResponse.json(
+        { error: 'FORBIDDEN', message: 'You do not have permission to delete this book.' },
+        { status: 403 }
+      );
+    }
+
+    // Delete associated pages and book
+    await admin.from('book_pages').delete().eq('book_id', id);
+    const { error: deleteError } = await admin.from('books').delete().eq('id', id);
+
+    if (deleteError) {
+      return NextResponse.json(
+        { error: 'DELETE_FAILED', message: 'Failed to delete book.' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true, message: 'Book deleted successfully.' });
+  } catch (err: any) {
+    return NextResponse.json(
+      { error: 'SERVER_ERROR', message: err.message || 'Failed to process deletion.' },
+      { status: 500 }
+    );
+  }
+}
+

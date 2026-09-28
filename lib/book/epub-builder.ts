@@ -155,8 +155,14 @@ blockquote {
         if (block.type === 'paragraph') {
           return `<p>${escapeXml(block.text || '')}</p>`;
         }
-        if (block.type === 'list' && block.items) {
+        if ((block.type === 'list' || (block.type as string) === 'bullet_list') && block.items) {
           return `<ul>${block.items.map((it) => `<li>${escapeXml(it)}</li>`).join('')}</ul>`;
+        }
+        if (block.type === 'callout' || (block.type as string) === 'field_notes') {
+          return `<div style="background:#FAF7F0; padding:0.8em 1em; border-left:3px solid #9A6F3C; margin:1em 0; font-size:0.9em; color:#4A453E;">${escapeXml(block.text || '')}</div>`;
+        }
+        if (block.type === 'divider') {
+          return `<hr style="border:none; border-top:1px solid #EFECE6; margin:1.5em 0;" />`;
         }
         if (block.type === 'image') {
           return `<p><em>[Illustration: ${escapeXml(block.caption || 'Artwork')}]</em></p>`;
@@ -188,6 +194,15 @@ blockquote {
   });
 
   // 5. OEBPS/nav.xhtml (EPUB3 Navigation Document)
+  // Filter out redundant "Title & Cover" entry if page 1 is already cover
+  const filteredNavItems = book.pages
+    .map((p, i) => {
+      const isRedundantCover = i === 0 && (p.title === 'Title & Cover' || p.title === 'Title Page' || p.pageType === 'cover');
+      if (isRedundantCover) return null;
+      return `<li><a href="page_${i + 1}.xhtml">${escapeXml(p.title || `Page ${p.pageNumber}`)}</a></li>`;
+    })
+    .filter(Boolean);
+
   const navHtml = `<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="${book.language || 'en'}">
@@ -201,12 +216,7 @@ blockquote {
     <h1>Table of Contents</h1>
     <ol>
       <li><a href="cover.xhtml">Title &amp; Cover</a></li>
-      ${book.pages
-        .map(
-          (p, i) =>
-            `<li><a href="page_${i + 1}.xhtml">${escapeXml(p.title || `Page ${p.pageNumber}`)}</a></li>`
-        )
-        .join('\n      ')}
+      ${filteredNavItems.join('\n      ')}
     </ol>
   </nav>
 </body>
@@ -214,10 +224,13 @@ blockquote {
   oebps.file('nav.xhtml', navHtml);
 
   // 6. OEBPS/content.opf (Packaging Metadata & Manifest)
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(book.id || '');
+  const pubIdentifier = isUuid ? `urn:uuid:${book.id}` : `urn:bookgenie:${book.id || 'edition'}`;
+
   const opfContent = `<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="pub-id">
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-    <dc:identifier id="pub-id">urn:uuid:${book.id}</dc:identifier>
+    <dc:identifier id="pub-id">${pubIdentifier}</dc:identifier>
     <dc:title>${escapeXml(book.title)}</dc:title>
     <dc:language>${book.language?.slice(0, 2).toLowerCase() || 'en'}</dc:language>
     <dc:creator>BookGenie AI Publishing Studio</dc:creator>

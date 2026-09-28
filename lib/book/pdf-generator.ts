@@ -140,9 +140,10 @@ export async function generateBookPdfBuffer(book: BookDocument): Promise<Uint8Ar
 
       if (block.type === 'heading') {
         const isH1 = block.level === 1;
+        const isH2 = block.level === 2;
         doc.setFont('times', 'bold');
-        doc.setFontSize(isH1 ? 16 : 13);
-        doc.setTextColor(isH1 ? 24 : 60, isH1 ? 21 : 50, isH1 ? 17 : 40);
+        doc.setFontSize(isH1 ? 16 : isH2 ? 13 : 11.5);
+        doc.setTextColor(isH1 ? 24 : isH2 ? 50 : 80, isH1 ? 21 : isH2 ? 40 : 65, isH1 ? 17 : isH2 ? 30 : 50);
         cursorY += 4;
         const text = stripHtml(block.text || '');
         const headingLines = doc.splitTextToSize(text, contentWidth);
@@ -160,6 +161,55 @@ export async function generateBookPdfBuffer(book: BookDocument): Promise<Uint8Ar
         doc.line(margin, cursorY - 3, margin, cursorY + quoteLines.length * 5 + 1);
         doc.text(quoteLines, margin + 5, cursorY);
         cursorY += quoteLines.length * 5 + 6;
+      } else if (block.type === 'list' || (block.type as string) === 'bullet_list') {
+        doc.setFont('times', 'normal');
+        doc.setFontSize(10);
+        const items: string[] = Array.isArray(block.items) ? block.items : block.text ? [block.text] : [];
+        for (const item of items) {
+          const cleanItem = stripHtml(item);
+          const itemLines = doc.splitTextToSize(cleanItem, contentWidth - 12);
+          const itemHeight = itemLines.length * 5 + 2;
+
+          if (cursorY + itemHeight > pageHeight - 25) {
+            doc.addPage('a4', 'portrait');
+            cursorY = 25;
+          }
+
+          // Bullet icon
+          doc.setTextColor(154, 111, 60); // bronze bullet
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(11);
+          doc.text('•', margin + 3, cursorY);
+
+          // Bullet text
+          doc.setFont('times', 'normal');
+          doc.setFontSize(10);
+          doc.setTextColor(40, 36, 32);
+          doc.text(itemLines, margin + 9, cursorY);
+          cursorY += itemHeight;
+        }
+        cursorY += 4;
+      } else if (block.type === 'callout' || (block.type as string) === 'field_notes') {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9.5);
+        doc.setTextColor(60, 50, 40);
+        const text = stripHtml(block.text || '');
+        const lines = doc.splitTextToSize(text, contentWidth - 16);
+        const boxHeight = lines.length * 5 + 8;
+        if (cursorY + boxHeight > pageHeight - 25) {
+          doc.addPage('a4', 'portrait');
+          cursorY = 25;
+        }
+        doc.setFillColor(252, 249, 242);
+        doc.setDrawColor(218, 204, 185);
+        doc.rect(margin, cursorY, contentWidth, boxHeight, 'FD');
+        doc.text(lines, margin + 8, cursorY + 6);
+        cursorY += boxHeight + 6;
+      } else if (block.type === 'divider') {
+        doc.setDrawColor(220, 210, 195);
+        doc.setLineWidth(0.4);
+        doc.line(margin + 25, cursorY + 3, pageWidth - margin - 25, cursorY + 3);
+        cursorY += 8;
       } else if (block.type === 'paragraph') {
         doc.setFont('times', 'normal');
         doc.setFontSize(10.5);
@@ -168,21 +218,23 @@ export async function generateBookPdfBuffer(book: BookDocument): Promise<Uint8Ar
         const pLines = doc.splitTextToSize(text, contentWidth);
         doc.text(pLines, margin, cursorY);
         cursorY += pLines.length * 5.2 + 5;
-      } else if (block.type === 'image' && block.caption) {
-        // Render stylized image placeholder frame with caption
+      } else if (block.type === 'image') {
+        // Render stylized archival illustration frame with caption
         doc.setDrawColor(220, 210, 200);
         doc.setFillColor(250, 248, 244);
         const frameHeight = 45;
-        if (cursorY + frameHeight + 15 < pageHeight - 25) {
-          doc.rect(margin, cursorY, contentWidth, frameHeight, 'FD');
-          doc.setFont('helvetica', 'italic');
-          doc.setFontSize(8.5);
-          doc.setTextColor(120, 110, 100);
-          const capText = `[Illustration]: ${stripHtml(block.caption)}`;
-          const capLines = doc.splitTextToSize(capText, contentWidth - 10);
-          doc.text(capLines, margin + 5, cursorY + frameHeight / 2 + 2);
-          cursorY += frameHeight + 6;
+        if (cursorY + frameHeight + 15 > pageHeight - 25) {
+          doc.addPage('a4', 'portrait');
+          cursorY = 25;
         }
+        doc.rect(margin, cursorY, contentWidth, frameHeight, 'FD');
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(8.5);
+        doc.setTextColor(120, 110, 100);
+        const capText = block.caption ? `[Archival Illustration]: ${stripHtml(block.caption)}` : '[Archival Plate Illustration]';
+        const capLines = doc.splitTextToSize(capText, contentWidth - 10);
+        doc.text(capLines, margin + 5, cursorY + frameHeight / 2 + 2);
+        cursorY += frameHeight + 6;
       }
     }
 

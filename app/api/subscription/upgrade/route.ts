@@ -84,6 +84,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      subscriptionTier: normalizedTier,
+      tier: normalizedTier,
       message: `Your subscription has been updated to the ${tier.toUpperCase()} plan.`,
       profile: updatedProfile,
     });

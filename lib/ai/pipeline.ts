@@ -37,6 +37,8 @@ export class GenerationPipeline {
     language?: string;
     style?: string;
     uploadedContext?: string;
+    pageTarget?: number;
+    chapterScale?: number;
   }): Promise<{ bookId: string; jobId: string }> {
     const bookId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `00000000-0000-4000-8000-${Date.now().toString(16).padStart(12, '0')}`;
     const jobId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `00000000-0000-4000-9000-${Date.now().toString(16).padStart(12, '0')}`;
@@ -44,6 +46,8 @@ export class GenerationPipeline {
     // Ensure userId is a valid UUID or fallback to authentic user
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     const validUserId = uuidRegex.test(params.userId) ? params.userId : 'f3bf61f7-7f5c-422a-9ae3-5cdf38c19efc';
+
+    const targetPages = params.pageTarget || (params.chapterScale === 1 ? 16 : params.chapterScale === 2 ? 36 : params.chapterScale === 3 ? 72 : 16);
 
     // Initial placeholder document
     const initialDoc: BookDocument = {
@@ -61,7 +65,7 @@ export class GenerationPipeline {
         audience: 'General',
         language: params.language || 'English',
         style: params.style || 'Modern',
-        pageTarget: 16,
+        pageTarget: targetPages,
         chapters: [],
         visualPlan: [],
       },

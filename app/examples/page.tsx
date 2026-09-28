@@ -181,91 +181,115 @@ export default function ExamplesPage() {
           {/* Showcase Library Grid */}
           <section className="w-full px-4 sm:px-6 lg:px-12 py-6">
             <div className="max-w-7xl mx-auto">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredBooks.map((book) => (
-                  <article
-                    key={book.slug}
-                    className="group flex flex-col bg-surface-container-lowest dark:bg-[#181820] border border-surface-container-highest dark:border-white/10 rounded-xl p-5 shadow-xs hover:shadow-xl transition-all duration-300"
+              {filteredBooks.length === 0 ? (
+                <div className="text-center py-20 px-4 max-w-md mx-auto">
+                  <div className="w-16 h-16 rounded-2xl bg-surface-container dark:bg-white/5 border border-surface-container-highest dark:border-white/10 flex items-center justify-center mx-auto mb-4 text-secondary dark:text-[#fcba64]">
+                    <span className="material-symbols-outlined text-3xl">auto_stories</span>
+                  </div>
+                  <h3 className="font-headline-sm text-xl text-primary dark:text-[#f1effa] mb-2">
+                    No Editions Found
+                  </h3>
+                  <p className="font-body-md text-sm text-on-surface-variant dark:text-neutral-400 mb-6">
+                    No books in our curated showcase match your current filter or search criteria.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setFilter('all');
+                      setSearchQuery('');
+                    }}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary dark:bg-white text-on-primary dark:text-black font-label-ui text-sm hover:opacity-90 transition-opacity cursor-pointer shadow-xs"
                   >
-                    {/* 3:4 Optical Hardcover Mockup */}
-                    <div className="relative w-full aspect-[3/4] bg-surface-container-high dark:bg-[#1f1f28] rounded-lg overflow-hidden mb-5 shadow-inner select-none">
-                      <Image
-                        src={book.image}
-                        alt={book.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      {/* Spine shadow */}
-                      <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-black/30 via-black/10 to-transparent pointer-events-none" />
+                    <span className="material-symbols-outlined text-[18px]">restart_alt</span>
+                    <span>Reset All Filters</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredBooks.map((book) => (
+                    <article
+                      key={book.slug}
+                      className="group flex flex-col bg-surface-container-lowest dark:bg-[#181820] border border-surface-container-highest dark:border-white/10 rounded-xl p-5 shadow-xs hover:shadow-xl transition-all duration-300"
+                    >
+                      {/* 3:4 Optical Hardcover Mockup */}
+                      <div className="relative w-full aspect-[3/4] bg-surface-container-high dark:bg-[#1f1f28] rounded-lg overflow-hidden mb-5 shadow-inner select-none">
+                        <Image
+                          src={book.image}
+                          alt={book.title}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        {/* Spine shadow */}
+                        <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-black/30 via-black/10 to-transparent pointer-events-none" />
 
-                      {/* Top Badges */}
-                      <div className="absolute top-3 left-3 flex flex-col gap-1">
-                        <span className="font-label-caps text-[10px] uppercase bg-primary dark:bg-white text-on-primary dark:text-black px-2 py-0.5 rounded shadow-xs font-semibold">
-                          Staff Pick
-                        </span>
-                        <span className="font-label-caps text-[10px] uppercase bg-surface-container-lowest/90 dark:bg-black/80 text-on-surface dark:text-white px-2 py-0.5 rounded shadow-xs">
-                          Print CMYK Ready
-                        </span>
-                      </div>
-
-                      <div className="absolute top-3 right-3 bg-surface-container-lowest/90 dark:bg-black/80 backdrop-blur-xs px-2 py-0.5 rounded flex items-center gap-1 shadow-xs">
-                        <span className="material-symbols-outlined text-[14px] text-secondary dark:text-[#fcba64]">star</span>
-                        <span className="font-code-spec text-code-spec text-on-surface dark:text-white font-semibold">
-                          {book.rating}
-                        </span>
-                      </div>
-
-                      {/* Hover Model Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                        <span className="font-code-spec text-[11px] text-white bg-black/60 backdrop-blur-xs px-2.5 py-1 rounded">
-                          {book.model}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col flex-grow justify-between">
-                      <div>
-                        <div className="flex items-center justify-between text-outline text-label-caps font-label-caps uppercase tracking-wider mb-1">
-                          <span className="text-secondary dark:text-[#fcba64]">{book.genreLabel}</span>
-                          <span className="font-code-spec text-code-spec text-on-surface-variant dark:text-neutral-400">
-                            {book.pages} Folios
+                        {/* Top Badges */}
+                        <div className="absolute top-3 left-3 flex flex-col gap-1">
+                          <span className="font-label-caps text-[10px] uppercase bg-primary dark:bg-white text-on-primary dark:text-black px-2 py-0.5 rounded shadow-xs font-semibold">
+                            Staff Pick
+                          </span>
+                          <span className="font-label-caps text-[10px] uppercase bg-surface-container-lowest/90 dark:bg-black/80 text-on-surface dark:text-white px-2 py-0.5 rounded shadow-xs">
+                            Print CMYK Ready
                           </span>
                         </div>
-                        <h3 className="font-headline-sm text-headline-sm text-primary dark:text-[#f1effa] group-hover:text-secondary dark:group-hover:text-[#fcba64] transition-colors mb-2">
-                          {book.title}
-                        </h3>
-                        <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-300 line-clamp-2 mb-4 leading-relaxed">
-                          {book.desc}
-                        </p>
-                        <div className="flex items-center gap-2 mb-5">
-                          <span className="font-code-spec text-[11px] text-on-surface-variant dark:text-neutral-400 bg-surface-container dark:bg-white/5 px-2 py-0.5 rounded border border-surface-container-highest dark:border-white/10">
-                            Trim: {book.trim}
+
+                        <div className="absolute top-3 right-3 bg-surface-container-lowest/90 dark:bg-black/80 backdrop-blur-xs px-2 py-0.5 rounded flex items-center gap-1 shadow-xs">
+                          <span className="material-symbols-outlined text-[14px] text-secondary dark:text-[#fcba64]">star</span>
+                          <span className="font-code-spec text-code-spec text-on-surface dark:text-white font-semibold">
+                            {book.rating}
+                          </span>
+                        </div>
+
+                        {/* Hover Model Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                          <span className="font-code-spec text-[11px] text-white bg-black/60 backdrop-blur-xs px-2.5 py-1 rounded">
+                            {book.model}
                           </span>
                         </div>
                       </div>
 
-                      {/* Dual Action Buttons */}
-                      <div className="flex items-center gap-2 pt-3 border-t border-surface-container-highest dark:border-white/10">
-                        <button
-                          onClick={() => router.push(book.demoUrl)}
-                          className="flex-1 inline-flex items-center justify-center gap-1.5 bg-surface-container-low dark:bg-white/5 hover:bg-surface-container dark:hover:bg-white/10 text-on-surface dark:text-[#f1effa] px-3 py-2 rounded font-label-ui text-label-ui transition-colors cursor-pointer border border-surface-container-highest dark:border-white/10"
-                        >
-                          <span className="material-symbols-outlined text-[16px]">menu_book</span>
-                          <span>Read Spread</span>
-                        </button>
-                        <Link
-                          href={`/create?prompt=${encodeURIComponent(book.prompt)}`}
-                          className="flex-1 inline-flex items-center justify-center gap-1.5 bg-primary dark:bg-white text-on-primary dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 px-3 py-2 rounded font-label-ui text-label-ui transition-colors shadow-xs"
-                        >
-                          <span className="material-symbols-outlined text-[16px]">fork_right</span>
-                          <span>Create Similar</span>
-                        </Link>
+                      <div className="flex flex-col flex-grow justify-between">
+                        <div>
+                          <div className="flex items-center justify-between text-outline text-label-caps font-label-caps uppercase tracking-wider mb-1">
+                            <span className="text-secondary dark:text-[#fcba64]">{book.genreLabel}</span>
+                            <span className="font-code-spec text-code-spec text-on-surface-variant dark:text-neutral-400">
+                              {book.pages} Folios
+                            </span>
+                          </div>
+                          <h3 className="font-headline-sm text-headline-sm text-primary dark:text-[#f1effa] group-hover:text-secondary dark:group-hover:text-[#fcba64] transition-colors mb-2">
+                            {book.title}
+                          </h3>
+                          <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-neutral-300 line-clamp-2 mb-4 leading-relaxed">
+                            {book.desc}
+                          </p>
+                          <div className="flex items-center gap-2 mb-5">
+                            <span className="font-code-spec text-[11px] text-on-surface-variant dark:text-neutral-400 bg-surface-container dark:bg-white/5 px-2 py-0.5 rounded border border-surface-container-highest dark:border-white/10">
+                              Trim: {book.trim}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Dual Action Buttons */}
+                        <div className="flex items-center gap-2 pt-3 border-t border-surface-container-highest dark:border-white/10">
+                          <button
+                            onClick={() => router.push(book.demoUrl)}
+                            className="flex-1 inline-flex items-center justify-center gap-1.5 bg-surface-container-low dark:bg-white/5 hover:bg-surface-container dark:hover:bg-white/10 text-on-surface dark:text-[#f1effa] px-3 py-2 rounded font-label-ui text-label-ui transition-colors cursor-pointer border border-surface-container-highest dark:border-white/10"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">menu_book</span>
+                            <span>Read Spread</span>
+                          </button>
+                          <Link
+                            href={`/create?prompt=${encodeURIComponent(book.prompt)}`}
+                            className="flex-1 inline-flex items-center justify-center gap-1.5 bg-primary dark:bg-white text-on-primary dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 px-3 py-2 rounded font-label-ui text-label-ui transition-colors shadow-xs"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">fork_right</span>
+                            <span>Create Similar</span>
+                          </Link>
+                        </div>
                       </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
+                    </article>
+                  ))}
+                </div>
+              )}
             </div>
           </section>
         </main>

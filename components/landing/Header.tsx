@@ -53,7 +53,7 @@ export function Header() {
     { label: 'Home', href: '/' },
     { label: 'Create Studio', href: '/create' },
     { label: 'Showcase', href: '/#showcase' },
-    { label: 'Pricing', href: '/#pricing' },
+    { label: 'Pricing', href: '/pricing' },
   ];
 
   return (
@@ -116,6 +116,13 @@ export function Header() {
 
               {userDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 rounded-xl bg-surface-container-lowest dark:bg-[#1a1b22] border border-surface-container-highest dark:border-white/10 shadow-xl py-1.5 z-50">
+                  <Link
+                    href="/library"
+                    onClick={() => setUserDropdownOpen(false)}
+                    className="block px-4 py-2 text-xs text-on-surface dark:text-[#f1effa] hover:bg-surface-container-low dark:hover:bg-white/5 font-medium"
+                  >
+                    📚 My Bookshelf
+                  </Link>
                   <Link
                     href="/create"
                     onClick={() => setUserDropdownOpen(false)}
@@ -194,6 +201,16 @@ export function Header() {
           <div className="pt-3 border-t border-[#EAEAEA] dark:border-[#262626] flex flex-col gap-2.5">
             {user ? (
               <>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    router.push('/library');
+                  }}
+                  className="w-full"
+                >
+                  📚 My Bookshelf
+                </Button>
                 <Button
                   variant="primary"
                   onClick={() => {

@@ -31,7 +31,9 @@ export type BlockType =
   | 'image'
   | 'callout'
   | 'list'
-  | 'divider';
+  | 'divider'
+  | 'bullet_list'
+  | 'field_notes';
 
 export interface ContentBlock {
   id: string;
@@ -39,6 +41,7 @@ export interface ContentBlock {
   level?: 1 | 2 | 3;
   text?: string;
   assetId?: string; // Foreign key to public.assets.id
+  url?: string;
   caption?: string;
   items?: string[];
 }

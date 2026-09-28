@@ -81,10 +81,11 @@ export function PromptBarSection() {
 
   const visualStyles = [
     { id: 'editorial', label: 'Editorial' },
-    { id: 'watercolor', label: 'Watercolor' },
+    { id: 'academic', label: 'Academic' },
+    { id: 'playful', label: 'Playful & Illustrated' },
     { id: 'minimal', label: 'Minimalist' },
-    { id: 'photographic', label: 'Photographic' },
     { id: 'vintage', label: 'Vintage' },
+    { id: 'whimsical', label: 'Whimsical' },
   ];
 
   const [activeCategory, setActiveCategory] = useState<string>('children');
@@ -220,8 +221,10 @@ export function PromptBarSection() {
             {/* Category Select Pill */}
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white dark:bg-[#1C1C1C] border border-[#E5E5E5] dark:border-[#2C2C2C] text-xs text-[#444444] dark:text-[#CCCCCC] shadow-2xs">
               <Layers className="w-3.5 h-3.5 text-[#888888]" />
-              <span className="text-[11px] text-[#888888]">Category:</span>
+              <label htmlFor="prompt-bar-category" className="text-[11px] text-[#888888]">Category:</label>
               <select
+                id="prompt-bar-category"
+                aria-label="Book Category"
                 value={activeCategory}
                 onChange={(e) => setActiveCategory(e.target.value)}
                 className="bg-transparent text-xs font-semibold text-[#111111] dark:text-white focus:outline-none cursor-pointer pr-1"
@@ -237,8 +240,10 @@ export function PromptBarSection() {
             {/* Language Select Pill */}
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white dark:bg-[#1C1C1C] border border-[#E5E5E5] dark:border-[#2C2C2C] text-xs text-[#444444] dark:text-[#CCCCCC] shadow-2xs">
               <Globe className="w-3.5 h-3.5 text-[#888888]" />
-              <span className="text-[11px] text-[#888888]">Lang:</span>
+              <label htmlFor="prompt-bar-language" className="text-[11px] text-[#888888]">Lang:</label>
               <select
+                id="prompt-bar-language"
+                aria-label="Book Language"
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value)}
                 className="bg-transparent text-xs font-semibold text-[#111111] dark:text-white focus:outline-none cursor-pointer pr-1"
@@ -254,8 +259,10 @@ export function PromptBarSection() {
             {/* Visual Style Select Pill */}
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white dark:bg-[#1C1C1C] border border-[#E5E5E5] dark:border-[#2C2C2C] text-xs text-[#444444] dark:text-[#CCCCCC] shadow-2xs">
               <Palette className="w-3.5 h-3.5 text-[#888888]" />
-              <span className="text-[11px] text-[#888888]">Style:</span>
+              <label htmlFor="prompt-bar-style" className="text-[11px] text-[#888888]">Style:</label>
               <select
+                id="prompt-bar-style"
+                aria-label="Visual Style"
                 value={selectedStyle}
                 onChange={(e) => setSelectedStyle(e.target.value)}
                 className="bg-transparent text-xs font-semibold text-[#111111] dark:text-white focus:outline-none cursor-pointer pr-1"
@@ -270,13 +277,20 @@ export function PromptBarSection() {
           </div>
 
           {/* Category Pill Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 max-w-3xl mx-auto pt-2 border-t border-[#F0F0EE] dark:border-[#222222]">
+          <div
+            role="radiogroup"
+            aria-label="Category presets"
+            className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 max-w-3xl mx-auto pt-2 border-t border-[#F0F0EE] dark:border-[#222222]"
+          >
             {categories.map((cat) => {
               const isSelected = activeCategory === cat.id;
               return (
                 <button
                   key={cat.id}
                   type="button"
+                  role="radio"
+                  aria-checked={isSelected}
+                  aria-label={cat.name}
                   onClick={() => handleSelectCategory(cat)}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                     isSelected

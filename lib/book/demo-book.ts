@@ -408,7 +408,7 @@ export function getOceanWondersDemoBook(): BookDocument {
         layout: 'full-bleed',
         blocks: [
           { id: 'p1-1', type: 'heading', level: 1, text: 'Ocean Wonders' },
-          { id: 'p1-2', type: 'quote', text: '“The sea, once it casts its spell, holds one in its net of wonder forever.”' },
+          { id: 'p1-2', type: 'quote', text: '“The sea, once it casts its spell, holds one in its net of wonder forever.” — Jacques-Yves Cousteau' },
           { id: 'p1-3', type: 'paragraph', text: 'Created with BookGenie Editorial Studio — Complete 16-Page Showcase Book' },
         ],
       },
@@ -454,6 +454,7 @@ export function getOceanWondersDemoBook(): BookDocument {
             id: 'p3-img',
             type: 'image',
             caption: 'Barnaby gliding through the sun-dappled turquoise water above the coral reef.',
+            url: '/images/the-little-explorer-cover.jpg',
           },
         ],
       },
@@ -496,7 +497,7 @@ export function getOceanWondersDemoBook(): BookDocument {
           {
             id: 'p5-2',
             type: 'paragraph',
-            text: 'As Barnaby swam past the outer reef wall, the ocean blossomed into an explosion of neon hues. Spagetti corals curled like spirals of pasta, while giant clams flashed emerald and violet mantles to catch the midday sunlight.',
+            text: 'As Barnaby swam past the outer reef wall, the ocean blossomed into an explosion of neon hues. Spaghetti corals curled like spirals of pasta, while giant clams flashed emerald and violet mantles to catch the midday sunlight.',
           },
           {
             id: 'p5-3',
@@ -532,7 +533,7 @@ export function getOceanWondersDemoBook(): BookDocument {
         pageType: 'illustrated_content',
         layout: 'image-top',
         blocks: [
-          { id: 'p7-img', type: 'image', caption: 'Pippin and his school playing among the glowing sea anemone garden.' },
+          { id: 'p7-img', type: 'image', caption: 'Pippin and his school playing among the glowing sea anemone garden.', url: '/images/mindful-tomorrow-spread.jpg' },
           { id: 'p7-1', type: 'heading', level: 3, text: 'Mutual Friends' },
           {
             id: 'p7-2',
@@ -622,7 +623,7 @@ export function getOceanWondersDemoBook(): BookDocument {
             type: 'paragraph',
             text: 'A cluster of crystal siphonophores drifted past, resembling glass chandeliers woven from starlight. Over ninety percent of deep-sea creatures use bioluminescence to camouflage, hunt, or communicate.',
           },
-          { id: 'p11-img', type: 'image', caption: 'Bioluminescent jellyfish drifting through the velvet indigo trench.' },
+          { id: 'p11-img', type: 'image', caption: 'Bioluminescent jellyfish drifting through the velvet indigo trench.', url: '/images/editorial-book-spread.jpg' },
         ],
       },
       {
@@ -695,7 +696,7 @@ export function getOceanWondersDemoBook(): BookDocument {
         pageType: 'illustrated_content',
         layout: 'full-bleed',
         blocks: [
-          { id: 'p15-img', type: 'image', caption: 'Barnaby gliding home across Sapphire Bay at golden hour.' },
+          { id: 'p15-img', type: 'image', caption: 'Barnaby gliding home across Sapphire Bay at golden hour.', url: '/images/hero-publishing-studio.jpg' },
           { id: 'p15-1', type: 'heading', level: 2, text: 'Return to the Haven' },
           {
             id: 'p15-2',

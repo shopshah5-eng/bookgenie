@@ -31,6 +31,25 @@ export function BookReaderClient({ initialBook, bookId }: BookReaderClientProps)
   const [paperTheme, setPaperTheme] = useState<'ivory' | 'linen' | 'charcoal'>('ivory');
   const [fontFamily, setFontFamily] = useState<'garamond' | 'modern'>('garamond');
 
+  // Hash persistence: #page=N
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const match = window.location.hash.match(/page=(\d+)/);
+      if (match && match[1]) {
+        const p = parseInt(match[1], 10) - 1;
+        if (p >= 0 && p < book.pages.length) {
+          setCurrentPageIndex(p);
+        }
+      }
+    }
+  }, [book.pages.length]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `#page=${currentPageIndex + 1}`);
+    }
+  }, [currentPageIndex]);
+
   // Keyboard navigation: ArrowLeft / ArrowRight
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -174,9 +193,14 @@ export function BookReaderClient({ initialBook, bookId }: BookReaderClientProps)
         {/* Right Controls: Paper substrate, Font, Share, Export */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Paper Substrate Switcher */}
-          <div className="hidden sm:flex items-center bg-surface-container dark:bg-white/5 rounded-full p-1 gap-1 border border-surface-container-highest dark:border-white/10">
+          <div
+            role="group"
+            aria-label="Paper substrate themes"
+            className="flex items-center bg-surface-container dark:bg-white/5 rounded-full p-1 gap-1 border border-surface-container-highest dark:border-white/10"
+          >
             <button
               onClick={() => setPaperTheme('ivory')}
+              aria-label="Crisp Ivory paper theme"
               className={`w-5 h-5 rounded-full bg-[#FAF7F0] shadow-2xs transition-all ${
                 paperTheme === 'ivory' ? 'ring-2 ring-secondary dark:ring-[#fcba64] scale-110' : ''
               }`}
@@ -184,6 +208,7 @@ export function BookReaderClient({ initialBook, bookId }: BookReaderClientProps)
             />
             <button
               onClick={() => setPaperTheme('linen')}
+              aria-label="Linen White paper theme"
               className={`w-5 h-5 rounded-full bg-[#FCFBF9] shadow-2xs transition-all ${
                 paperTheme === 'linen' ? 'ring-2 ring-secondary dark:ring-[#fcba64] scale-110' : ''
               }`}
@@ -191,6 +216,7 @@ export function BookReaderClient({ initialBook, bookId }: BookReaderClientProps)
             />
             <button
               onClick={() => setPaperTheme('charcoal')}
+              aria-label="Muted Charcoal paper theme"
               className={`w-5 h-5 rounded-full bg-[#1E1E24] shadow-2xs transition-all ${
                 paperTheme === 'charcoal' ? 'ring-2 ring-secondary dark:ring-[#fcba64] scale-110' : ''
               }`}

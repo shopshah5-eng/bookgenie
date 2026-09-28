@@ -48,7 +48,7 @@ function CreatePageContent() {
   const [title, setTitle] = useState('');
   const [prompt, setPrompt] = useState('');
   const [bookType, setBookType] = useState('novel');
-  const [language, setLanguage] = useState('English (UK / Oxford Style)');
+  const [language, setLanguage] = useState('english');
   const [voiceTone, setVoiceTone] = useState('mccarthy');
   const [chapterScale, setChapterScale] = useState(2); // 1 = 5, 2 = 12, 3 = 24
   const [uploadedFiles, setUploadedFiles] = useState<
@@ -78,15 +78,49 @@ function CreatePageContent() {
         if (t === 'other') t = 'auto';
         setBookType(t);
       }
-      if (data.lang) setLanguage(data.lang);
+      if (data.lang) {
+        const l = data.lang.toLowerCase().trim();
+        setLanguage(l);
+      }
+      if (data.style) {
+        const s = data.style.toLowerCase().trim();
+        if (s === 'academic') setVoiceTone('academic');
+        else if (s === 'playful' || s === 'lyrical' || s === 'watercolor') setVoiceTone('lyrical');
+        else if (s === 'minimal' || s === 'executive') setVoiceTone('executive');
+        else setVoiceTone('mccarthy');
+      }
     },
     [title]
   );
 
-  // Restore full saved draft if returning from auth
+  // Continuous debounced draft autosave
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        if (title || prompt || uploadedFiles.length > 0) {
+          const draft = {
+            title,
+            prompt,
+            bookType,
+            language,
+            voiceTone,
+            chapterScale,
+            uploadedFiles,
+          };
+          sessionStorage.setItem('bg_autosave_draft', JSON.stringify(draft));
+        }
+      } catch (_) {}
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [title, prompt, bookType, language, voiceTone, chapterScale, uploadedFiles]);
+
+  // Restore full saved draft if returning from auth or previous session (if no URL params override)
   useEffect(() => {
     try {
-      const savedDraft = sessionStorage.getItem('bg_pending_draft');
+      const searchParams = new URLSearchParams(window.location.search);
+      const hasQueryParams = searchParams.get('prompt') || searchParams.get('type') || searchParams.get('lang') || searchParams.get('style');
+
+      const savedDraft = sessionStorage.getItem('bg_pending_draft') || (!hasQueryParams ? sessionStorage.getItem('bg_autosave_draft') : null);
       if (savedDraft) {
         const parsed = JSON.parse(savedDraft);
         if (parsed.title) setTitle(parsed.title);
@@ -114,19 +148,20 @@ function CreatePageContent() {
         continue;
       }
       let textContent = '';
+      const isText = f.name.endsWith('.txt') || f.name.endsWith('.md') || f.type.startsWith('text/');
       try {
-        if (f.name.endsWith('.txt') || f.name.endsWith('.md') || f.type.startsWith('text/')) {
+        if (isText) {
           textContent = await f.text();
         } else {
-          textContent = `[Attached Document Reference: ${f.name}, Size: ${(f.size / 1024).toFixed(1)} KB]`;
+          textContent = `[Project Reference: ${f.name} (${(f.size / 1024).toFixed(1)} KB)] - Attached for structural context. (For verbatim chapter prose, paste or upload TXT/Markdown).`;
         }
       } catch {
-        textContent = `[Attached Document Reference: ${f.name}]`;
+        textContent = `[Project Reference: ${f.name}]`;
       }
       parsedFiles.push({
         name: f.name,
         size: `${(f.size / (1024 * 1024)).toFixed(1)} MB`,
-        content: textContent.slice(0, 10000),
+        content: isText ? textContent.slice(0, 25000) : textContent,
       });
     }
 
@@ -176,6 +211,16 @@ function CreatePageContent() {
               .join('\n\n')
           : undefined;
 
+      const calculatedPageTarget = chapterScale === 1 ? 16 : chapterScale === 2 ? 36 : 72;
+      const calculatedStyle =
+        voiceTone === 'mccarthy'
+          ? 'editorial'
+          : voiceTone === 'academic'
+          ? 'academic'
+          : voiceTone === 'lyrical'
+          ? 'playful'
+          : 'minimal';
+
       const response = await fetch('/api/books/create', {
         method: 'POST',
         headers: {
@@ -185,7 +230,9 @@ function CreatePageContent() {
           prompt: finalPrompt,
           bookType,
           language,
-          style: voiceTone === 'mccarthy' ? 'editorial' : voiceTone === 'academic' ? 'academic' : 'modern',
+          style: calculatedStyle,
+          chapterScale,
+          pageTarget: calculatedPageTarget,
           uploadedContext: uploadedContextString,
         }),
       });
@@ -196,6 +243,7 @@ function CreatePageContent() {
       }
 
       const data = await response.json();
+      sessionStorage.removeItem('bg_autosave_draft');
       setActiveBookId(data.bookId);
       setActiveJobId(data.jobId);
       setIsGenerating(true);
@@ -211,6 +259,7 @@ function CreatePageContent() {
 
   return (
     <div className="min-h-screen bg-surface-container-lowest dark:bg-[#121217] font-body-md text-on-surface dark:text-[#f1effa] antialiased">
+      <SearchParamsSync onSync={handleSyncParams} />
       {/* 01: Left Architectural Spine Index Navigation (Desktop Fixed w-72) */}
       <aside className="hidden lg:flex fixed left-0 top-0 h-full w-72 bg-surface-container-low dark:bg-[#181820] border-r border-surface-container-highest dark:border-white/10 z-50 flex-col justify-between pt-6 pb-6 select-none">
         <div className="flex flex-col">
@@ -232,25 +281,32 @@ function CreatePageContent() {
               <span>Manuscript Studio</span>
             </div>
             <Link
+              href="/library"
+              className="flex items-center gap-3 px-4 py-2.5 rounded font-label-ui text-label-ui text-on-surface-variant dark:text-neutral-400 hover:bg-surface-container dark:hover:bg-white/5 hover:text-on-surface transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">collections_bookmark</span>
+              <span>My Bookshelf</span>
+            </Link>
+            <Link
               href="/examples/ocean-wonders"
               className="flex items-center gap-3 px-4 py-2.5 rounded font-label-ui text-label-ui text-on-surface-variant dark:text-neutral-400 hover:bg-surface-container dark:hover:bg-white/5 hover:text-on-surface transition-colors"
             >
               <span className="material-symbols-outlined text-[18px]">menu_book</span>
-              <span>Reader Folio</span>
+              <span>Sample Folio (Ocean Wonders)</span>
             </Link>
             <Link
               href="/how-it-works"
               className="flex items-center gap-3 px-4 py-2.5 rounded font-label-ui text-label-ui text-on-surface-variant dark:text-neutral-400 hover:bg-surface-container dark:hover:bg-white/5 hover:text-on-surface transition-colors"
             >
               <span className="material-symbols-outlined text-[18px]">format_shapes</span>
-              <span>Typeset Metrics</span>
+              <span>Typeset Metrics &amp; Architecture</span>
             </Link>
             <Link
               href="/pricing"
               className="flex items-center gap-3 px-4 py-2.5 rounded font-label-ui text-label-ui text-on-surface-variant dark:text-neutral-400 hover:bg-surface-container dark:hover:bg-white/5 hover:text-on-surface transition-colors"
             >
               <span className="material-symbols-outlined text-[18px]">print</span>
-              <span>Galley &amp; Exports</span>
+              <span>Atelier Editions &amp; Plans</span>
             </Link>
           </nav>
         </div>
@@ -416,37 +472,46 @@ function CreatePageContent() {
                 {/* Language & Genre */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1">
-                    <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-neutral-400 uppercase">
+                    <label htmlFor="target-language-select" className="font-label-caps text-label-caps text-on-surface-variant dark:text-neutral-400 uppercase">
                       Target Language
-                    </span>
+                    </label>
                     <select
+                      id="target-language-select"
+                      aria-label="Target Language"
                       value={language}
                       onChange={(e) => setLanguage(e.target.value)}
                       className="w-full bg-surface-container-low dark:bg-black/30 border border-surface-container-highest dark:border-white/10 px-3 py-2 rounded text-on-surface dark:text-[#f1effa] font-label-ui text-label-ui outline-none"
                     >
-                      <option value="English (UK / Oxford Style)">English (UK / Oxford Style)</option>
-                      <option value="English (US Contemporary)">English (US Contemporary)</option>
-                      <option value="French (Gallimard Trad.)">French (Gallimard Trad.)</option>
-                      <option value="German (Suhrkamp Arch.)">German (Suhrkamp Arch.)</option>
-                      <option value="Spanish (Editorial Cast.)">Spanish (Editorial Cast.)</option>
-                      <option value="Japanese (Vertical Rubric)">Japanese (Vertical Rubric)</option>
+                      <option value="english">English (Global / Oxford Style)</option>
+                      <option value="spanish">Spanish (Castilian &amp; Latin American)</option>
+                      <option value="french">French (Gallimard Traditional)</option>
+                      <option value="german">German (Suhrkamp Archival)</option>
+                      <option value="hindi">Hindi (Standard Literary)</option>
+                      <option value="japanese">Japanese (Standard Literary)</option>
+                      <option value="italian">Italian (Classico)</option>
+                      <option value="portuguese">Portuguese (Iberian &amp; Brazilian)</option>
+                      <option value="mandarin">Mandarin (Simplified Literary)</option>
                     </select>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="font-label-caps text-label-caps text-on-surface-variant dark:text-neutral-400 uppercase">
+                    <label htmlFor="folio-taxonomy-select" className="font-label-caps text-label-caps text-on-surface-variant dark:text-neutral-400 uppercase">
                       Folio Taxonomy
-                    </span>
+                    </label>
                     <select
+                      id="folio-taxonomy-select"
+                      aria-label="Folio Taxonomy"
                       value={bookType}
                       onChange={(e) => setBookType(e.target.value)}
                       className="w-full bg-surface-container-low dark:bg-black/30 border border-surface-container-highest dark:border-white/10 px-3 py-2 rounded text-on-surface dark:text-[#f1effa] font-label-ui text-label-ui outline-none"
                     >
                       <option value="novel">Literary Speculative Fiction</option>
-                      <option value="guide">Non-Fiction / Treatise</option>
+                      <option value="guide">Non-Fiction / Treatise / Field Guide</option>
                       <option value="children">Children&apos;s Picture Folio</option>
                       <option value="coloring">Coloring &amp; Line Engravings</option>
                       <option value="journal">Poetry &amp; Micro-Anthology</option>
                       <option value="recipe">Artisan Culinary Collection</option>
+                      <option value="workbook">Structured Execution Workbook</option>
+                      <option value="auto">Other / Custom Folio</option>
                     </select>
                   </div>
                 </div>
@@ -468,11 +533,20 @@ function CreatePageContent() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div role="radiogroup" aria-label="Voice & Prose Architecture" className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {/* Option 1 */}
                   <div
+                    role="radio"
+                    aria-checked={voiceTone === 'mccarthy'}
+                    tabIndex={0}
                     onClick={() => setVoiceTone('mccarthy')}
-                    className={`cursor-pointer p-4 rounded border transition-all ${
+                    onKeyDown={(e) => {
+                      if (e.key === ' ' || e.key === 'Enter') {
+                        e.preventDefault();
+                        setVoiceTone('mccarthy');
+                      }
+                    }}
+                    className={`cursor-pointer p-4 rounded border transition-all outline-none focus:ring-1 focus:ring-secondary ${
                       voiceTone === 'mccarthy'
                         ? 'bg-primary dark:bg-white text-on-primary dark:text-black border-transparent shadow-xs'
                         : 'bg-surface-container-low dark:bg-black/20 text-on-surface dark:text-[#f1effa] border-surface-container-highest dark:border-white/10 hover:bg-surface-container'
@@ -491,8 +565,17 @@ function CreatePageContent() {
 
                   {/* Option 2 */}
                   <div
+                    role="radio"
+                    aria-checked={voiceTone === 'academic'}
+                    tabIndex={0}
                     onClick={() => setVoiceTone('academic')}
-                    className={`cursor-pointer p-4 rounded border transition-all ${
+                    onKeyDown={(e) => {
+                      if (e.key === ' ' || e.key === 'Enter') {
+                        e.preventDefault();
+                        setVoiceTone('academic');
+                      }
+                    }}
+                    className={`cursor-pointer p-4 rounded border transition-all outline-none focus:ring-1 focus:ring-secondary ${
                       voiceTone === 'academic'
                         ? 'bg-primary dark:bg-white text-on-primary dark:text-black border-transparent shadow-xs'
                         : 'bg-surface-container-low dark:bg-black/20 text-on-surface dark:text-[#f1effa] border-surface-container-highest dark:border-white/10 hover:bg-surface-container'
@@ -511,8 +594,17 @@ function CreatePageContent() {
 
                   {/* Option 3 */}
                   <div
+                    role="radio"
+                    aria-checked={voiceTone === 'lyrical'}
+                    tabIndex={0}
                     onClick={() => setVoiceTone('lyrical')}
-                    className={`cursor-pointer p-4 rounded border transition-all ${
+                    onKeyDown={(e) => {
+                      if (e.key === ' ' || e.key === 'Enter') {
+                        e.preventDefault();
+                        setVoiceTone('lyrical');
+                      }
+                    }}
+                    className={`cursor-pointer p-4 rounded border transition-all outline-none focus:ring-1 focus:ring-secondary ${
                       voiceTone === 'lyrical'
                         ? 'bg-primary dark:bg-white text-on-primary dark:text-black border-transparent shadow-xs'
                         : 'bg-surface-container-low dark:bg-black/20 text-on-surface dark:text-[#f1effa] border-surface-container-highest dark:border-white/10 hover:bg-surface-container'
@@ -531,8 +623,17 @@ function CreatePageContent() {
 
                   {/* Option 4 */}
                   <div
+                    role="radio"
+                    aria-checked={voiceTone === 'executive'}
+                    tabIndex={0}
                     onClick={() => setVoiceTone('executive')}
-                    className={`cursor-pointer p-4 rounded border transition-all ${
+                    onKeyDown={(e) => {
+                      if (e.key === ' ' || e.key === 'Enter') {
+                        e.preventDefault();
+                        setVoiceTone('executive');
+                      }
+                    }}
+                    className={`cursor-pointer p-4 rounded border transition-all outline-none focus:ring-1 focus:ring-secondary ${
                       voiceTone === 'executive'
                         ? 'bg-primary dark:bg-white text-on-primary dark:text-black border-transparent shadow-xs'
                         : 'bg-surface-container-low dark:bg-black/20 text-on-surface dark:text-[#f1effa] border-surface-container-highest dark:border-white/10 hover:bg-surface-container'
@@ -558,9 +659,9 @@ function CreatePageContent() {
                     <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[18px]">
                       linear_scale
                     </span>
-                    <span className="font-label-caps text-label-caps text-on-surface dark:text-[#f1effa] uppercase tracking-wider font-semibold">
+                    <label htmlFor="chapter-scale-slider" className="font-label-caps text-label-caps text-on-surface dark:text-[#f1effa] uppercase tracking-wider font-semibold cursor-pointer">
                       Folio Scale &amp; Chapter Quotas
-                    </span>
+                    </label>
                   </div>
                   <span className="font-code-spec text-code-spec text-primary dark:text-[#fcba64] font-semibold">
                     {chaptersEstimate} // {wordsEstimate}
@@ -568,6 +669,9 @@ function CreatePageContent() {
                 </div>
                 <div className="pt-2">
                   <input
+                    id="chapter-scale-slider"
+                    aria-label="Folio Scale and Chapter Quota"
+                    aria-valuetext={chaptersEstimate}
                     type="range"
                     min="1"
                     max="3"
@@ -727,7 +831,6 @@ export default function CreatePage() {
   return (
     <AuthProvider>
       <Suspense fallback={<div className="p-8 text-center">Loading Studio...</div>}>
-        <SearchParamsSync onSync={() => {}} />
         <CreatePageContent />
         <AuthModal />
       </Suspense>

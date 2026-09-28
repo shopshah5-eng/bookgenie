@@ -55,6 +55,8 @@ export function Modal({
 
           {/* Modal Container: Bottom Sheet on Mobile, Centered Card on Desktop */}
           <motion.div
+            role="dialog"
+            aria-modal="true"
             initial={{ y: '100%', opacity: 0.5 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: '100%', opacity: 0 }}
