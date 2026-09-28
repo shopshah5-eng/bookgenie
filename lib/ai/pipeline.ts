@@ -51,7 +51,7 @@ export class GenerationPipeline {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     const validUserId = uuidRegex.test(params.userId) ? params.userId : 'f3bf61f7-7f5c-422a-9ae3-5cdf38c19efc';
 
-    const targetPages = params.pageTarget || (params.chapterScale === 1 ? 16 : params.chapterScale === 2 ? 30 : params.chapterScale === 3 ? 72 : 30);
+    const targetPages = Number(params.pageTarget) || 16;
 
     // Initial placeholder document
     const initialDoc: BookDocument = {

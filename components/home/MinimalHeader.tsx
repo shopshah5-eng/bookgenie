@@ -170,22 +170,11 @@ export function MinimalHeader() {
                 title="Account & Profile Settings"
                 aria-expanded={profileOpen}
               >
-                {(user.user_metadata?.avatar_url || user.user_metadata?.picture) ? (
-                  <img
-                    src={user.user_metadata?.avatar_url || user.user_metadata?.picture}
-                    alt={user.user_metadata?.full_name || user.user_metadata?.name || 'Profile'}
-                    className="w-7 h-7 rounded-full object-cover border border-black/10 shrink-0"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 transition-colors ${
-                      profileOpen ? 'bg-white text-[#111111]' : 'bg-[#111111] text-white'
-                    }`}
-                  >
-                    {((user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'U')[0]).toUpperCase()}
-                  </div>
-                )}
+                <div
+                  className="w-7 h-7 rounded-full bg-white text-[#111111] border border-[#EAEAEA] shadow-2xs flex items-center justify-center text-xs font-bold select-none shrink-0"
+                >
+                  {((user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'U')[0]).toUpperCase()}
+                </div>
                 <span className="text-[13px] font-medium max-w-[120px] truncate">
                   {user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0]}
                 </span>
@@ -201,18 +190,9 @@ export function MinimalHeader() {
                 <div className="absolute right-0 top-full mt-2 w-80 rounded-2xl bg-white border border-[#EAEAEA] shadow-2xl p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
                   {/* User Profile Header */}
                   <div className="flex items-start gap-3 pb-3 border-b border-[#F0F0F0]">
-                    {(user.user_metadata?.avatar_url || user.user_metadata?.picture) ? (
-                      <img
-                        src={user.user_metadata?.avatar_url || user.user_metadata?.picture}
-                        alt="Profile"
-                        className="w-10 h-10 rounded-full object-cover border border-black/10 shrink-0"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-[#111111] text-white flex items-center justify-center text-sm font-semibold shrink-0">
-                        {((user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'U')[0]).toUpperCase()}
-                      </div>
-                    )}
+                    <div className="w-10 h-10 rounded-full bg-white text-[#111111] border border-[#EAEAEA] shadow-2xs flex items-center justify-center text-sm font-bold shrink-0">
+                      {((user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'U')[0]).toUpperCase()}
+                    </div>
                     <div className="flex flex-col min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-1">
                         <span className="text-sm font-semibold text-[#111111] truncate">
@@ -379,18 +359,9 @@ export function MinimalHeader() {
             {user ? (
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2.5 py-1">
-                  {(user.user_metadata?.avatar_url || user.user_metadata?.picture) ? (
-                    <img
-                      src={user.user_metadata?.avatar_url || user.user_metadata?.picture}
-                      alt={user.user_metadata?.full_name || 'Profile'}
-                      className="w-9 h-9 rounded-full object-cover border border-black/10 shrink-0"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <div className="w-9 h-9 rounded-full bg-[#111111] text-white flex items-center justify-center text-xs font-semibold shrink-0">
-                      {((user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'U')[0]).toUpperCase()}
-                    </div>
-                  )}
+                  <div className="w-9 h-9 rounded-full bg-white text-[#111111] border border-[#EAEAEA] shadow-2xs flex items-center justify-center text-xs font-bold shrink-0">
+                    {((user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'U')[0]).toUpperCase()}
+                  </div>
                   <div className="flex flex-col min-w-0 flex-1">
                     <span className="text-sm font-semibold text-[#111111] truncate">
                       {user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0]}

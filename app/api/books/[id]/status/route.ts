@@ -13,28 +13,60 @@ export async function GET(
   try {
     const { id } = await context.params;
     const url = new URL(req.url);
-    const jobId = url.searchParams.get('jobId') || id;
+    const jobIdParam = url.searchParams.get('jobId');
+    const effectiveJobId = jobIdParam || id;
 
     // 1. Query Supabase PostgreSQL jobs table
     try {
       const supabase = createAdminClient();
-      const { data: dbJob } = await supabase
-        .from('jobs')
-        .select('*')
-        .eq('id', jobId)
-        .single();
+      let dbJob: any = null;
+
+      // If jobId was passed and is not the book id, search by jobId
+      if (jobIdParam && jobIdParam !== id) {
+        const { data } = await supabase.from('jobs').select('*').eq('id', jobIdParam).maybeSingle();
+        if (data) dbJob = data;
+      }
+
+      // If no job found by jobId, search by book_id
+      if (!dbJob) {
+        const { data: jobList } = await supabase
+          .from('jobs')
+          .select('*')
+          .eq('book_id', id)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        if (jobList && jobList.length > 0) {
+          dbJob = jobList[0];
+        }
+      }
+
+      // If still no job record, check if the book exists in books table
+      if (!dbJob) {
+        const { data: bData } = await supabase
+          .from('books')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+
+        if (bData) {
+          const newJobId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `job-${Date.now()}`;
+          const isDone = bData.status === 'completed';
+          const { data: createdJob } = await supabase
+            .from('jobs')
+            .insert({
+              id: newJobId,
+              book_id: id,
+              status: isDone ? 'completed' : 'processing',
+              stage: isDone ? 'completed' : 'planning',
+              progress: isDone ? 100 : (bData.progress || 10),
+            })
+            .select()
+            .single();
+          if (createdJob) dbJob = createdJob;
+        }
+      }
 
       if (dbJob) {
-        // Enforce ID Match: Path book ID must match the job's book_id
-        if (dbJob.book_id !== id) {
-          return NextResponse.json(
-            {
-              error: 'NOT_FOUND',
-              message: 'Job ID does not match the requested book path.',
-            },
-            { status: 404 }
-          );
-        }
 
         // Check ownership if user is authenticated and not public demo
         if (id !== 'ocean-wonders' && id !== 'demo-ocean-wonders') {
@@ -118,7 +150,7 @@ export async function GET(
     }
 
     // 2. Query in-memory dev store fallback
-    const job = GenerationPipeline.getJobState(jobId);
+    const job = GenerationPipeline.getJobState(effectiveJobId);
     if (job) {
       // Enforce ID Match in dev store
       if (job.bookId !== id) {
@@ -142,7 +174,7 @@ export async function GET(
         title: job.title || memBook?.title || 'Untitled eBook',
         subtitle: job.subtitle || memBook?.subtitle || '',
         cover_url: job.coverUrl || memBook?.coverUrl || null,
-        page_count: job.pageCount || memBook?.pageCount || 30,
+        page_count: job.pageCount || memBook?.pageCount || 16,
         stepsCompleted: job.stepsCompleted,
         error: job.error || null,
       });
@@ -151,7 +183,7 @@ export async function GET(
     // 3. Genuine 404 - never fake success
     return NextResponse.json(
       {
-        id: jobId,
+        id: effectiveJobId,
         status: 'not_found',
         error: 'Job not found or has expired.',
       },

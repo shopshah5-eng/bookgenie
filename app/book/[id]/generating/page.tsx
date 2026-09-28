@@ -43,19 +43,39 @@ export default function BookGeneratingPage({
   const bookId = resolvedParams.id;
   const router = useRouter();
   const { user, openAuthModal, signOut } = useAuth();
+  const [initialPages, setInitialPages] = useState<number>(16);
+  const [jobIdParam, setJobIdParam] = useState<string>('');
 
   const [data, setData] = useState<GenerationStatusData>({
     bookId,
     status: 'queued',
     stage: 'planning',
     progress: 5,
-    title: 'Loading Book Details...',
-    page_count: 30,
+    title: 'Creating your eBook...',
+    page_count: 16,
   });
 
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [isDownloadingEpub, setIsDownloadingEpub] = useState(false);
+
+  // Extract initial parameters from URL
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const jId = params.get('jobId');
+      if (jId) setJobIdParam(jId);
+
+      const pCount = params.get('pages');
+      if (pCount) {
+        const parsed = parseInt(pCount, 10);
+        if (!isNaN(parsed) && parsed > 0) {
+          setInitialPages(parsed);
+          setData((prev) => ({ ...prev, page_count: parsed }));
+        }
+      }
+    }
+  }, []);
 
   // Poll status endpoint every 1.5 seconds
   useEffect(() => {
@@ -64,24 +84,35 @@ export default function BookGeneratingPage({
 
     const fetchStatus = async () => {
       try {
-        const res = await fetch(`/api/books/${bookId}/status`);
+        const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+        const currentJobId = jobIdParam || searchParams?.get('jobId') || '';
+        const statusUrl = currentJobId
+          ? `/api/books/${bookId}/status?jobId=${currentJobId}`
+          : `/api/books/${bookId}/status`;
+
+        const res = await fetch(statusUrl);
         if (!res.ok) {
-          if (res.status === 404) {
-            // Check if book exists directly in completed state
-            const bookRes = await fetch(`/api/books/${bookId}`);
-            if (bookRes.ok) {
-              const b = await bookRes.json();
-              if (isMounted) {
-                setData((prev) => ({
-                  ...prev,
-                  status: 'completed',
-                  stage: 'completed',
-                  progress: 100,
-                  title: b.title || prev.title,
-                  subtitle: b.subtitle || prev.subtitle,
-                  cover_url: b.coverUrl || b.cover_url || prev.cover_url,
-                  page_count: b.pageCount || b.page_count || prev.page_count,
-                }));
+          // If status endpoint returns 404, check if book exists directly in books table
+          const bookRes = await fetch(`/api/books/${bookId}`);
+          if (bookRes.ok) {
+            const b = await bookRes.json();
+            if (isMounted) {
+              const isBookDone = b.status === 'completed';
+              setData((prev) => ({
+                ...prev,
+                status: b.status || (isBookDone ? 'completed' : prev.status),
+                stage: b.status || (isBookDone ? 'completed' : prev.stage),
+                progress: typeof b.progress === 'number' ? b.progress : (isBookDone ? 100 : prev.progress),
+                title: b.title || prev.title,
+                subtitle: b.subtitle || prev.subtitle,
+                cover_url: b.coverUrl || b.cover_url || prev.cover_url,
+                page_count: b.pageCount || b.page_count || prev.page_count || 16,
+              }));
+              if (isBookDone) {
+                clearInterval(pollInterval);
+                setTimeout(() => {
+                  router.push(`/book/${bookId}/preview`);
+                }, 600);
               }
             }
           }
@@ -95,16 +126,16 @@ export default function BookGeneratingPage({
             status: json.status || prev.status,
             stage: json.stage || prev.stage,
             progress: typeof json.progress === 'number' ? json.progress : prev.progress,
-            title: json.title || prev.title,
+            title: json.title && json.title !== 'Untitled eBook' ? json.title : prev.title,
             subtitle: json.subtitle || prev.subtitle,
             cover_url: json.cover_url || json.coverUrl || prev.cover_url,
-            page_count: json.page_count || json.pageCount || prev.page_count,
+            page_count: json.page_count || json.pageCount || prev.page_count || 16,
             error: json.error,
           }));
           setIsLoadingInitial(false);
         }
 
-        if (json.status === 'completed' || json.stage === 'completed') {
+        if (json.status === 'completed' || json.stage === 'completed' || json.progress >= 100) {
           clearInterval(pollInterval);
           setTimeout(() => {
             router.push(`/book/${bookId}/preview`);
@@ -124,7 +155,7 @@ export default function BookGeneratingPage({
       isMounted = false;
       clearInterval(pollInterval);
     };
-  }, [bookId]);
+  }, [bookId, jobIdParam]);
 
   const isCompleted = data.status === 'completed' || data.stage === 'completed' || data.progress >= 100;
   const isFailed = data.status === 'failed' || data.stage === 'failed';
@@ -261,12 +292,12 @@ export default function BookGeneratingPage({
 
             {user ? (
               <div className="flex items-center gap-2 pl-2">
-                <div className="w-8 h-8 rounded-full bg-[#F2EFE9] text-[#111111] flex items-center justify-center text-xs font-semibold select-none border border-[#EAEAEA]">
-                  {(user.email?.[0] || 'U').toUpperCase()}
+                <div className="w-8 h-8 rounded-full bg-white text-[#111111] flex items-center justify-center text-xs font-bold select-none border border-[#EAEAEA] shadow-2xs">
+                  {((user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'U')[0]).toUpperCase()}
                 </div>
                 <button
                   onClick={() => signOut()}
-                  className="text-xs text-[#888888] hover:text-[#111111] transition-colors hidden sm:inline-block"
+                  className="text-xs text-[#888888] hover:text-[#111111] transition-colors hidden sm:inline-block cursor-pointer"
                   title="Sign Out"
                 >
                   Sign Out
@@ -826,7 +857,7 @@ export default function BookGeneratingPage({
                     Number of Pages
                   </span>
                   <span className="block text-[13px] sm:text-[14px] font-semibold text-[#111111]">
-                    {data.page_count || 30} pages
+                    {data.page_count || 16} pages
                   </span>
                 </div>
               </div>
@@ -841,7 +872,7 @@ export default function BookGeneratingPage({
                     {isCompleted ? 'Status' : 'Estimated Time'}
                   </span>
                   <span className="block text-[13px] sm:text-[14px] font-semibold text-[#111111]">
-                    {isCompleted ? 'Completed' : '2–4 minutes'}
+                    {isCompleted ? 'Completed' : (data.page_count || 16) <= 20 ? '~30–45 seconds' : '~1–2 minutes'}
                   </span>
                 </div>
               </div>

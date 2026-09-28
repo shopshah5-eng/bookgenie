@@ -82,7 +82,7 @@ export function BookCreatorCard() {
       }
 
       const data = await res.json();
-      router.push(`/book/${data.bookId}/generating`);
+      router.push(`/book/${data.bookId}/generating?jobId=${data.jobId || ''}&pages=${pages}`);
     } catch (err: any) {
       setError(err.message || 'Could not initiate generation. Please try again.');
       setIsSubmitting(false);
