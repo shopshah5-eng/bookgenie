@@ -45,8 +45,8 @@ export function MinimalFAQ() {
     },
     {
       id: 'q-5',
-      q: 'Is there a free plan?',
-      a: 'Yes! The Free Starter tier lets you create and read your first complete book with zero credit card required.',
+      q: 'How does pricing work?',
+      a: 'You can start completely free—create and read your first book with 0 credit card required. When you want to publish commercially, choose between a Single Book Pass ($19 one-time, no subscription) or our Pro Creator ($15/mo) and Atelier plans for high-volume publishing.',
     },
     {
       id: 'q-6',
