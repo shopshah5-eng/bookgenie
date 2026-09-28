@@ -32,11 +32,19 @@ export function AuthModal() {
       const supabase = createClient();
 
       if (authView === 'signup') {
+        const callbackOrigin =
+          typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost')
+            ? window.location.origin
+            : 'https://bookgenie-app.netlify.app';
+
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: { full_name: name },
+            emailRedirectTo: `${callbackOrigin}/api/auth/callback?next=${encodeURIComponent(
+              redirectUrl || '/create'
+            )}`,
           },
         });
 

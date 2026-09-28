@@ -28,10 +28,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
 
   useEffect(() => {
+    const supabase = createClient();
+
+    // Check if URL has an auth code (fallback if redirected directly to homepage)
+    if (typeof window !== 'undefined' && window.location.search.includes('code=')) {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+      if (code) {
+        supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+          if (!error && data?.user) {
+            setUser(data.user);
+            // Clean up the URL query params without reloading
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+          }
+        });
+      }
+    }
+
     // Check local session or Supabase user
     const checkUser = async () => {
       try {
-        const supabase = createClient();
         const { data } = await supabase.auth.getUser();
         if (data?.user) {
           setUser(data.user);
@@ -46,6 +63,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkUser();
+
+    // Subscribe to real-time auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const openAuthModal = (view: AuthView = 'signup', redirectAfter?: string) => {
