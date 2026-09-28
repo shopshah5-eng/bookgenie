@@ -6,7 +6,7 @@ import { PenTool, Clock, Heart } from 'lucide-react';
 export function ValueProps() {
   const props = [
     {
-      title: 'AI Writes & Designs',
+      title: 'Autonomous Writing & Design',
       description:
         'Get complete, high-quality content with beautiful visuals and layouts.',
       icon: <PenTool className="w-5 h-5 text-[#8C5F2E]" />,

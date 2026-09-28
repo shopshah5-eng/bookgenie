@@ -261,7 +261,7 @@ function PricingContent() {
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-[#fcba64] text-[20px] shrink-0">verified</span>
                       <span className="font-body-md text-body-md text-white">
-                        In-Reader AI Chapter Revision Dock
+                        In-Reader Chapter Revision Dock
                       </span>
                     </li>
                     <li className="flex items-start gap-3">
@@ -327,13 +327,13 @@ function PricingContent() {
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
                       <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
-                        250 High-Res AI Visual Plates / mo with Character Bible Locks
+                        250 High-Res Visual Plates / mo with Character Bible Locks
                       </span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] text-[20px] shrink-0">check_circle</span>
                       <span className="font-body-md text-body-md text-on-surface dark:text-[#f1effa]">
-                        Priority High-Speed AI Processing Queue
+                        Priority High-Speed Studio Processing Queue
                       </span>
                     </li>
                     <li className="flex items-start gap-3">

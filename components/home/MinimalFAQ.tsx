@@ -23,7 +23,7 @@ export function MinimalFAQ() {
     {
       id: 'q-1',
       q: 'What is BookGenie?',
-      a: 'BookGenie is an AI-powered publishing platform that turns your ideas or raw manuscripts into complete, beautifully formatted, and professionally typeset eBooks in minutes.',
+      a: 'BookGenie is an autonomous publishing platform that turns your ideas or raw manuscripts into complete, beautifully formatted, and professionally typeset eBooks in minutes.',
     },
     {
       id: 'q-2',

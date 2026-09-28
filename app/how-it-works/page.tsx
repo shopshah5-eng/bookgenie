@@ -30,7 +30,7 @@ export default function HowItWorksPage() {
         'Autonomous multi-stage generation writes chapter-by-chapter with Knuth-Plass line breaks, 4px baseline grids, and synchronized diffusion plates that maintain likeness and lighting fidelity.',
       iconName: 'auto_awesome',
       details: [
-        'Multi-tier AI router optimizes cost and literary depth',
+        'Multi-tier synthesis router optimizes cost and literary depth',
         'Character consistency bibles for children’s & illustrated books',
         'Automated semantic quality control and mathematical margin assembly',
       ],
@@ -40,7 +40,7 @@ export default function HowItWorksPage() {
       title: 'Typeset Reader & Press Compilation',
       subtitle: 'Print-Ready CMYK PDF + Validated EPUB3',
       description:
-        'Inspect your live volume in the dual-leaf Atelier reader. Refine any page using conversational AI prompts, then compile ISO-compliant EPUB3 binaries and 300 DPI press PDFs.',
+        'Inspect your live volume in the dual-leaf Atelier reader. Refine any page using conversational editorial prompts, then compile ISO-compliant EPUB3 binaries and 300 DPI press PDFs.',
       iconName: 'print',
       details: [
         'Floating natural-language revision dock with instant rollback',

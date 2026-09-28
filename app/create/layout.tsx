@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Create a Book — BookGenie AI Publishing Studio',
-  description: 'Enter your prompt or outline to generate a beautifully structured, illustrated, and typeset book with BookGenie AI.',
+  title: 'Create a Book — BookGenie Publishing Studio',
+  description: 'Enter your prompt or outline to generate a beautifully structured, illustrated, and typeset book with BookGenie.',
   alternates: {
     canonical: 'https://bookgenie-app.netlify.app/create',
   },

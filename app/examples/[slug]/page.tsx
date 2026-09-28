@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${book.title} — ${book.pages.length}-Page Interactive Edition | BookGenie Showcase`,
-    description: `${book.subtitle || book.title}. Explore the full interactive preview typeset and illustrated with BookGenie AI Studio.`,
+    description: `${book.subtitle || book.title}. Explore the full interactive preview typeset and illustrated with BookGenie Studio.`,
     openGraph: {
       title: `${book.title} | BookGenie Showcase`,
       description: book.subtitle || book.title,

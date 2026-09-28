@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://bookgenie-app.netlify.app'),
   title: "BookGenie — Turn Your Ideas Into Beautiful Books",
   description:
-    "BookGenie is an AI publishing platform that turns a user's prompt or uploaded content into a beautifully structured, illustrated, and formatted ebook with AI-generated writing, visuals, and downloadable PDF/EPUB.",
+    "BookGenie is an autonomous publishing platform that turns a user's prompt or uploaded content into a beautifully structured, illustrated, and formatted publication with generative writing, visuals, and downloadable PDF/EPUB.",
   alternates: {
     canonical: 'https://bookgenie-app.netlify.app',
   },
@@ -29,13 +29,13 @@ export const metadata: Metadata = {
     description:
       "Turn your prompt or notes into a beautifully structured, illustrated, and formatted publication with downloadable PDF and EPUB.",
     url: 'https://bookgenie-app.netlify.app',
-    siteName: 'BookGenie AI Publishing Studio',
+    siteName: 'BookGenie Publishing Studio',
     images: [
       {
-        url: '/images/hero-brighter-you.jpg',
+        url: '/images/hero-calmer-you.jpg',
         width: 1200,
         height: 630,
-        alt: 'BookGenie AI Publishing Studio',
+        alt: 'BookGenie Publishing Studio',
       },
     ],
     type: 'website',
@@ -45,14 +45,14 @@ export const metadata: Metadata = {
     title: "BookGenie — Turn Your Ideas Into Beautiful Books",
     description:
       "Turn your prompt or notes into a beautifully structured, illustrated, and formatted publication.",
-    images: ['/images/hero-brighter-you.jpg'],
+    images: ['/images/hero-calmer-you.jpg'],
   },
   keywords: [
-    "AI book generator",
+    "autonomous book generator",
     "ebook creator",
     "children's book generator",
     "coloring book creator",
-    "AI publishing studio",
+    "digital publishing studio",
     "PDF ebook",
     "EPUB export",
   ],
@@ -69,7 +69,7 @@ const jsonLd = {
     "price": "0",
     "priceCurrency": "USD"
   },
-  "description": "BookGenie is an AI publishing studio that turns prompts and manuscripts into beautifully structured, illustrated, and formatted books."
+  "description": "BookGenie is a publishing studio that turns prompts and manuscripts into beautifully structured, illustrated, and formatted books."
 };
 
 export default function RootLayout({

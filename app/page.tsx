@@ -27,7 +27,7 @@ export default function HomePage() {
           {/* 2. Main Book Creation Card with Prompt & Synchronized Page Count Slider */}
           <BookCreatorCard />
 
-          {/* 3. 4-Column Feature Strip (Powered by AI, Unique Illustrations, etc.) */}
+          {/* 3. 4-Column Feature Strip (Autonomous Writing, Unique Illustrations, etc.) */}
           <MinimalFeatureStrip />
 
           {/* 4. Examples Section (See What You Can Create: 4 Book Mockups) */}

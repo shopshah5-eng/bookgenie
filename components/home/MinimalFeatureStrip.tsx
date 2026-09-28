@@ -7,7 +7,7 @@ export function MinimalFeatureStrip() {
   const features = [
     {
       icon: Sparkles,
-      title: 'Powered by AI',
+      title: 'Autonomous Writing',
       desc: 'High-quality content',
     },
     {

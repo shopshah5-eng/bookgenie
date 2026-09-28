@@ -184,7 +184,7 @@ export function StudioWorkflowSection() {
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[#E5E5E5] dark:border-[#333333] bg-white dark:bg-[#1C1C1C] text-xs font-medium text-[#333333] dark:text-[#E0E0E0] hover:border-[#111111] dark:hover:border-white transition-all shadow-2xs cursor-pointer active:scale-95"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-[#9A6F3C]" />
-                  <span>{refinedText ? 'Reverted' : 'Refine with AI'}</span>
+                  <span>{refinedText ? 'Reverted' : 'Refine Prose'}</span>
                 </button>
 
                 <div className="flex items-center gap-2">

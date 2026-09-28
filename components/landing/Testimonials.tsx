@@ -32,7 +32,7 @@ export function Testimonials() {
             </h2>
 
             <p className="text-sm text-[#666666] dark:text-[#999999] mb-8 leading-relaxed max-w-xl">
-              We believe authors and publishers should retain total sovereignty over their work. Your manuscripts and generated assets are isolated with database-level security and are never used to train shared AI models.
+              We believe authors and publishers should retain total sovereignty over their work. Your manuscripts and generated assets are isolated with database-level security and are never used to train public models.
             </p>
 
             {/* List of 5 verified capabilities */}
@@ -61,7 +61,7 @@ export function Testimonials() {
             </blockquote>
             
             <p className="text-xs sm:text-[13px] text-[#666666] dark:text-[#999999] mt-4 leading-relaxed font-sans">
-              BookGenie couples high-fidelity AI generation with automated book design engines, outputting publication-standard files ready for distribution.
+              BookGenie couples high-fidelity synthesis with automated book design engines, outputting publication-standard files ready for distribution.
             </p>
 
             <div className="space-y-2 mt-6 pt-5 border-t border-[#EFEFEF] dark:border-[#222222]">

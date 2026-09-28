@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'How BookGenie Works — Architecture & AI Publishing Pipeline',
+  title: 'How BookGenie Works — Architecture & Autonomous Publishing Pipeline',
   description:
-    'Learn how BookGenie turns an idea or document into a complete, illustrated, professionally typeset book using our multi-tier AI pipeline and deterministic layout engine.',
+    'Learn how BookGenie turns an idea or document into a complete, illustrated, professionally typeset book using our multi-tier publishing pipeline and deterministic layout engine.',
   alternates: {
     canonical: 'https://bookgenie-app.netlify.app/how-it-works',
   },
   openGraph: {
-    title: 'How BookGenie Works — Architecture & AI Publishing Pipeline',
+    title: 'How BookGenie Works — Architecture & Autonomous Publishing Pipeline',
     description:
       'Learn how BookGenie turns an idea or document into a complete, illustrated, professionally typeset book.',
     url: 'https://bookgenie-app.netlify.app/how-it-works',

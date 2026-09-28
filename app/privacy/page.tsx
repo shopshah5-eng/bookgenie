@@ -30,9 +30,9 @@ export default function PrivacyPage() {
               <p>We collect your email address, account identifier, prompts, attached manuscript notes, generated chapter prose, and book artifacts solely to render and maintain your private library.</p>
             </section>
             <section className="p-6 rounded-2xl bg-surface-container-low dark:bg-[#1a1b22] border border-outline-variant/20 dark:border-white/5">
-              <h2 className="font-title-editorial text-lg text-on-surface dark:text-white mb-2">2. AI Sub-Processors &amp; Zero-Training Guarantee</h2>
+              <h2 className="font-title-editorial text-lg text-on-surface dark:text-white mb-2">2. Cloud Sub-Processors &amp; Zero-Training Guarantee</h2>
               <p>
-                Prompts and chapter blueprints are routed securely to our AI inferencing providers—primarily OpenRouter and Google Cloud Gemini API—exclusively for synchronous generation. Under commercial API developer terms, customer prompts and generated outputs are <strong>not used to train or refine public frontier models</strong>.
+                Prompts and chapter blueprints are routed securely to our cloud inferencing providers—primarily OpenRouter and Google Cloud Gemini API—exclusively for synchronous generation. Under commercial API developer terms, customer prompts and generated outputs are <strong>not used to train or refine public frontier models</strong>.
               </p>
             </section>
             <section className="p-6 rounded-2xl bg-surface-container-low dark:bg-[#1a1b22] border border-outline-variant/20 dark:border-white/5">

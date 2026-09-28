@@ -18,7 +18,7 @@ export function MinimalHowItWorks() {
     {
       num: '3',
       title: 'Generate & Download',
-      desc: 'Let AI create your eBook and download it in PDF or EPUB.',
+      desc: 'Compile your complete eBook and download it in PDF or EPUB.',
     },
   ];
 

@@ -134,7 +134,7 @@ export function BookReaderClient({ initialBook, bookId }: BookReaderClientProps)
       try {
         await navigator.share({
           title: book?.title || 'BookGenie Publication',
-          text: `Read "${book?.title}" created with BookGenie AI`,
+          text: `Read "${book?.title}" created with BookGenie Publishing Studio`,
           url: shareUrl,
         });
         return;
@@ -474,7 +474,7 @@ export function BookReaderClient({ initialBook, bookId }: BookReaderClientProps)
         </div>
       </main>
 
-      {/* Floating Natural Language AI Edit Dock */}
+      {/* Floating Natural Language Edit Dock */}
       <FloatingEditDock
         currentPageNumber={activePage.pageNumber}
         totalPages={totalPages}

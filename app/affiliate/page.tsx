@@ -73,7 +73,7 @@ export default function AffiliatePage() {
               Earn with BookGenie
             </h1>
             <p className="font-body-md text-sm sm:text-base text-on-surface-variant dark:text-[#c4c7c5]">
-              Partner with the leading luxury AI publishing platform. Share BookGenie with your audience and build recurring monthly revenue.
+              Partner with the leading luxury digital publishing platform. Share BookGenie with your audience and build recurring monthly revenue.
             </p>
           </div>
 

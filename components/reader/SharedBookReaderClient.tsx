@@ -74,7 +74,7 @@ export function SharedBookReaderClient({ initialBook, token }: SharedBookReaderC
       try {
         await navigator.share({
           title: book?.title || 'BookGenie Edition',
-          text: `Read "${book?.title}" created with BookGenie AI`,
+          text: `Read "${book?.title}" created with BookGenie Publishing Studio`,
           url: shareUrl,
         });
         return;

@@ -20,7 +20,7 @@ export async function generateMetadata({
 
   return {
     title: `${book.title} — Shared Edition | BookGenie`,
-    description: `Read "${book.title}" — a ${book.pageCount || book.pages.length}-page publication created with BookGenie AI publishing studio.`,
+    description: `Read "${book.title}" — a ${book.pageCount || book.pages.length}-page publication created with BookGenie Publishing Studio.`,
     alternates: {
       canonical: `https://bookgenie-app.netlify.app/shared/${token}`,
     },

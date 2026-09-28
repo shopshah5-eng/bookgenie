@@ -27,7 +27,7 @@ export function TechnicalQualitySection() {
       subtitle: 'Persistent character consistency',
       description:
         'Proprietary visual routing ensures characters, lighting palettes, and illustration styles remain identical from cover to final chapter plate without style drifting.',
-      badge: 'Visual AI',
+      badge: 'Visual Engine',
     },
     {
       icon: BookOpen,
@@ -65,7 +65,7 @@ export function TechnicalQualitySection() {
             PUBLISHING ARCHITECTURE
           </div>
           <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#111111] dark:text-[#F5F5F5] tracking-tight leading-tight">
-            More than AI writing.<br className="hidden sm:inline" /> A complete publishing studio.
+            More than simple generation.<br className="hidden sm:inline" /> A complete publishing studio.
           </h2>
           <p className="text-sm sm:text-base text-[#666666] dark:text-[#999999] mt-3 font-sans leading-relaxed">
             Writing words is only 20% of publishing. BookGenie couples multi-tier language intelligence with deterministic layout math, visual persistence engines, and pre-press validation.

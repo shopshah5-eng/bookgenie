@@ -34,7 +34,7 @@ export default function FAQPage() {
       a: 'Most books are completely planned, written, illustrated, and formatted in 1 to 3 minutes. BookGenie runs generation in background workers with real-time status polling, so even if your browser connection drops, your book continues processing on the server until complete.',
     },
     {
-      q: 'How does natural-language AI editing and revision work?',
+      q: 'How does natural-language editing and revision work?',
       a: 'In the digital reader, click the floating revision bar (“✨ What would you like to change?”) and describe your edit in plain English (e.g., “Make Chapter 2 simpler for early readers and add an illustration of the sunset”). BookGenie surgically modifies only the requested pages and automatically preserves previous version snapshots in case you ever want to revert.',
     },
     {

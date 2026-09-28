@@ -13,7 +13,7 @@ export function MinimalHero() {
           {/* Eyebrow */}
           <div className="mb-4">
             <span className="font-sans text-[11px] font-semibold tracking-[0.2em] text-[#666666] uppercase">
-              AI EBOOK CREATOR
+              AUTONOMOUS EBOOK CREATOR
             </span>
           </div>
 
@@ -25,7 +25,7 @@ export function MinimalHero() {
 
           {/* Subtitle */}
           <p className="font-sans text-[16px] sm:text-[17px] text-[#666666] leading-relaxed max-w-xl mb-10">
-            Just write a prompt, and let AI create a complete,
+            Just write a prompt, and create a complete,
             professionally designed eBook for you — in minutes.
           </p>
 

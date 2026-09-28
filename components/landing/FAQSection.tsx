@@ -30,7 +30,7 @@ export function FAQSection() {
     },
     {
       q: 'Can I edit and refine chapters after generation?',
-      a: 'Absolutely. Inside the BookGenie Studio, you can manually rewrite prose, adjust formatting, request targeted AI revisions on specific paragraphs, or regenerate illustrations until the edition matches your exact vision.',
+      a: 'Absolutely. Inside the BookGenie Studio, you can manually rewrite prose, adjust formatting, request targeted editorial revisions on specific paragraphs, or regenerate illustrations until the edition matches your exact vision.',
     },
   ];
 

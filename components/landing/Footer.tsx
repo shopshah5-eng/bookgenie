@@ -113,7 +113,7 @@ export function Footer() {
         {/* Bottom Colophon line */}
         <div className="pt-6 border-t border-surface-container-highest dark:border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           <p className="font-code-spec text-code-spec text-on-surface-variant dark:text-neutral-400">
-            © 2026 BookGenie Studio. All rights reserved. Precision AI Publishing.
+            © 2026 BookGenie Studio. All rights reserved. Precision Digital Publishing.
           </p>
           <div className="flex items-center gap-4">
             <span className="font-code-spec text-code-spec text-on-surface-variant dark:text-neutral-400">

@@ -184,7 +184,7 @@ export function GenerationProgressModal({
                 : 'Finalizing Master Publication Package'}
             </h3>
 
-            {/* What AI Is Doing Now - Animated Pill */}
+            {/* Live Studio Activity - Animated Pill */}
             <div className="mx-auto mb-6 px-4 py-2 rounded-xl bg-surface-container-low dark:bg-white/5 border border-surface-container-highest dark:border-white/10 flex items-center justify-center gap-2 max-w-md shadow-xs">
               <Sparkles className="w-4 h-4 text-secondary dark:text-[#fcba64] animate-spin" />
               <p className="font-body-md text-xs sm:text-sm text-on-surface dark:text-[#f1effa] font-medium truncate">

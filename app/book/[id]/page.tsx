@@ -19,13 +19,13 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${book.title} — BookGenie AI Studio`,
-    description: `Read "${book.title}" — a ${book.pageCount || book.pages.length}-page publication created with BookGenie AI publishing studio.`,
+    title: `${book.title} — BookGenie Studio`,
+    description: `Read "${book.title}" — a ${book.pageCount || book.pages.length}-page publication created with BookGenie Publishing Studio.`,
     alternates: {
       canonical: `https://bookgenie-app.netlify.app/book/${id}`,
     },
     openGraph: {
-      title: `${book.title} — BookGenie AI Studio`,
+      title: `${book.title} — BookGenie Studio`,
       description: `Read "${book.title}" created with BookGenie.`,
       url: `https://bookgenie-app.netlify.app/book/${id}`,
       images: book.coverUrl ? [{ url: book.coverUrl }] : undefined,
