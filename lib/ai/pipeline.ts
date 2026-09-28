@@ -293,45 +293,112 @@ export class GenerationPipeline {
       }
 
       // -------------------------------------------------------------
-      // STAGE 3: WRITING CHAPTERS (50% -> 80%)
+      // STAGE 3: WRITING CHAPTERS (50% -> 65%)
+      // One chapter is generated per poll to prevent serverless timeouts.
       // -------------------------------------------------------------
       if (stage === 'writing' || stage === 'outline') {
         const chapters = blueprint.chapters || [];
         if (chapters.length === 0) throw new Error('Blueprint contained no chapters.');
 
-        // Process all chapters concurrently in parallel for ultra-fast response
-        const chapterPageArrays = await Promise.all(
-          chapters.map(async (ch, i) => {
-            const chapterIndex = i + 1;
-            const timeoutPromise = new Promise<BookPageDocument[]>((_, reject) =>
-              setTimeout(() => reject(new Error('Chapter provider timeout')), 25_000)
-            );
-            return await Promise.race([
-              this.textProvider.generateChapter({
-                blueprint,
-                chapterIndex,
-              }),
-              timeoutPromise,
-            ]);
-          })
-        );
+        const existingPages = blueprint.generatedPages || [];
+        const generatedChapterIndices = new Set(existingPages.map((p) => p.chapterIndex));
+        const nextChapter = chapters.find((ch, i) => !generatedChapterIndices.has(ch.index ?? i + 1));
 
-        // Chapter providers may number pages relative to their own chapter.
-        // Normalize the complete manuscript before visual-plan attachment so
-        // each persisted illustration has one deterministic page target.
-        const allGeneratedPages: BookPageDocument[] = chapterPageArrays
-          .flat()
-          .map((page, index) => ({ ...page, pageNumber: index + 1 }));
+        if (nextChapter) {
+          const chapterIndex = nextChapter.index ?? (chapters.indexOf(nextChapter) + 1);
+          const timeoutPromise = new Promise<BookPageDocument[]>((_, reject) =>
+            setTimeout(() => reject(new Error('Chapter provider timeout')), 22_000)
+          );
+          const rawPages = await Promise.race([
+            this.textProvider.generateChapter({
+              blueprint,
+              chapterIndex,
+            }),
+            timeoutPromise,
+          ]);
 
-        // Save generated pages in blueprint for next step
-        const updatedBlueprint = {
+          const newChapterPages = rawPages.map((p) => ({
+            ...p,
+            chapterIndex,
+          }));
+
+          const updatedGeneratedPages = [...existingPages, ...newChapterPages];
+          const updatedBlueprint = {
+            ...blueprint,
+            generatedPages: updatedGeneratedPages,
+          };
+
+          const chaptersDone = new Set(updatedGeneratedPages.map((p) => p.chapterIndex)).size;
+          const isComplete = chaptersDone >= chapters.length;
+
+          if (isComplete) {
+            // Normalize page numbers across the entire manuscript
+            const normalizedPages = updatedGeneratedPages.map((page, index) => ({
+              ...page,
+              pageNumber: index + 1,
+            }));
+            const finalBlueprint = {
+              ...updatedBlueprint,
+              generatedPages: normalizedPages,
+            };
+
+            const { error: blueprintError } = await supabase
+              .from('books')
+              .update({ blueprint: finalBlueprint, status: 'generating_visuals', progress: 65 })
+              .eq('id', bookId);
+            if (blueprintError) throw blueprintError;
+
+            const { error: jobError } = await supabase
+              .from('jobs')
+              .update({ stage: 'illustrations', status: 'processing', progress: 65 })
+              .eq('id', jobId);
+            if (jobError) throw jobError;
+
+            return {
+              id: jobId,
+              book_id: bookId,
+              status: 'processing',
+              stage: 'illustrations',
+              progress: 65,
+            };
+          }
+
+          const progress = Math.min(64, 50 + Math.round((chaptersDone / chapters.length) * 15));
+
+          const { error: bookUpdateError } = await supabase
+            .from('books')
+            .update({ blueprint: updatedBlueprint, progress })
+            .eq('id', bookId);
+          if (bookUpdateError) throw bookUpdateError;
+
+          const { error: jobUpdateError } = await supabase
+            .from('jobs')
+            .update({ progress })
+            .eq('id', jobId);
+          if (jobUpdateError) throw jobUpdateError;
+
+          return {
+            id: jobId,
+            book_id: bookId,
+            status: 'processing',
+            stage: 'writing',
+            progress,
+          };
+        }
+
+        // If all chapters were already recorded, advance to illustrations
+        const normalizedPages = existingPages.map((page, index) => ({
+          ...page,
+          pageNumber: index + 1,
+        }));
+        const finalBlueprint = {
           ...blueprint,
-          generatedPages: allGeneratedPages,
+          generatedPages: normalizedPages,
         };
 
         const { error: blueprintError } = await supabase
           .from('books')
-          .update({ blueprint: updatedBlueprint, status: 'generating_visuals', progress: 65 })
+          .update({ blueprint: finalBlueprint, status: 'generating_visuals', progress: 65 })
           .eq('id', bookId);
         if (blueprintError) throw blueprintError;
 
