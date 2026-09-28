@@ -97,7 +97,7 @@ export class GenerationPipeline {
     // Persist to Supabase
     try {
       const supabase = createAdminClient();
-      await supabase.from('books').insert({
+      const { error: bErr } = await supabase.from('books').insert({
         id: bookId,
         user_id: validUserId,
         title: initialDoc.title,
@@ -111,14 +111,20 @@ export class GenerationPipeline {
         page_target: targetPages,
         blueprint: initialDoc.blueprint as any,
       });
+      if (bErr) {
+        console.error('Supabase books insertion error:', bErr);
+      }
 
-      await supabase.from('jobs').insert({
+      const { error: jErr } = await supabase.from('jobs').insert({
         id: jobId,
         book_id: bookId,
         status: 'queued',
         stage: 'planning',
         progress: 5,
       });
+      if (jErr) {
+        console.error('Supabase jobs insertion error:', jErr);
+      }
     } catch (dbErr) {
       console.warn('Supabase initial insertion notice:', dbErr);
     }
@@ -195,7 +201,7 @@ export class GenerationPipeline {
         let generatedBlueprint: BookBlueprint;
         try {
           const timeoutPromise = new Promise<BookBlueprint>((_, reject) =>
-            setTimeout(() => reject(new Error('Blueprint timeout')), 8000)
+            setTimeout(() => reject(new Error('Blueprint timeout')), 3500)
           );
           generatedBlueprint = await Promise.race([
             this.textProvider.generateBlueprint({
@@ -286,7 +292,7 @@ export class GenerationPipeline {
         let coverUrl = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80';
         try {
           const timeoutPromise = new Promise<{ url: string }>((_, reject) =>
-            setTimeout(() => reject(new Error('Image timeout')), 7000)
+            setTimeout(() => reject(new Error('Image timeout')), 3500)
           );
           const result = await Promise.race([
             this.imageProvider.generateImage({
@@ -352,81 +358,79 @@ export class GenerationPipeline {
               { index: 4, title: 'Chapter 4: The Golden Return', summary: 'Bringing home inspiration and looking toward the future.' },
             ];
 
-        const allGeneratedPages: BookPageDocument[] = [];
-
-        for (let i = 0; i < chapters.length; i++) {
-          const ch = chapters[i];
-          const chapterIndex = i + 1;
-
-          // Rich fallback text tailored directly to this book's topic
-          const fallbackChapterPages: BookPageDocument[] = [
-            {
-              pageNumber: i * 4 + 1,
-              chapterIndex,
-              title: ch.title || `Chapter ${chapterIndex}`,
-              pageType: 'chapter_header',
-              layout: 'standard',
-              blocks: [
-                { id: `c${chapterIndex}-h`, type: 'heading', level: 1, text: ch.title || `Chapter ${chapterIndex}` },
-                {
-                  id: `c${chapterIndex}-intro`,
-                  type: 'paragraph',
-                  text: ch.summary || `Every great journey begins with a spark of wonder. As we open this chapter on "${book?.title || promptText}", we step into a rich narrative designed to illuminate, captivate, and inspire.`
-                },
-                {
-                  id: `c${chapterIndex}-p1`,
-                  type: 'paragraph',
-                  text: `The atmosphere is alive with possibility. In exploring ${promptText.toLowerCase()}, every detail carries meaning, drawing the reader deeper into the heart of the subject with elegance and vivid imagery.`
-                },
-              ],
-            },
-            {
-              pageNumber: i * 4 + 2,
-              chapterIndex,
-              title: `${ch.title} — Continued`,
-              pageType: 'illustrated_content',
-              layout: 'image-right',
-              blocks: [
-                {
-                  id: `c${chapterIndex}-p2`,
-                  type: 'paragraph',
-                  text: `As our perspective expands, new insights emerge naturally. The subtleties of ${book?.title || 'the journey'} remind us that curiosity and careful observation reveal layers of beauty that routine often conceals.`
-                },
-                {
-                  id: `c${chapterIndex}-q1`,
-                  type: 'quote',
-                  text: `"To understand deeply is to discover that wonder exists in the simplest of observations."`
-                },
-                {
-                  id: `c${chapterIndex}-p3`,
-                  type: 'paragraph',
-                  text: `With each passing moment, the narrative builds a lasting foundation, weaving thought, artistry, and feeling into a harmonious reading experience.`
-                },
-              ],
-            },
-          ];
-
-          let chapterPages = fallbackChapterPages;
-          try {
-            const timeoutPromise = new Promise<BookPageDocument[]>((_, reject) =>
-              setTimeout(() => reject(new Error('Chapter timeout')), 6000)
-            );
-            const written = await Promise.race([
-              this.textProvider.generateChapter({
-                blueprint,
+        // Process all chapters concurrently in parallel for ultra-fast response
+        const chapterPageArrays = await Promise.all(
+          chapters.map(async (ch, i) => {
+            const chapterIndex = i + 1;
+            const fallbackChapterPages: BookPageDocument[] = [
+              {
+                pageNumber: i * 4 + 1,
                 chapterIndex,
-              }),
-              timeoutPromise,
-            ]);
-            if (written && written.length > 0) {
-              chapterPages = written;
-            }
-          } catch {
-            // Use high quality structured chapter fallback
-          }
+                title: ch.title || `Chapter ${chapterIndex}`,
+                pageType: 'chapter_header',
+                layout: 'standard',
+                blocks: [
+                  { id: `c${chapterIndex}-h`, type: 'heading', level: 1, text: ch.title || `Chapter ${chapterIndex}` },
+                  {
+                    id: `c${chapterIndex}-intro`,
+                    type: 'paragraph',
+                    text: ch.summary || `Every great journey begins with a spark of wonder. As we open this chapter on "${book?.title || promptText}", we step into a rich narrative designed to illuminate, captivate, and inspire.`
+                  },
+                  {
+                    id: `c${chapterIndex}-p1`,
+                    type: 'paragraph',
+                    text: `The atmosphere is alive with possibility. In exploring ${promptText.toLowerCase()}, every detail carries meaning, drawing the reader deeper into the heart of the subject with elegance and vivid imagery.`
+                  },
+                ],
+              },
+              {
+                pageNumber: i * 4 + 2,
+                chapterIndex,
+                title: `${ch.title} — Continued`,
+                pageType: 'illustrated_content',
+                layout: 'image-right',
+                blocks: [
+                  {
+                    id: `c${chapterIndex}-p2`,
+                    type: 'paragraph',
+                    text: `As our perspective expands, new insights emerge naturally. The subtleties of ${book?.title || 'the journey'} remind us that curiosity and careful observation reveal layers of beauty that routine often conceals.`
+                  },
+                  {
+                    id: `c${chapterIndex}-q1`,
+                    type: 'quote',
+                    text: `"To understand deeply is to discover that wonder exists in the simplest of observations."`
+                  },
+                  {
+                    id: `c${chapterIndex}-p3`,
+                    type: 'paragraph',
+                    text: `With each passing moment, the narrative builds a lasting foundation, weaving thought, artistry, and feeling into a harmonious reading experience.`
+                  },
+                ],
+              },
+            ];
 
-          allGeneratedPages.push(...chapterPages);
-        }
+            try {
+              const timeoutPromise = new Promise<BookPageDocument[]>((_, reject) =>
+                setTimeout(() => reject(new Error('Chapter timeout')), 3500)
+              );
+              const written = await Promise.race([
+                this.textProvider.generateChapter({
+                  blueprint,
+                  chapterIndex,
+                }),
+                timeoutPromise,
+              ]);
+              if (written && written.length > 0) {
+                return written;
+              }
+              return fallbackChapterPages;
+            } catch {
+              return fallbackChapterPages;
+            }
+          })
+        );
+
+        const allGeneratedPages: BookPageDocument[] = chapterPageArrays.flat();
 
         // Save generated pages in blueprint for next step
         const updatedBlueprint = {

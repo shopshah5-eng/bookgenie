@@ -170,14 +170,16 @@ export default function BookGeneratingPage({
   let activeTimelineStep = 0;
   if (isCompleted) {
     activeTimelineStep = 5; // all complete
-  } else if (data.stage === 'finalizing' || data.progress >= 90) {
-    activeTimelineStep = 4;
-  } else if (data.stage === 'designing' || data.progress >= 80) {
-    activeTimelineStep = 2;
-  } else if (data.stage === 'illustrations' || data.progress >= 65) {
-    activeTimelineStep = 1;
+  } else if (data.stage === 'finalizing' && data.progress >= 95) {
+    activeTimelineStep = 4; // Almost done / preparing download
+  } else if (data.stage === 'finalizing' || data.progress >= 85) {
+    activeTimelineStep = 3; // Finalizing
+  } else if (data.stage === 'designing' || (data.progress >= 70 && data.progress < 85)) {
+    activeTimelineStep = 2; // Designing pages
+  } else if (data.stage === 'cover' || data.stage === 'illustrations' || (data.progress >= 25 && data.progress < 70)) {
+    activeTimelineStep = 1; // Creating illustrations
   } else {
-    activeTimelineStep = 0;
+    activeTimelineStep = 0; // Writing content
   }
 
   // Calculate stage progress for Item 1 (Writing your content)
@@ -185,8 +187,8 @@ export default function BookGeneratingPage({
   if (isCompleted || activeTimelineStep > 0) {
     writingProgress = 100;
   } else {
-    // 0% to 65% scaled to stage
-    writingProgress = Math.min(Math.max(Math.round((data.progress / 65) * 100), 15), 98);
+    // Starts smoothly at initial progress (5%) without jumping straight to 15%
+    writingProgress = Math.min(Math.max(data.progress || 5, 5), 95);
   }
 
   const handleDownload = async (format: 'pdf' | 'epub') => {

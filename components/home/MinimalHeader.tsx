@@ -165,7 +165,7 @@ export function MinimalHeader() {
                 className={`flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full border transition-all cursor-pointer select-none group ${
                   profileOpen
                     ? 'bg-[#111111] text-white border-[#111111]'
-                    : 'bg-[#F6F5F2] hover:bg-[#EAE8E3] border-[#EAEAEA] text-[#111111]'
+                    : 'bg-white hover:bg-neutral-50 border-[#EAEAEA] text-[#111111]'
                 }`}
                 title="Account & Profile Settings"
                 aria-expanded={profileOpen}
