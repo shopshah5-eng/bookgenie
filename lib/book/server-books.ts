@@ -60,8 +60,18 @@ export async function getServerBook(id: string): Promise<BookDocument | null> {
     };
   } catch (err) {
     console.error('getServerBook error:', err);
-    return null;
   }
+
+  // Fallback to in-memory generation pipeline store
+  try {
+    const { GenerationPipeline } = await import('@/lib/ai/pipeline');
+    const pipelineBook = GenerationPipeline.getBook(id);
+    if (pipelineBook) {
+      return pipelineBook;
+    }
+  } catch (_) {}
+
+  return null;
 }
 
 export async function getServerSharedBook(token: string): Promise<BookDocument | null> {

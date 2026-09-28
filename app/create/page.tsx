@@ -244,9 +244,7 @@ function CreatePageContent() {
 
       const data = await response.json();
       sessionStorage.removeItem('bg_autosave_draft');
-      setActiveBookId(data.bookId);
-      setActiveJobId(data.jobId);
-      setIsGenerating(true);
+      router.push(`/book/${data.bookId}/generating`);
     } catch (err: any) {
       setError(err.message || 'An error occurred during submission.');
     } finally {

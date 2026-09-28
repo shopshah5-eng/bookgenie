@@ -63,12 +63,26 @@ export async function GET(
           }
         }
 
+        let bookMeta: any = null;
+        try {
+          const { data: bData } = await supabase
+            .from('books')
+            .select('title, subtitle, cover_url, cover_image_url, page_count')
+            .eq('id', id)
+            .maybeSingle();
+          if (bData) bookMeta = bData;
+        } catch (_) {}
+
         const stageDescriptions: Record<string, string[]> = {
           planning: ['Idea Analyzed', 'Crafting Book Blueprint'],
-          writing: ['Idea Analyzed', 'Structure & Chapters Crafted', 'Writing Chapter Content'],
-          generating_visuals: ['Idea Analyzed', 'Structure & Chapters Crafted', 'Rendering Luxury Artworks'],
-          designing: ['Idea Analyzed', 'Structure & Chapters Crafted', 'Artwork Rendered', 'Composing Page Blocks'],
-          completed: ['Idea Analyzed', 'Structure & Chapters Crafted', 'Artwork Rendered', 'Quality Check Passed', 'Your Book Is Ready'],
+          metadata: ['Idea Analyzed', 'Forming Book Metadata'],
+          cover: ['Idea Analyzed', 'Creating Book Cover'],
+          outline: ['Idea Analyzed', 'Structure & Chapters Crafted'],
+          writing: ['Idea Analyzed', 'Writing Chapter Content'],
+          illustrations: ['Idea Analyzed', 'Rendering Visual Artworks'],
+          designing: ['Idea Analyzed', 'Composing Page Layouts'],
+          finalizing: ['Preparing PDF and EPUB Downloads'],
+          completed: ['Your Book Is Ready'],
           failed: ['Publishing interrupted'],
         };
 
@@ -78,6 +92,10 @@ export async function GET(
           status: dbJob.status,
           stage: dbJob.stage,
           progress: dbJob.progress,
+          title: bookMeta?.title || 'Untitled eBook',
+          subtitle: bookMeta?.subtitle || '',
+          cover_url: bookMeta?.cover_url || bookMeta?.cover_image_url || null,
+          page_count: bookMeta?.page_count || 30,
           stepsCompleted: stageDescriptions[dbJob.stage] || ['Analyzing creative tone'],
           error: dbJob.error_message || null,
         });
@@ -100,12 +118,18 @@ export async function GET(
         );
       }
 
+      const memBook = GenerationPipeline.getBook(id);
+
       return NextResponse.json({
         id: job.id,
         bookId: job.bookId,
         status: job.status,
         stage: job.stage,
         progress: job.progress,
+        title: job.title || memBook?.title || 'Untitled eBook',
+        subtitle: job.subtitle || memBook?.subtitle || '',
+        cover_url: job.coverUrl || memBook?.coverUrl || null,
+        page_count: job.pageCount || memBook?.pageCount || 30,
         stepsCompleted: job.stepsCompleted,
         error: job.error || null,
       });

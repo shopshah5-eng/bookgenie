@@ -45,8 +45,7 @@ export function AuthModal() {
         }
 
         if (data.user) {
-          closeAuthModal();
-          router.push(redirectUrl || '/create');
+          await handlePostAuthSuccess();
         } else {
           setSuccessMessage('Please check your email for the confirmation link!');
         }
@@ -61,8 +60,7 @@ export function AuthModal() {
         }
 
         if (data.user) {
-          closeAuthModal();
-          router.push(redirectUrl || '/create');
+          await handlePostAuthSuccess();
         }
       } else if (authView === 'forgot_password') {
         const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
@@ -76,6 +74,37 @@ export function AuthModal() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handlePostAuthSuccess = async () => {
+    try {
+      const pendingPrompt = typeof window !== 'undefined' ? sessionStorage.getItem('bg_pending_prompt') : null;
+      const pendingPages = typeof window !== 'undefined' ? sessionStorage.getItem('bg_pending_pages') : null;
+
+      if (pendingPrompt) {
+        sessionStorage.removeItem('bg_pending_prompt');
+        sessionStorage.removeItem('bg_pending_pages');
+        const res = await fetch('/api/books/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: pendingPrompt,
+            pageTarget: pendingPages ? parseInt(pendingPages, 10) : 30,
+          }),
+        });
+        if (res.ok) {
+          const genData = await res.json();
+          closeAuthModal();
+          router.push(`/book/${genData.bookId}/generating`);
+          return;
+        }
+      }
+    } catch (e) {
+      console.error('Post-auth generation start failed:', e);
+    }
+
+    closeAuthModal();
+    router.push(redirectUrl || '/create');
   };
 
   const handleGoogleSignIn = async () => {

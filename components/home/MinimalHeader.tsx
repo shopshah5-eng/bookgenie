@@ -48,7 +48,7 @@ export function MinimalHeader() {
           </Link>
           {user && (
             <Link
-              href="/library"
+              href="/my-ebooks"
               className="text-[14px] font-medium text-[#666666] hover:text-[#111111] transition-colors py-1"
             >
               My eBooks
@@ -61,14 +61,17 @@ export function MinimalHeader() {
           {user ? (
             <div className="flex items-center gap-3">
               <Link
-                href="/library"
+                href="/my-ebooks"
                 className="text-[13px] font-medium text-[#111111] px-4 py-2 rounded-full border border-[#EAEAEA] hover:border-[#111111] transition-all"
               >
                 My eBooks
               </Link>
+              <div className="w-8 h-8 rounded-full bg-[#F2EFE9] text-[#111111] flex items-center justify-center text-xs font-semibold select-none border border-[#EAEAEA]">
+                {(user.email?.[0] || 'T').toUpperCase()}
+              </div>
               <button
                 onClick={() => signOut()}
-                className="text-[13px] font-medium text-[#666666] hover:text-[#111111] transition-colors px-2 py-1"
+                className="text-[12px] font-medium text-[#777777] hover:text-[#111111] transition-colors px-1"
               >
                 Sign Out
               </button>
@@ -120,7 +123,7 @@ export function MinimalHeader() {
           </Link>
           {user && (
             <Link
-              href="/library"
+              href="/my-ebooks"
               onClick={() => setMobileMenuOpen(false)}
               className="text-sm font-medium text-[#666666] py-1"
             >

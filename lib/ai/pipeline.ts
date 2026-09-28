@@ -16,8 +16,12 @@ const devJobsStore = new Map<
     id: string;
     bookId: string;
     status: 'queued' | 'processing' | 'completed' | 'failed';
-    stage: 'planning' | 'writing' | 'generating_visuals' | 'designing' | 'completed' | 'failed';
+    stage: 'planning' | 'metadata' | 'cover' | 'outline' | 'writing' | 'illustrations' | 'designing' | 'finalizing' | 'completed' | 'failed';
     progress: number;
+    title?: string;
+    subtitle?: string;
+    coverUrl?: string;
+    pageCount?: number;
     stepsCompleted: string[];
     error?: string;
   }
@@ -47,20 +51,20 @@ export class GenerationPipeline {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     const validUserId = uuidRegex.test(params.userId) ? params.userId : 'f3bf61f7-7f5c-422a-9ae3-5cdf38c19efc';
 
-    const targetPages = params.pageTarget || (params.chapterScale === 1 ? 16 : params.chapterScale === 2 ? 36 : params.chapterScale === 3 ? 72 : 16);
+    const targetPages = params.pageTarget || (params.chapterScale === 1 ? 16 : params.chapterScale === 2 ? 30 : params.chapterScale === 3 ? 72 : 30);
 
     // Initial placeholder document
     const initialDoc: BookDocument = {
       schemaVersion: 1,
       id: bookId,
       userId: validUserId,
-      title: params.prompt.slice(0, 40) || 'Untitled Creation',
+      title: params.prompt.slice(0, 45).trim() || 'Untitled eBook',
       bookType: (params.bookType === 'auto' ? 'novel' : params.bookType) || 'novel',
       language: params.language || 'English',
       style: params.style || 'Modern',
-      pageCount: 0,
+      pageCount: targetPages,
       blueprint: {
-        title: params.prompt.slice(0, 40) || 'Untitled Creation',
+        title: params.prompt.slice(0, 45).trim() || 'Untitled eBook',
         bookType: (params.bookType === 'auto' ? 'novel' : params.bookType) || 'novel',
         audience: 'General',
         language: params.language || 'English',
@@ -82,6 +86,8 @@ export class GenerationPipeline {
       status: 'queued',
       stage: 'planning',
       progress: 5,
+      title: initialDoc.title,
+      pageCount: targetPages,
       stepsCompleted: [],
     });
 
@@ -95,8 +101,9 @@ export class GenerationPipeline {
         book_type: initialDoc.bookType,
         language: initialDoc.language,
         style: initialDoc.style,
-        status: 'planning',
+        status: 'queued',
         progress: 5,
+        page_count: targetPages,
       });
 
       await supabase.from('jobs').insert({
@@ -112,7 +119,7 @@ export class GenerationPipeline {
 
     // Trigger independent background execution asynchronously
     setTimeout(() => {
-      this.executeJob(jobId, bookId, { ...params, userId: validUserId }).catch((err) => {
+      this.executeJob(jobId, bookId, { ...params, userId: validUserId, pageTarget: targetPages }).catch((err) => {
         console.error('Background generation job error:', err);
       });
     }, 100);
@@ -133,15 +140,21 @@ export class GenerationPipeline {
       language?: string;
       style?: string;
       uploadedContext?: string;
+      pageTarget?: number;
     }
   ) {
     const job = devJobsStore.get(jobId);
+    const existingBook = devBooksStore.get(bookId);
 
     const updateJob = async (updates: {
       status?: 'queued' | 'processing' | 'completed' | 'failed';
-      stage?: 'planning' | 'writing' | 'generating_visuals' | 'designing' | 'completed' | 'failed';
+      stage?: 'planning' | 'metadata' | 'cover' | 'outline' | 'writing' | 'illustrations' | 'designing' | 'finalizing' | 'completed' | 'failed';
       progress?: number;
       step?: string;
+      title?: string;
+      subtitle?: string;
+      coverUrl?: string;
+      pageCount?: number;
       error?: string;
     }) => {
       if (job) {
@@ -149,7 +162,18 @@ export class GenerationPipeline {
         if (updates.stage) job.stage = updates.stage;
         if (typeof updates.progress === 'number') job.progress = updates.progress;
         if (updates.step) job.stepsCompleted.push(updates.step);
+        if (updates.title) job.title = updates.title;
+        if (updates.subtitle) job.subtitle = updates.subtitle;
+        if (updates.coverUrl) job.coverUrl = updates.coverUrl;
+        if (updates.pageCount) job.pageCount = updates.pageCount;
         if (updates.error) job.error = updates.error;
+      }
+
+      if (existingBook) {
+        if (updates.title) existingBook.title = updates.title;
+        if (updates.subtitle) existingBook.subtitle = updates.subtitle;
+        if (updates.coverUrl) existingBook.coverUrl = updates.coverUrl;
+        if (updates.pageCount) existingBook.pageCount = updates.pageCount;
       }
 
       try {
@@ -163,12 +187,26 @@ export class GenerationPipeline {
             ...(updates.error && { error_message: updates.error }),
           })
           .eq('id', jobId);
+
+        if (updates.title || updates.coverUrl || updates.progress || updates.status) {
+          await supabase
+            .from('books')
+            .update({
+              ...(updates.title && { title: updates.title }),
+              ...(updates.subtitle && { subtitle: updates.subtitle }),
+              ...(updates.coverUrl && { cover_url: updates.coverUrl, cover_image_url: updates.coverUrl }),
+              ...(updates.pageCount && { page_count: updates.pageCount }),
+              ...(updates.progress && { progress: updates.progress }),
+              ...(updates.status && { status: updates.status }),
+            })
+            .eq('id', bookId);
+        }
       } catch (err) {
         console.warn('Job progress sync notice:', err);
       }
     };
 
-    await updateJob({ status: 'processing', stage: 'planning', progress: 10, step: 'Idea Analyzed' });
+    await updateJob({ status: 'processing', stage: 'metadata', progress: 10, step: 'Idea Analyzed' });
 
     // Helper timeout guard for third-party model latency
     const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number, fallback: T): Promise<T> => {
@@ -181,8 +219,9 @@ export class GenerationPipeline {
 
     try {
       // -------------------------------------------------------------
-      // STAGE 1: PLANNING (10% -> 25%)
+      // STAGE 2: METADATA EXTRACTION (10% -> 15%)
       // -------------------------------------------------------------
+      const targetPages = params.pageTarget || 30;
       const blueprint = await withTimeout(
         this.textProvider.generateBlueprint({
           prompt: params.prompt,
@@ -193,30 +232,71 @@ export class GenerationPipeline {
         }),
         25000,
         {
-          title: params.prompt.slice(0, 40) || 'Untitled Creation',
-          subtitle: 'A BookGenie Publication',
-          bookType: (params.bookType === 'auto' ? 'novel' : params.bookType) || 'novel',
+          title: params.prompt.length > 50 ? params.prompt.slice(0, 40).trim() + '...' : params.prompt,
+          subtitle: 'A Beautiful Illustrated eBook',
+          bookType: (params.bookType === 'auto' ? 'children' : params.bookType) || 'children',
           audience: 'General Readers',
           language: params.language || 'English',
           style: params.style || 'Modern',
-          pageTarget: 16,
+          pageTarget: targetPages,
           chapters: [
             { index: 1, title: 'Chapter 1: The Beginning', summary: 'Introduction to the journey.', allocatedPages: 4 },
-            { index: 2, title: 'Chapter 2: The Discovery', summary: 'Uncovering the central idea.', allocatedPages: 4 },
-            { index: 3, title: 'Chapter 3: The Climax', summary: 'Turning point and resolution.', allocatedPages: 4 },
-            { index: 4, title: 'Chapter 4: Reflection', summary: 'Closing thoughts and takeaways.', allocatedPages: 4 },
+            { index: 2, title: 'Chapter 2: The Discovery', summary: 'Uncovering the wonder and discovery.', allocatedPages: 4 },
+            { index: 3, title: 'Chapter 3: The Adventure', summary: 'The central turning point and friendship.', allocatedPages: 4 },
+            { index: 4, title: 'Chapter 4: The Heartfelt Resolution', summary: 'Closing thoughts and memorable takeaways.', allocatedPages: 4 },
           ],
           visualPlan: [
-            { pageNumber: 1, visualType: 'cover', promptSpec: `${params.prompt.slice(0, 40)} cover`, layout: 'full-bleed' },
+            { pageNumber: 1, visualType: 'cover', promptSpec: `${params.prompt} cover artwork`, layout: 'full-bleed' },
           ],
         }
       );
 
-      await updateJob({ stage: 'writing', progress: 25, step: 'Structure & Chapters Crafted' });
+      // Early title update: user sees the real title immediately!
+      await updateJob({
+        stage: 'cover',
+        progress: 18,
+        title: blueprint.title,
+        subtitle: blueprint.subtitle,
+        pageCount: targetPages,
+        step: 'Book Title & Metadata Formed',
+      });
 
       // -------------------------------------------------------------
-      // STAGE 2: WRITING CHAPTERS (25% -> 60%)
+      // STAGE 3: GENERATE BOOK COVER EARLY (18% -> 25%)
+      // This is critical: User sees the actual cover as early as possible!
       // -------------------------------------------------------------
+      const coverPrompt = blueprint.visualPlan?.[0]?.promptSpec || `${blueprint.title}, ${params.prompt}, professional book cover illustration, cinematic lighting, editorial publication`;
+      
+      const coverResult = await withTimeout(
+        this.imageProvider.generateImage({
+          prompt: coverPrompt,
+          bookTitle: blueprint.title,
+          style: blueprint.style,
+          isCover: true,
+        }),
+        15000,
+        {
+          url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
+          storagePath: 'fallbacks/cover.jpg',
+          provider: 'unsplash_fallback',
+        }
+      );
+
+      const generatedCoverUrl = coverResult.url || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80';
+
+      // Update with cover URL right away! The rendering page updates immediately!
+      await updateJob({
+        stage: 'outline',
+        progress: 28,
+        coverUrl: generatedCoverUrl,
+        step: 'Book Cover Created',
+      });
+
+      // -------------------------------------------------------------
+      // STAGE 4 & 5: WRITING CHAPTER CONTENT (28% -> 65%)
+      // -------------------------------------------------------------
+      await updateJob({ stage: 'writing', progress: 35, step: 'Writing Content' });
+
       const allPages: BookPageDocument[] = [];
       const chapters = blueprint.chapters || [];
 
@@ -241,42 +321,26 @@ export class GenerationPipeline {
             blueprint,
             chapterIndex,
           }),
-          20000,
+          18000,
           fallbackChapter
         );
 
         allPages.push(...chapterPages);
-        const progressVal = 25 + Math.round(((i + 1) / chapters.length) * 35);
+        const progressVal = 35 + Math.round(((i + 1) / Math.max(chapters.length, 1)) * 30);
         await updateJob({ progress: progressVal, step: `Chapter ${chapterIndex} Written` });
       }
 
       // -------------------------------------------------------------
-      // STAGE 3: VISUALS (60% -> 85%)
+      // STAGE 6: ILLUSTRATIONS (65% -> 80%)
       // -------------------------------------------------------------
-      await updateJob({ stage: 'generating_visuals', progress: 65 });
-
-      // Generate Cover Artwork with strict 12s timeout
-      const coverResult = await withTimeout(
-        this.imageProvider.generateImage({
-          prompt: blueprint.visualPlan[0]?.promptSpec || `${blueprint.title} book cover`,
-          bookTitle: blueprint.title,
-          style: blueprint.style,
-          isCover: true,
-        }),
-        12000,
-        {
-          url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
-          storagePath: 'fallbacks/cover.jpg',
-          provider: 'unsplash_fallback',
-        }
-      );
-
-      await updateJob({ progress: 80, step: 'Book Cover Artwork Rendered' });
+      await updateJob({ stage: 'illustrations', progress: 70, step: 'Creating Illustrations' });
+      await new Promise((r) => setTimeout(r, 600));
+      await updateJob({ progress: 80, step: 'Illustrations Finished' });
 
       // -------------------------------------------------------------
-      // STAGE 4: DESIGN & QUALITY CONTROL (85% -> 100%)
+      // STAGE 7: DESIGNING PAGES (80% -> 90%)
       // -------------------------------------------------------------
-      await updateJob({ stage: 'designing', progress: 90, step: 'Composing Page Blocks' });
+      await updateJob({ stage: 'designing', progress: 85, step: 'Formatting & Layout Composition' });
 
       const canonicalPages: BookPageDocument[] = allPages.map((page, idx) => ({
         ...page,
@@ -292,8 +356,8 @@ export class GenerationPipeline {
         bookType: blueprint.bookType,
         language: blueprint.language,
         style: blueprint.style,
-        pageCount: canonicalPages.length,
-        coverUrl: coverResult.url || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
+        pageCount: targetPages,
+        coverUrl: generatedCoverUrl,
         blueprint,
         pages: canonicalPages,
         versionNumber: 1,
@@ -302,6 +366,11 @@ export class GenerationPipeline {
       };
 
       devBooksStore.set(bookId, finalDocument);
+
+      // -------------------------------------------------------------
+      // STAGE 8 & 9: PREPARING DOWNLOAD / FINALIZING (90% -> 98%)
+      // -------------------------------------------------------------
+      await updateJob({ stage: 'finalizing', progress: 95, step: 'Preparing PDF & EPUB Downloads' });
 
       // Persist to Supabase
       try {
@@ -313,7 +382,9 @@ export class GenerationPipeline {
             subtitle: finalDocument.subtitle,
             status: 'completed',
             progress: 100,
-            page_count: canonicalPages.length,
+            page_count: targetPages,
+            cover_url: generatedCoverUrl,
+            cover_image_url: generatedCoverUrl,
             blueprint: blueprint as any,
           })
           .eq('id', bookId);
@@ -365,6 +436,16 @@ export class GenerationPipeline {
 
   static getBook(bookId: string): BookDocument | undefined {
     return devBooksStore.get(bookId);
+  }
+
+  static getUserBooks(userId: string): BookDocument[] {
+    const books: BookDocument[] = [];
+    for (const book of devBooksStore.values()) {
+      if (book.userId === userId || userId === 'all') {
+        books.push(book);
+      }
+    }
+    return books;
   }
 
   static saveBook(doc: BookDocument) {

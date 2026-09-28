@@ -13,6 +13,7 @@ export function BookCreatorCard() {
   const [pages, setPages] = useState<number>(30);
   const [maxPages, setMaxPages] = useState<number>(300);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Check user tier limits if logged in
   useEffect(() => {
@@ -50,27 +51,53 @@ export function BookCreatorCard() {
     }
   };
 
-  const handleGenerate = (e: React.FormEvent) => {
+  const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanPrompt = prompt.trim() || 'A story of discovery, resilience, and wonder.';
+    setError(null);
 
     if (!user) {
       try {
         sessionStorage.setItem('bg_pending_prompt', cleanPrompt);
         sessionStorage.setItem('bg_pending_pages', pages.toString());
       } catch (_) {}
-      openAuthModal('signup', `/create?prompt=${encodeURIComponent(cleanPrompt)}&pages=${pages}`);
+      openAuthModal('signup');
       return;
     }
 
     setIsSubmitting(true);
-    router.push(`/create?prompt=${encodeURIComponent(cleanPrompt)}&pages=${pages}`);
+    try {
+      const res = await fetch('/api/books/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: cleanPrompt,
+          pageTarget: pages,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || data.error || 'Failed to start book creation.');
+      }
+
+      const data = await res.json();
+      router.push(`/book/${data.bookId}/generating`);
+    } catch (err: any) {
+      setError(err.message || 'Could not initiate generation. Please try again.');
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <section className="w-full py-6 bg-white">
       <div className="max-w-[1240px] mx-auto px-6">
         <div className="w-full bg-white rounded-2xl border border-[#EAEAEA] p-6 sm:p-9 shadow-[0_4px_30px_rgba(0,0,0,0.04)]">
+          {error && (
+            <div className="mb-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-xs sm:text-sm text-red-600 font-medium">
+              {error}
+            </div>
+          )}
           <form onSubmit={handleGenerate} className="flex flex-col gap-6">
             
             {/* Heading */}
