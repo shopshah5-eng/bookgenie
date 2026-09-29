@@ -15,21 +15,33 @@ export function BookCreatorCard() {
   const [error, setError] = useState<string | null>(null);
 
   const [activeTier, setActiveTier] = useState<string>(() => (user?.user_metadata?.tier || 'free').toLowerCase());
+  const [tierInfo, setTierInfo] = useState<{
+    planName?: string;
+    maxPages?: number;
+    booksRemaining?: number;
+    hasWatermark?: boolean;
+    commercialUse?: boolean;
+  } | null>(null);
 
   useEffect(() => {
     if (user) {
       fetch('/api/subscription/upgrade')
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
-          if (data?.tier) setActiveTier(String(data.tier).toLowerCase());
+          if (data?.tier) {
+            setActiveTier(String(data.tier).toLowerCase());
+            setTierInfo(data);
+          }
         })
         .catch(() => {});
     }
   }, [user]);
 
-  // Derive max pages dynamically from user tier
+  // Derive max pages dynamically from user tier & entitlements
   const maxPages = !user
     ? 200
+    : tierInfo?.maxPages
+    ? tierInfo.maxPages
     : activeTier === 'creator'
     ? 200
     : activeTier === 'single'
@@ -94,7 +106,7 @@ export function BookCreatorCard() {
   };
 
   return (
-    <section className="w-full py-6 bg-white">
+    <section className="w-full py-6 bg-white scroll-mt-20" id="creator-card">
       <div className="max-w-[1240px] mx-auto px-6">
         <div className="w-full bg-white rounded-2xl border border-[#EAEAEA] p-6 sm:p-9 shadow-[0_4px_30px_rgba(0,0,0,0.04)]">
           {error && (
@@ -104,11 +116,32 @@ export function BookCreatorCard() {
           )}
           <form onSubmit={handleGenerate} className="flex flex-col gap-6">
             
-            {/* Heading */}
-            <div>
-              <h2 className="text-[20px] sm:text-[22px] font-semibold text-[#111111] font-sans tracking-tight">
-                Describe your eBook
-              </h2>
+            {/* Heading & Active Plan Badges */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-[20px] sm:text-[22px] font-semibold text-[#111111] font-sans tracking-tight">
+                  Describe your eBook
+                </h2>
+                <p className="text-xs text-[#666666] mt-0.5">
+                  Autonomous AI writes, structures, and designs your book in minutes.
+                </p>
+              </div>
+
+              {user && (
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#111111] text-white">
+                    {tierInfo?.planName || 'Free Plan'}
+                  </span>
+                  <span className="text-[11px] font-medium text-emerald-800 bg-emerald-100 border border-emerald-200 px-2 py-1 rounded-full">
+                    {tierInfo?.booksRemaining ?? 1} Book Available
+                  </span>
+                  {tierInfo?.commercialUse && (
+                    <span className="hidden sm:inline-block text-[11px] font-medium text-amber-800 bg-amber-100 border border-amber-200 px-2 py-1 rounded-full">
+                      Commercial License ✓
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Prompt Textarea */}
@@ -163,15 +196,15 @@ export function BookCreatorCard() {
                 />
               </div>
 
-              {user && maxPages < 100 && (
+              {user && maxPages < 200 && (
                 <p className="text-[11px] text-[#888888] mt-2">
-                  Current plan limit: {maxPages} pages.{' '}
+                  Active limit: {maxPages} pages per book.{' '}
                   <button
                     type="button"
                     onClick={() => router.push('/#pricing')}
                     className="underline hover:text-[#111111] cursor-pointer"
                   >
-                    Upgrade on the homepage for up to 100 pages.
+                    Upgrade on the homepage for up to 200 pages.
                   </button>
                 </p>
               )}

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
-import { Menu, X, ChevronDown, User, Edit3, BookOpen, LogOut, Check, Loader2 } from 'lucide-react';
+import { Menu, X, ChevronDown, Edit3, BookOpen, LogOut, Check, Loader2 } from 'lucide-react';
 
 export function MinimalHeader() {
   const { user, openAuthModal, signOut, updateProfileName } = useAuth();
@@ -13,9 +13,42 @@ export function MinimalHeader() {
   const [isSavingName, setIsSavingName] = useState(false);
   const [nameError, setNameError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [quotaInfo, setQuotaInfo] = useState<{
+    tier?: string;
+    planName?: string;
+    maxPages?: number;
+    booksRemaining?: number;
+    hasWatermark?: boolean;
+    commercialUse?: boolean;
+  } | null>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
+
+  // Load active plan quota whenever user is logged in
+  useEffect(() => {
+    let isSubscribed = true;
+    if (!user) {
+      const timer = setTimeout(() => {
+        if (isSubscribed) setQuotaInfo(null);
+      }, 0);
+      return () => {
+        isSubscribed = false;
+        clearTimeout(timer);
+      };
+    }
+
+    fetch('/api/subscription/upgrade')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isSubscribed && data) setQuotaInfo(data);
+      })
+      .catch(() => {});
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [user]);
 
   // Close profile dropdown on outside click
   useEffect(() => {
@@ -193,12 +226,58 @@ export function MinimalHeader() {
                         <span className="text-sm font-semibold text-[#111111] truncate">
                           {user.user_metadata?.full_name || user.user_metadata?.name || 'BookGenie Creator'}
                         </span>
-                        <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#F6F5F2] text-[#666666] border border-[#EAEAEA]">
-                          Free Plan
+                        <span
+                          className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                            quotaInfo?.tier === 'creator'
+                              ? 'bg-[#111111] text-white border-[#111111]'
+                              : quotaInfo?.tier === 'pro'
+                              ? 'bg-amber-100 text-amber-900 border-amber-300'
+                              : quotaInfo?.tier === 'single'
+                              ? 'bg-blue-50 text-blue-900 border-blue-200'
+                              : 'bg-[#F6F5F2] text-[#666666] border-[#EAEAEA]'
+                          }`}
+                        >
+                          {quotaInfo?.planName || 'Free Plan'}
                         </span>
                       </div>
                       <span className="text-xs text-[#777777] truncate mt-0.5">{user.email}</span>
                     </div>
+                  </div>
+
+                  {/* Active Quota Breakdown Card */}
+                  <div className="p-3 my-2 rounded-xl bg-[#FAF9F6] border border-[#EAEAEA] flex flex-col gap-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-[#666666]">Max Length:</span>
+                      <span className="font-semibold text-[#111111]">
+                        Up to {quotaInfo?.maxPages || 20} pages / book
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-[#666666]">Books Remaining:</span>
+                      <span className="font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md text-[11px]">
+                        {quotaInfo?.booksRemaining ?? 1} available
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-[#666666]">Commercial Rights:</span>
+                      <span className="font-medium text-[#111111]">
+                        {quotaInfo?.commercialUse ? 'Licensed ✓' : 'Personal only'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-[#666666]">Watermark:</span>
+                      <span className="font-medium text-[#111111]">
+                        {quotaInfo?.hasWatermark ? 'Included' : 'Removed ✓'}
+                      </span>
+                    </div>
+
+                    <Link
+                      href="/#pricing"
+                      onClick={() => setProfileOpen(false)}
+                      className="mt-1 text-center py-1.5 rounded-lg bg-white border border-[#EAEAEA] hover:border-[#111111] text-[11px] font-semibold text-[#111111] transition-colors"
+                    >
+                      {quotaInfo?.tier === 'creator' ? 'Manage Subscription' : 'Upgrade Plan & Quota →'}
+                    </Link>
                   </div>
 
                   {/* Edit Name Section */}

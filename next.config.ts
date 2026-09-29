@@ -39,6 +39,11 @@ const nextConfig: NextConfig = {
         destination: '/#pricing',
         permanent: true,
       },
+      {
+        source: '/create',
+        destination: '/#creator-card',
+        permanent: false,
+      },
     ];
   },
   async headers() {

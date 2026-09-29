@@ -29,13 +29,46 @@ export async function GET(req: NextRequest) {
       .from('entitlements')
       .select('plan_id, max_pages, books_remaining, has_watermark, commercial_rights')
       .eq('user_id', user.id)
-      .gt('books_remaining', 0);
+      .gt('books_remaining', 0)
+      .order('max_pages', { ascending: false });
+
+    // Calculate books created
+    const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+    const { count: monthlyBooks } = await admin
+      .from('books')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .gte('created_at', startOfMonth);
+
+    const { count: totalBooks } = await admin
+      .from('books')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id);
 
     const activeTier = sub?.plan_id || (entitlements && entitlements.length > 0 ? entitlements[0].plan_id : profile?.tier || 'free');
+
+    const { CANONICAL_PLANS, getPlan } = await import('@/lib/payments/plans');
+    const planMeta = getPlan(activeTier) || CANONICAL_PLANS.free;
+    const maxPages = entitlements && entitlements.length > 0
+      ? Math.max(...entitlements.map(e => e.max_pages), planMeta.maxPagesPerBook)
+      : planMeta.maxPagesPerBook;
+
+    const booksRemaining = entitlements && entitlements.length > 0
+      ? entitlements.reduce((sum, e) => sum + (e.books_remaining || 0), 0)
+      : sub
+      ? Math.max(0, planMeta.maxBooksAllowed - (monthlyBooks || 0))
+      : Math.max(0, planMeta.maxBooksAllowed - (totalBooks || 0));
 
     return NextResponse.json({
       tier: activeTier,
       currentPlan: activeTier,
+      planName: planMeta.name,
+      maxPages,
+      booksRemaining,
+      monthlyBooksCreated: monthlyBooks || 0,
+      totalBooksCreated: totalBooks || 0,
+      hasWatermark: planMeta.hasWatermark && (!entitlements || entitlements.every(e => e.has_watermark)),
+      commercialUse: planMeta.commercialUse || Boolean(entitlements?.some(e => e.commercial_rights)),
       hasSubscription: Boolean(sub),
       entitlementsCount: entitlements?.length || 0,
       user: {
@@ -45,7 +78,13 @@ export async function GET(req: NextRequest) {
     });
   } catch (err) {
     console.error('Subscription status error:', err);
-    return NextResponse.json({ tier: 'free', currentPlan: 'free' });
+    return NextResponse.json({
+      tier: 'free',
+      currentPlan: 'free',
+      planName: 'FREE',
+      maxPages: 20,
+      booksRemaining: 1,
+    });
   }
 }
 

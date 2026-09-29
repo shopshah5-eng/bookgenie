@@ -47,6 +47,10 @@ function CreatePageContent() {
   const router = useRouter();
   const { user, openAuthModal } = useAuth();
 
+  useEffect(() => {
+    router.replace('/#creator-card');
+  }, [router]);
+
   const [title, setTitle] = useState('');
   const [prompt, setPrompt] = useState('');
   const [bookType, setBookType] = useState('novel');

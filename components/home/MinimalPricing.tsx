@@ -75,13 +75,18 @@ export function MinimalPricing() {
     setConfigError(null);
     setSuccessMessage(null);
 
-    // Free plan handler: navigate directly to studio
+    // Free plan handler: scroll smoothly to the home screen book generator card
     if (planId === 'free') {
       if (!user) {
-        openAuthModal('signup', '/create');
+        openAuthModal('signup', '/#creator-card');
         return;
       }
-      router.push('/create');
+      const el = document.getElementById('creator-card');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        router.push('/#creator-card');
+      }
       return;
     }
 
@@ -265,12 +270,16 @@ export function MinimalPricing() {
               <p className="font-semibold text-emerald-950">Success</p>
               <p className="mt-0.5 text-emerald-800">{successMessage}</p>
               <div className="mt-2">
-                <Link
-                  href="/create"
-                  className="inline-block px-3 py-1.5 rounded-full bg-emerald-700 text-white text-xs font-semibold hover:bg-emerald-800 transition-colors"
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('creator-card');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="inline-block px-3.5 py-1.5 rounded-full bg-emerald-700 text-white text-xs font-semibold hover:bg-emerald-800 transition-colors cursor-pointer"
                 >
-                  Start Creating Now →
-                </Link>
+                  Start Creating Your eBook Now →
+                </button>
               </div>
             </div>
           </div>
@@ -423,16 +432,20 @@ export function MinimalPricing() {
                 {/* Action CTA */}
                 <div>
                   {isCurrent ? (
-                    <Link
-                      href="/create"
-                      className={`w-full py-2.5 px-4 rounded-full text-center text-xs font-semibold block transition-colors ${
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const el = document.getElementById('creator-card');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      className={`w-full py-2.5 px-4 rounded-full text-center text-xs font-semibold block transition-colors cursor-pointer ${
                         isCreator
-                          ? 'bg-neutral-800 text-neutral-300 border border-white/20'
-                          : 'bg-neutral-200 text-neutral-700'
+                          ? 'bg-neutral-800 text-neutral-300 border border-white/20 hover:bg-neutral-700'
+                          : 'bg-neutral-200 text-neutral-800 hover:bg-neutral-300'
                       }`}
                     >
-                      Active Plan ✓
-                    </Link>
+                      Active Plan ✓ (Create on Homepage)
+                    </button>
                   ) : (
                     <button
                       onClick={() => handleChoosePlan(plan.id)}
