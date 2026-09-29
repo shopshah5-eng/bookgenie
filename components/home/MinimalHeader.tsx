@@ -30,13 +30,8 @@ export function MinimalHeader() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Update input default when user opens edit mode
-  useEffect(() => {
-    if (user) {
-      const currentName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || '';
-      setEditNameInput(currentName);
-    }
-  }, [user, isEditingName]);
+  const getUserDisplayName = () =>
+    user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || '';
 
   const handleSaveName = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -138,13 +133,13 @@ export function MinimalHeader() {
             )}
           </Link>
 
-          <a
+          <Link
             href="/#pricing"
             onClick={handlePricingClick}
             className="text-[14px] font-medium text-[#666666] hover:text-[#111111] transition-colors py-1 cursor-pointer"
           >
             Pricing
-          </a>
+          </Link>
         </nav>
 
         {/* Right: User Profile / Auth Buttons */}
@@ -212,6 +207,7 @@ export function MinimalHeader() {
                       <button
                         type="button"
                         onClick={() => {
+                          setEditNameInput(getUserDisplayName());
                           setIsEditingName(true);
                           setNameError('');
                         }}
@@ -347,13 +343,13 @@ export function MinimalHeader() {
           >
             Home
           </Link>
-          <a
+          <Link
             href="/#pricing"
             onClick={handlePricingClick}
             className="text-sm font-medium text-[#666666] py-1 cursor-pointer"
           >
             Pricing
-          </a>
+          </Link>
 
           <div className="pt-4 border-t border-[#F0F0F0] flex flex-col gap-3">
             {user ? (
@@ -375,7 +371,11 @@ export function MinimalHeader() {
                   {!isEditingName ? (
                     <button
                       type="button"
-                      onClick={() => setIsEditingName(true)}
+                      onClick={() => {
+                        setEditNameInput(getUserDisplayName());
+                        setIsEditingName(true);
+                        setNameError('');
+                      }}
                       className="w-full flex items-center justify-between text-xs font-medium text-[#111111] cursor-pointer"
                     >
                       <span className="flex items-center gap-1.5">

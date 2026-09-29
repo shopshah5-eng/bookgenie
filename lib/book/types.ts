@@ -42,6 +42,7 @@ export interface ContentBlock {
   text?: string;
   assetId?: string; // Foreign key to public.assets.id
   url?: string;
+  imageUrl?: string;
   caption?: string;
   items?: string[];
 }

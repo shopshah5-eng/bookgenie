@@ -35,7 +35,7 @@ export default function ContactPage() {
       }
 
       setSent(true);
-    } catch (err: any) {
+    } catch {
       // Even if network fails during static/offline preview, confirm gracefully
       setSent(true);
     } finally {

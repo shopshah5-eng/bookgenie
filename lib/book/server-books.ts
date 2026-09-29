@@ -15,23 +15,23 @@ function pagesFromRows(rows: Array<Record<string, unknown>>): BookPageDocument[]
   }));
 }
 
-function documentFromRows(book: Record<string, any>, pages: BookPageDocument[]): BookDocument {
+function documentFromRows(book: Record<string, unknown>, pages: BookPageDocument[]): BookDocument {
   return {
     schemaVersion: 1,
     id: String(book.id),
     userId: String(book.user_id),
     title: String(book.title),
-    subtitle: book.subtitle || undefined,
-    bookType: book.book_type,
-    language: book.language || 'English',
-    style: book.style || 'Modern',
+    subtitle: typeof book.subtitle === 'string' ? book.subtitle : undefined,
+    bookType: book.book_type as BookDocument['bookType'],
+    language: (book.language as string) || 'English',
+    style: (book.style as string) || 'Modern',
     pageCount: Number(book.page_count || pages.length),
-    coverAssetId: book.cover_asset_id || undefined,
-    coverUrl: book.cover_url || book.cover_image_url || undefined,
-    blueprint: book.blueprint,
+    coverAssetId: typeof book.cover_asset_id === 'string' ? book.cover_asset_id : undefined,
+    coverUrl: (book.cover_url as string) || (book.cover_image_url as string) || undefined,
+    blueprint: book.blueprint as BookDocument['blueprint'],
     versionNumber: Number(book.version_number || 1),
     isShared: Boolean(book.is_shared),
-    shareToken: book.share_token || undefined,
+    shareToken: typeof book.share_token === 'string' ? book.share_token : undefined,
     pages,
     createdAt: String(book.created_at),
     updatedAt: String(book.updated_at),

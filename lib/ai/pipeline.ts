@@ -84,7 +84,7 @@ export class GenerationPipeline {
         progress: 5,
         page_count: targetPages,
         page_target: targetPages,
-        blueprint: initialDoc.blueprint as any,
+        blueprint: initialDoc.blueprint as unknown as Record<string, unknown>,
       });
       if (bErr) {
         throw new Error(`Could not create book record: ${bErr.message}`);
@@ -125,7 +125,7 @@ export class GenerationPipeline {
    * Advances the generation pipeline by one or two cohesive stages per call,
    * guaranteeing zero timeouts and 100% completion even on serverless runtimes.
    */
-  static async advanceJob(jobId: string, bookId: string): Promise<any> {
+  static async advanceJob(jobId: string, bookId: string): Promise<Record<string, unknown> | null> {
     if (this.activeAdvancingLocks.has(jobId)) {
       return null;
     }
@@ -163,7 +163,7 @@ export class GenerationPipeline {
       }
       const blueprint = book.blueprint as BookBlueprint;
 
-      const promptText = (blueprint as any).prompt || book?.title || 'A beautiful illustrated book';
+      const promptText = (blueprint as BookBlueprint & { prompt?: string }).prompt || book?.title || 'A beautiful illustrated book';
       const stage = currentJob.stage || 'planning';
 
       // -------------------------------------------------------------
@@ -178,12 +178,13 @@ export class GenerationPipeline {
               bookType: blueprint.bookType,
               language: blueprint.language,
               style: blueprint.style,
-              uploadedContext: (blueprint as any).uploadedContext,
+              uploadedContext: (blueprint as BookBlueprint & { uploadedContext?: string }).uploadedContext,
             }),
             new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Blueprint provider timeout')), 22_000)),
           ]);
-        } catch (planErr: any) {
-          console.warn(`[Pipeline] Blueprint generation attempt failed: ${planErr.message}. Retrying on next poll...`);
+        } catch (planErr: unknown) {
+          const errMsg = planErr instanceof Error ? planErr.message : String(planErr);
+          console.warn(`[Pipeline] Blueprint generation attempt failed: ${errMsg}. Retrying on next poll...`);
           return {
             id: jobId,
             book_id: bookId,
@@ -217,7 +218,7 @@ export class GenerationPipeline {
           .update({
             title: mergedBlueprint.title,
             subtitle: mergedBlueprint.subtitle,
-            blueprint: mergedBlueprint as any,
+            blueprint: mergedBlueprint as unknown as Record<string, unknown>,
             status: 'planning',
             progress: 20,
           })
@@ -265,8 +266,9 @@ export class GenerationPipeline {
             }),
             new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Cover image provider timeout')), 22_000)),
           ]);
-        } catch (imgErr: any) {
-          console.warn(`[Pipeline] Cover image attempt timed out or failed: ${imgErr.message}. Retrying on next poll...`);
+        } catch (imgErr: unknown) {
+          const errMsg = imgErr instanceof Error ? imgErr.message : String(imgErr);
+          console.warn(`[Pipeline] Cover image attempt timed out or failed: ${errMsg}. Retrying on next poll...`);
           return {
             id: jobId,
             book_id: bookId,
@@ -342,8 +344,9 @@ export class GenerationPipeline {
               }),
               timeoutPromise,
             ]);
-          } catch (err: any) {
-            console.warn(`[Pipeline] Chapter ${chapterIndex} generation failed or timed out: ${err.message}. Retrying on next poll...`);
+          } catch (err: unknown) {
+            const errMsg = err instanceof Error ? err.message : String(err);
+            console.warn(`[Pipeline] Chapter ${chapterIndex} generation failed or timed out: ${errMsg}. Retrying on next poll...`);
             return {
               id: jobId,
               book_id: bookId,
@@ -469,7 +472,7 @@ export class GenerationPipeline {
         const nextVisual = visualPlan.find((item) => item.visualType !== 'none' && !item.assetId);
 
         if (nextVisual) {
-          const attempts = ((nextVisual as any)._attempts || 0) + 1;
+          const attempts = ((nextVisual as unknown as { _attempts?: number })._attempts || 0) + 1;
           if (attempts > 3) {
             console.warn(`[Pipeline] Visual item on page ${nextVisual.pageNumber} exceeded retry limit. Skipping...`);
             const updatedVisualPlan = visualPlan.map((item) =>
@@ -492,8 +495,9 @@ export class GenerationPipeline {
               }),
               new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Illustration provider timeout')), 22_000)),
             ]);
-          } catch (imgErr: any) {
-            console.warn(`[Pipeline] Illustration attempt timed out or failed: ${imgErr.message}. Retrying on next poll...`);
+          } catch (imgErr: unknown) {
+            const errMsg = imgErr instanceof Error ? imgErr.message : String(imgErr);
+            console.warn(`[Pipeline] Illustration attempt timed out or failed: ${errMsg}. Retrying on next poll...`);
             const updatedVisualPlan = visualPlan.map((item) =>
               item === nextVisual ? { ...item, _attempts: attempts } : item
             );
@@ -579,7 +583,7 @@ export class GenerationPipeline {
       // STAGE 5: DESIGNING & PERSISTING PAGES (80% -> 95%)
       // -------------------------------------------------------------
       if (stage === 'designing') {
-        const rawPages: BookPageDocument[] = (blueprint as any).generatedPages || [];
+        const rawPages: BookPageDocument[] = blueprint.generatedPages || [];
         
         if (rawPages.length === 0) throw new Error('Chapter generation returned no pages.');
         const pagesToFormat: BookPageDocument[] = rawPages;
@@ -651,7 +655,7 @@ export class GenerationPipeline {
           coverAssetId: book?.cover_asset_id || undefined,
           coverUrl: book?.cover_url || book?.cover_image_url || undefined,
           blueprint,
-          pages: (blueprint as any).generatedPages || [],
+          pages: blueprint.generatedPages || [],
           versionNumber: 1,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -669,7 +673,7 @@ export class GenerationPipeline {
           const { error: versionError } = await supabase.from('book_versions').insert({
             book_id: bookId,
             version_number: 1,
-            document_snapshot: finalDoc as any,
+            document_snapshot: finalDoc as unknown as Record<string, unknown>,
             change_instruction: 'Initial Generation',
           });
           if (versionError) throw versionError;

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -26,34 +26,30 @@ function BookshelfContent() {
   const router = useRouter();
   const { user, isLoading: authLoading, openAuthModal } = useAuth();
   const [books, setBooks] = useState<UserBookSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      setIsLoading(false);
-      return;
+    let ignore = false;
+    if (!authLoading && user) {
+      fetch('/api/books')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!ignore && data) {
+            setBooks(data.books || []);
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to load user bookshelf:', err);
+        })
+        .finally(() => {
+          if (!ignore) setIsLoading(false);
+        });
     }
-
-    if (user) {
-      fetchBooks();
-    }
+    return () => {
+      ignore = true;
+    };
   }, [user, authLoading]);
-
-  const fetchBooks = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch('/api/books');
-      if (res.ok) {
-        const data = await res.json();
-        setBooks(data.books || []);
-      }
-    } catch (err) {
-      console.error('Failed to load user bookshelf:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleDeleteBook = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();

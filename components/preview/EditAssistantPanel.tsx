@@ -30,6 +30,10 @@ const QUICK_SUGGESTIONS = [
   'Add more detail',
 ];
 
+function createMsgId(prefix: string) {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
 export function EditAssistantPanel({
   onApplyInstruction,
   isProcessing,
@@ -53,7 +57,7 @@ export function EditAssistantPanel({
     const textToSend = (customText || instruction).trim();
     if (!textToSend || isProcessing) return;
 
-    const userMsgId = Date.now().toString();
+    const userMsgId = createMsgId('user');
     setMessages((prev) => [
       ...prev,
       {
@@ -81,7 +85,7 @@ export function EditAssistantPanel({
     setMessages((prev) => [
       ...prev,
       {
-        id: (Date.now() + 1).toString(),
+        id: createMsgId('bg'),
         sender: 'bookgenie',
         text: responseText,
         timestamp: 'Just now',
@@ -112,7 +116,7 @@ export function EditAssistantPanel({
           )}
         </div>
         <p className="text-[12px] text-[#666666] leading-relaxed">
-          Tell me what you want to change, and I'll update it for you.
+          Tell me what you want to change, and I&apos;ll update it for you.
         </p>
       </div>
 

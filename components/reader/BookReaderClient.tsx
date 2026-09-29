@@ -24,7 +24,18 @@ interface BookReaderClientProps {
 
 export function BookReaderClient({ initialBook, bookId }: BookReaderClientProps) {
   const [book, setBook] = useState<BookDocument>(initialBook);
-  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  const [currentPageIndex, setCurrentPageIndex] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const match = window.location.hash.match(/page=(\d+)/);
+      if (match && match[1]) {
+        const p = parseInt(match[1], 10) - 1;
+        if (p >= 0 && p < initialBook.pages.length) {
+          return p;
+        }
+      }
+    }
+    return 0;
+  });
   const [isUpdating, setIsUpdating] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
@@ -33,7 +44,7 @@ export function BookReaderClient({ initialBook, bookId }: BookReaderClientProps)
 
   // Hash persistence: #page=N
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    const handleHashChange = () => {
       const match = window.location.hash.match(/page=(\d+)/);
       if (match && match[1]) {
         const p = parseInt(match[1], 10) - 1;
@@ -41,7 +52,10 @@ export function BookReaderClient({ initialBook, bookId }: BookReaderClientProps)
           setCurrentPageIndex(p);
         }
       }
-    }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, [book.pages.length]);
 
   useEffect(() => {
@@ -414,8 +428,8 @@ export function BookReaderClient({ initialBook, bookId }: BookReaderClientProps)
                   }
                   if (block.type === 'image') {
                     const imgUrl =
-                      (block as any).url ||
-                      (block as any).imageUrl ||
+                      block.url ||
+                      block.imageUrl ||
                       (activePage.pageType === 'cover' ? book.coverUrl : undefined);
                     return (
                       <div

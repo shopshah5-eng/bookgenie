@@ -72,10 +72,10 @@ export async function POST(req: NextRequest) {
       name: newName,
       user: updatedAuth?.user || user,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Update profile error:', err);
     return NextResponse.json(
-      { error: 'SERVER_ERROR', message: err.message || 'Failed to update profile.' },
+      { error: 'SERVER_ERROR', message: err instanceof Error ? err.message : 'Failed to update profile.' },
       { status: 500 }
     );
   }

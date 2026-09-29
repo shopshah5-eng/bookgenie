@@ -55,7 +55,7 @@ export default function AboutPage() {
             </div>
 
             <p>
-              Whether you are an aspiring author composing a whimsical children's tale, a culinary expert preserving family heritage recipes, or an independent creator publishing practical guides, BookGenie provides the craft, structure, and polish of an editorial publishing house.
+              Whether you are an aspiring author composing a whimsical children&apos;s tale, a culinary expert preserving family heritage recipes, or an independent creator publishing practical guides, BookGenie provides the craft, structure, and polish of an editorial publishing house.
             </p>
           </div>
 

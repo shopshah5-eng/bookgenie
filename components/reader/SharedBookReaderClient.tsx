@@ -289,8 +289,8 @@ export function SharedBookReaderClient({ initialBook, token }: SharedBookReaderC
                   }
                   if (block.type === 'image') {
                     const imgUrl =
-                      (block as any).url ||
-                      (block as any).imageUrl ||
+                      block.url ||
+                      block.imageUrl ||
                       (activePage.pageType === 'cover' ? book.coverUrl : undefined);
                     return (
                       <div

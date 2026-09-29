@@ -23,7 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => !!createClient());
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authView, setAuthView] = useState<AuthView>('signup');
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
@@ -34,7 +34,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Public pages are allowed to render without auth configuration.
       // Authenticated actions will show a configuration error in the modal instead
       // of crashing the whole application during hydration.
-      setIsLoading(false);
       return;
     }
 

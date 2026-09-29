@@ -11,28 +11,18 @@ export function BookCreatorCard() {
 
   const [prompt, setPrompt] = useState('');
   const [pages, setPages] = useState<number>(16);
-  const [maxPages, setMaxPages] = useState<number>(300);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Check user tier limits if logged in
-  useEffect(() => {
-    if (user) {
-      const tier = (user.user_metadata?.tier || 'free').toLowerCase();
-      if (tier === 'pro' || tier === 'boutique-press') {
-        setMaxPages(300);
-      } else if (tier === 'creator' || tier === 'studio-atelier') {
-        setMaxPages(64);
-        if (pages > 64) setPages(64);
-      } else {
-        // Free plan default
-        setMaxPages(16);
-        if (pages > 16) setPages(16);
-      }
-    } else {
-      setMaxPages(300);
-    }
-  }, [user]);
+  // Derive max pages dynamically from user tier
+  const tier = (user?.user_metadata?.tier || 'free').toLowerCase();
+  const maxPages = !user
+    ? 300
+    : tier === 'pro' || tier === 'boutique-press'
+    ? 300
+    : tier === 'creator' || tier === 'studio-atelier'
+    ? 64
+    : 16;
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseInt(e.target.value, 10);
@@ -83,8 +73,8 @@ export function BookCreatorCard() {
 
       const data = await res.json();
       router.push(`/book/${data.bookId}/generating?jobId=${data.jobId || ''}&pages=${pages}`);
-    } catch (err: any) {
-      setError(err.message || 'Could not initiate generation. Please try again.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Could not initiate generation. Please try again.');
       setIsSubmitting(false);
     }
   };

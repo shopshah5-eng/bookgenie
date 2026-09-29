@@ -34,9 +34,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let body: any;
+    let body: Record<string, unknown> = {};
     try {
-      body = await req.json();
+      body = (await req.json()) as Record<string, unknown>;
     } catch {
       return NextResponse.json(
         { error: 'INVALID_JSON', message: 'Malformed JSON payload.' },
@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
       success: true,
       message: 'Your message has been received. Our editorial team will respond within 12 hours.',
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Contact endpoint error:', err);
     return NextResponse.json(
       { error: 'INTERNAL_ERROR', message: 'Failed to process inquiry. Please try again later.' },

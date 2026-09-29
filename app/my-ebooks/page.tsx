@@ -24,34 +24,30 @@ export default function MyEbooksPage() {
   const router = useRouter();
   const { user, isLoading: authLoading, openAuthModal, signOut } = useAuth();
   const [books, setBooks] = useState<BookItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      setIsLoading(false);
-      return;
+    let ignore = false;
+    if (!authLoading && user) {
+      fetch('/api/books')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!ignore && data) {
+            setBooks(data.books || []);
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to load books:', err);
+        })
+        .finally(() => {
+          if (!ignore) setIsLoading(false);
+        });
     }
-
-    if (user) {
-      fetchBooks();
-    }
+    return () => {
+      ignore = true;
+    };
   }, [user, authLoading]);
-
-  const fetchBooks = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch('/api/books');
-      if (res.ok) {
-        const data = await res.json();
-        setBooks(data.books || []);
-      }
-    } catch (err) {
-      console.error('Failed to load books:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.preventDefault();

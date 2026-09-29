@@ -195,7 +195,7 @@ function renderPageContent(page: BookPageDocument | null, book: BookDocument) {
 
             {block.type === 'quote' && (
               <blockquote className="pl-4 border-l-2 border-[#111111] italic text-[13px] text-[#444444] my-3">
-                "{block.text}"
+                &ldquo;{block.text}&rdquo;
               </blockquote>
             )}
 

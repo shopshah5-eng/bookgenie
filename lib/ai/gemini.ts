@@ -39,7 +39,9 @@ ${params.isCover ? 'Composition: Centered portrait, luxury book cover compositio
 
         if (response.ok) {
           const data = await response.json();
-          const imagePart = data.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData?.data);
+          const imagePart = data.candidates?.[0]?.content?.parts?.find(
+            (p: { inlineData?: { data?: string } }) => p.inlineData?.data
+          );
           if (imagePart?.inlineData?.data) {
             return {
               base64: imagePart.inlineData.data,

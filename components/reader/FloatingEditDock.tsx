@@ -22,13 +22,15 @@ export function FloatingEditDock({
 }: FloatingEditDockProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [instruction, setInstruction] = useState('');
+  const [prevCurrentPage, setPrevCurrentPage] = useState(currentPageNumber);
   const [pageTarget, setPageTarget] = useState<string>(currentPageNumber.toString());
   const [justUpdated, setJustUpdated] = useState(false);
 
-  // Sync active page when user flips pages
-  React.useEffect(() => {
+  // Sync active page when user flips pages without cascading render
+  if (prevCurrentPage !== currentPageNumber) {
+    setPrevCurrentPage(currentPageNumber);
     setPageTarget(currentPageNumber.toString());
-  }, [currentPageNumber]);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

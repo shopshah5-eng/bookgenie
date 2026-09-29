@@ -43,44 +43,40 @@ export default function BookGeneratingPage({
   const bookId = resolvedParams.id;
   const router = useRouter();
   const { user, openAuthModal, signOut } = useAuth();
-  const [initialPages, setInitialPages] = useState<number>(16);
-  const [jobIdParam, setJobIdParam] = useState<string>('');
+  const [jobIdParam] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return new URLSearchParams(window.location.search).get('jobId') || '';
+    }
+    return '';
+  });
 
-  const [data, setData] = useState<GenerationStatusData>({
-    bookId,
-    status: 'queued',
-    stage: 'planning',
-    progress: 5,
-    title: 'Creating your eBook...',
-    page_count: 16,
+  const [data, setData] = useState<GenerationStatusData>(() => {
+    let pCount = 16;
+    if (typeof window !== 'undefined') {
+      const raw = new URLSearchParams(window.location.search).get('pages');
+      if (raw) {
+        const parsed = parseInt(raw, 10);
+        if (!isNaN(parsed) && parsed > 0) pCount = parsed;
+      }
+    }
+    return {
+      bookId,
+      status: 'queued',
+      stage: 'planning',
+      progress: 5,
+      title: 'Creating your eBook...',
+      page_count: pCount,
+    };
   });
 
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [isDownloadingEpub, setIsDownloadingEpub] = useState(false);
 
-  // Extract initial parameters from URL
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const jId = params.get('jobId');
-      if (jId) setJobIdParam(jId);
-
-      const pCount = params.get('pages');
-      if (pCount) {
-        const parsed = parseInt(pCount, 10);
-        if (!isNaN(parsed) && parsed > 0) {
-          setInitialPages(parsed);
-          setData((prev) => ({ ...prev, page_count: parsed }));
-        }
-      }
-    }
-  }, []);
-
   // Poll status endpoint every 1.5 seconds
   useEffect(() => {
     let isMounted = true;
-    let pollInterval: any;
+    let pollInterval: ReturnType<typeof setInterval> | undefined = undefined;
 
     const fetchStatus = async () => {
       try {

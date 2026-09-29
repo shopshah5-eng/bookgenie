@@ -120,25 +120,27 @@ function CreatePageContent() {
 
   // Restore full saved draft if returning from auth or previous session (if no URL params override)
   useEffect(() => {
-    try {
-      const searchParams = new URLSearchParams(window.location.search);
-      const hasQueryParams = searchParams.get('prompt') || searchParams.get('type') || searchParams.get('lang') || searchParams.get('style');
+    queueMicrotask(() => {
+      try {
+        const searchParams = new URLSearchParams(window.location.search);
+        const hasQueryParams = searchParams.get('prompt') || searchParams.get('type') || searchParams.get('lang') || searchParams.get('style');
 
-      const savedDraft = sessionStorage.getItem('bg_pending_draft') || (!hasQueryParams ? sessionStorage.getItem('bg_autosave_draft') : null);
-      if (savedDraft) {
-        const parsed = JSON.parse(savedDraft);
-        if (parsed.title) setTitle(parsed.title);
-        if (parsed.prompt) setPrompt(parsed.prompt);
-        if (parsed.bookType) setBookType(parsed.bookType);
-        if (parsed.language) setLanguage(parsed.language);
-        if (parsed.voiceTone) setVoiceTone(parsed.voiceTone);
-        if (parsed.chapterScale) setChapterScale(parsed.chapterScale);
-        if (parsed.uploadedFiles && Array.isArray(parsed.uploadedFiles)) {
-          setUploadedFiles(parsed.uploadedFiles);
+        const savedDraft = sessionStorage.getItem('bg_pending_draft') || (!hasQueryParams ? sessionStorage.getItem('bg_autosave_draft') : null);
+        if (savedDraft) {
+          const parsed = JSON.parse(savedDraft);
+          if (parsed.title) setTitle(parsed.title);
+          if (parsed.prompt) setPrompt(parsed.prompt);
+          if (parsed.bookType) setBookType(parsed.bookType);
+          if (parsed.language) setLanguage(parsed.language);
+          if (parsed.voiceTone) setVoiceTone(parsed.voiceTone);
+          if (parsed.chapterScale) setChapterScale(parsed.chapterScale);
+          if (parsed.uploadedFiles && Array.isArray(parsed.uploadedFiles)) {
+            setUploadedFiles(parsed.uploadedFiles);
+          }
+          sessionStorage.removeItem('bg_pending_draft');
         }
-        sessionStorage.removeItem('bg_pending_draft');
-      }
-    } catch (_) {}
+      } catch (_) {}
+    });
   }, []);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -255,8 +257,8 @@ function CreatePageContent() {
       const data = await response.json();
       sessionStorage.removeItem('bg_autosave_draft');
       router.push(`/book/${data.bookId}/generating`);
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during submission.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An error occurred during submission.');
     } finally {
       setIsSubmitting(false);
     }
@@ -658,7 +660,7 @@ function CreatePageContent() {
                     </label>
                   </div>
                   <span className="font-code-spec text-code-spec text-primary dark:text-[#fcba64] font-semibold">
-                    {chaptersEstimate} // {wordsEstimate}
+                    {chaptersEstimate} {'//'} {wordsEstimate}
                   </span>
                 </div>
                 <div className="pt-2">
