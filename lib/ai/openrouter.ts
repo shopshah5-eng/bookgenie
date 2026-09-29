@@ -73,6 +73,28 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
       Math.min(4, Math.round((bp.pageTarget || 16) / Math.max(1, chapters.length)))
     );
 
+    const isTrading = /trading|market|stock|finance|crypto|forex|invest|option|futures/i.test(
+      `${bp.title || ''} ${bp.subtitle || ''} ${chapter.title || ''} ${chapter.summary || ''}`
+    );
+
+    const systemPrompt = `You are a master non-fiction book author and publishing writer.
+Return strictly valid JSON: {"pages": BookPageDocument[]}.
+Mandatory Content Quality Rules:
+1. WORD DENSITY: Every content page must contain approximately 140 to 260 meaningful, substantive words across multiple well-developed paragraphs.
+2. NO SPARSE PAGES: Never output empty pages, single-sentence pages, or quote-only pages.
+3. HEADING INTEGRITY: Do NOT repeat the main chapter title on multiple consecutive pages. Only use subheadings for new topics.
+4. GUIDES & COURSES: Include explicit learning objectives, thorough conceptual explanations, concrete worked examples, practical checklists, reader exercises, and chapter recaps.
+5. TRADING & FINANCE: Rigorously cover risk control, position sizing calculations, leverage dangers, transaction fees, execution slippage, psychological discipline, and market uncertainty. Include educational risk warnings and avoid guaranteed-profit claims or personal financial advice.
+6. PAGE STRUCTURE: Every page must have pageNumber, chapterIndex, pageType ("chapter"|"content"), layout ("standard"|"quote-callout"|"split-horizontal"), and blocks: Array<{"id": string, "type": "heading"|"paragraph"|"quote", "text": string}>.`;
+
+    const userPrompt = `Book: "${bp.title || 'Practical Guide'}" (${bp.subtitle || ''})
+Genre: ${bp.bookType || 'guide'} | Style: ${bp.style || 'modern'} | Language: ${bp.language || 'English'}
+
+Task: Write exactly ${pagesForThisChapter} substantive page(s) for Chapter ${params.chapterIndex}: "${chapter.title}".
+Summary: ${chapter.summary}
+${isTrading ? 'Trading Focus: Deeply explain risk management, leverage, fees, slippage, position sizing, worked trade examples, and actionable safety checklists.' : 'Guide Focus: Provide deep explanations, worked examples, actionable checklists, and structured concepts.'}
+Remember: Approximately 140-260 meaningful words per content page. No sparse or placeholder pages.`;
+
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -84,19 +106,12 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
       body: JSON.stringify({
         model: modelConfig.modelId,
         messages: [
-          {
-            role: 'system',
-            content:
-              'You are an award-winning publishing writer. Return only valid JSON: {"pages": BookPageDocument[]}. Every page must have pageNumber, chapterIndex, pageType ("chapter"|"content"), layout ("standard"|"quote-callout"|"split-horizontal"), and blocks: [{"id": string, "type": "heading"|"paragraph"|"quote", "text": string}]. Keep formatting clean, engaging, and publication-ready.',
-          },
-          {
-            role: 'user',
-            content: `Book: "${bp.title || 'Mastering Trading'}" (${bp.subtitle || ''})\nGenre: ${bp.bookType || 'general'}\nStyle: ${bp.style || 'modern'}\nLanguage: ${bp.language || 'English'}\n\nTask: Write exactly ${pagesForThisChapter} structured page(s) for Chapter ${params.chapterIndex}: "${chapter.title}".\nSummary: ${chapter.summary}`,
-          },
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
         ],
         response_format: { type: 'json_object' },
         temperature: modelConfig.temperature,
-        max_tokens: Math.min(modelConfig.maxTokens, 2000),
+        max_tokens: Math.min(modelConfig.maxTokens, 3500),
       }),
     });
     if (!response.ok) throw new Error(`OpenRouter returned HTTP ${response.status}.`);

@@ -7,6 +7,7 @@ import { PollinationsImageProvider } from './pollinations';
 import type { BookBlueprint, BookDocument, BookPageDocument, BookType } from '@/lib/book/types';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { persistGeneratedImage } from '@/lib/book/asset-storage';
+import { normalizeManuscriptPages } from '@/lib/book/manuscript-normalizer';
 
 export class GenerationPipeline {
   private static textProvider = new OpenRouterTextProvider();
@@ -256,8 +257,21 @@ export class GenerationPipeline {
       // STAGE 2: GENERATE COVER IMAGE (25% -> 50%)
       // -------------------------------------------------------------
       if (stage === 'cover') {
-        const coverPrompt = blueprint.visualPlan?.find((item) => item.visualType === 'cover')?.promptSpec
-          || `${book?.title || promptText}, high quality editorial book cover illustration, cinematic lighting, masterpiece`;
+        const isTrading = /trading|finance|stock|market|crypto|forex|invest|option|futures|candlestick|technical analysis/i.test(
+          `${book?.title || ''} ${promptText}`
+        );
+
+        let coverPrompt: string;
+        if (isTrading) {
+          coverPrompt =
+            'Luxury high-end abstract financial markets background, sleek architectural depth, subtle glowing holographic candlestick data vectors, deep obsidian slate and rich bronze tones, cinematic lighting, ultra-clean negative space. Completely text-free background, no words, no letters, no typography, no logos.';
+        } else {
+          const spec = blueprint.visualPlan?.find((item) => item.visualType === 'cover')?.promptSpec;
+          coverPrompt = spec
+            ? `${spec}. Clean editorial book cover background artwork, fine art aesthetic with generous negative space for overlaid typography. Completely text-free, no words, no letters, no typography, no logos.`
+            : `Clean editorial book cover background artwork for a ${book?.style || 'modern'} publication, cinematic lighting with generous negative space for overlaid typography. Completely text-free, no words, no letters, no typography, no logos.`;
+        }
+
         const ownerId = book?.user_id;
         if (!ownerId) throw new Error('Book owner is missing; cannot persist cover asset.');
 
@@ -266,11 +280,11 @@ export class GenerationPipeline {
           result = await Promise.race([
             this.imageProvider.generateImage({
               prompt: coverPrompt,
-              bookTitle: book?.title || 'Book',
+              bookTitle: isTrading ? 'Financial Markets Guide' : (book?.title || 'Publication'),
               style: book?.style || 'editorial',
               isCover: true,
             }),
-            new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Cover image provider timeout')), 22_000)),
+            new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Cover image provider timeout')), 28_000)),
           ]);
         } catch (imgErr: unknown) {
           const errMsg = imgErr instanceof Error ? imgErr.message : String(imgErr);
@@ -377,11 +391,13 @@ export class GenerationPipeline {
           const isComplete = chaptersDone >= chapters.length;
 
           if (isComplete) {
-            // Normalize page numbers across the entire manuscript
-            const normalizedPages = updatedGeneratedPages.map((page, index) => ({
-              ...page,
-              pageNumber: index + 1,
-            }));
+            // Normalize page numbers across the entire manuscript:
+            // removes empty pages, deduplicates headings, merges sparse pages, ensures trading risk disclaimer
+            const normalizedPages = normalizeManuscriptPages(updatedGeneratedPages, {
+              title: book?.title,
+              prompt: promptText,
+              bookType: book?.book_type,
+            });
             const finalBlueprint = {
               ...updatedBlueprint,
               generatedPages: normalizedPages,
@@ -432,10 +448,11 @@ export class GenerationPipeline {
         }
 
         // If all chapters were already recorded, advance to illustrations
-        const normalizedPages = existingPages.map((page, index) => ({
-          ...page,
-          pageNumber: index + 1,
-        }));
+        const normalizedPages = normalizeManuscriptPages(existingPages, {
+          title: book?.title,
+          prompt: promptText,
+          bookType: book?.book_type,
+        });
         const finalBlueprint = {
           ...blueprint,
           generatedPages: normalizedPages,
@@ -489,7 +506,16 @@ export class GenerationPipeline {
             return { id: jobId, book_id: bookId, status: 'processing', stage: 'illustrations', progress: nextProgress };
           }
 
-          const imagePrompt = nextVisual.promptSpec || `${book?.title || promptText}, editorial illustration`;
+          const rawCaption = nextVisual.promptSpec || `${book?.title || promptText} illustration`;
+          const cleanCaption = rawCaption
+            .replace(/^(illustration of|diagram of|image of|a detailed|high quality|modern|cinematic|clean)\s+/i, '')
+            .split(/[,.;]/)[0]
+            .trim();
+          const editorialCaption = cleanCaption
+            ? cleanCaption.charAt(0).toUpperCase() + cleanCaption.slice(1)
+            : 'Editorial Illustration';
+
+          const imagePrompt = `${rawCaption}. High resolution editorial publication artwork, no text, no words, no letters, no logos, no watermarks, no provider branding, no borders, no signatures, no UI elements.`;
           let result;
           try {
             result = await Promise.race([
@@ -538,13 +564,13 @@ export class GenerationPipeline {
               type: 'image' as const,
               assetId: asset.id,
               url: asset.url,
-              caption: imagePrompt,
+              caption: editorialCaption,
             };
             return {
               ...page,
               layout: nextVisual.layout || page.layout,
               blocks: hasImage
-                ? page.blocks.map((block) => block.type === 'image' ? { ...block, assetId: asset.id, url: asset.url, caption: block.caption || imagePrompt } : block)
+                ? page.blocks.map((block) => block.type === 'image' ? { ...block, assetId: asset.id, url: asset.url, caption: block.caption || editorialCaption } : block)
                 : [...page.blocks, imageBlock],
             };
           });
@@ -592,9 +618,13 @@ export class GenerationPipeline {
         const rawPages: BookPageDocument[] = blueprint.generatedPages || [];
         
         if (rawPages.length === 0) throw new Error('Chapter generation returned no pages.');
-        const pagesToFormat: BookPageDocument[] = rawPages;
+        const normalizedPages = normalizeManuscriptPages(rawPages, {
+          title: book?.title,
+          prompt: promptText,
+          bookType: book?.book_type,
+        });
 
-        const canonicalPages: BookPageDocument[] = pagesToFormat.map((page, idx) => ({
+        const canonicalPages: BookPageDocument[] = normalizedPages.map((page, idx) => ({
           ...page,
           pageNumber: idx + 1,
         }));

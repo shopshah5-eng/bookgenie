@@ -201,16 +201,27 @@ function renderPageContent(page: BookPageDocument | null, book: BookDocument) {
 
             {block.type === 'image' && (
               <div className="relative w-full aspect-[16/9] rounded-lg overflow-hidden bg-neutral-100 my-3 border border-black/5">
-                <Image
-                  src={block.url || book.coverUrl || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80'}
-                  alt={block.caption || 'Book illustration'}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 100vw, 400px"
-                />
-                {block.caption && (
-                  <div className="absolute bottom-1.5 left-2 right-2 text-[10px] text-white/90 drop-shadow-sm bg-black/40 px-2 py-0.5 rounded">
-                    {block.caption}
+                {block.url ? (
+                  <>
+                    <Image
+                      src={block.url}
+                      alt={block.caption || 'Book illustration'}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, 400px"
+                    />
+                    {block.caption && (
+                      <div className="absolute bottom-1.5 left-2 right-2 text-[10px] text-white/90 drop-shadow-sm bg-black/40 px-2 py-0.5 rounded">
+                        {block.caption}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-stone-50 border border-stone-200/60 rounded-lg">
+                    <p className="text-xs text-stone-500 font-medium">Illustration asset pending or not generated</p>
+                    {block.caption && (
+                      <p className="text-[11px] text-stone-400 mt-1 italic">{block.caption}</p>
+                    )}
                   </div>
                 )}
               </div>

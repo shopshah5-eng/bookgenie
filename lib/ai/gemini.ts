@@ -1,4 +1,6 @@
-// Google Gemini image provider with automatic FLUX failover.
+// lib/ai/gemini.ts
+// Google Gemini image provider for clean commercial covers and publication illustrations.
+
 import type { IImageProvider, GenerateImageParams, ImageGenerationResult } from './image-provider';
 import { PollinationsImageProvider } from './pollinations';
 
@@ -7,58 +9,87 @@ export class GeminiImageProvider implements IImageProvider {
   private readonly fallbackProvider = new PollinationsImageProvider();
 
   async generateImage(params: GenerateImageParams): Promise<ImageGenerationResult> {
+    const allowWatermarked = process.env.ALLOW_PROVIDER_WATERMARKED_COVERS === 'true';
+
     if (this.apiKey) {
       try {
+        let visualSubject = params.prompt;
+
+        if (params.isCover) {
+          const isTrading = /trading|finance|stock|market|crypto|forex|invest|option|futures|candlestick|technical analysis/i.test(
+            `${params.bookTitle} ${params.prompt}`
+          );
+
+          if (isTrading) {
+            visualSubject =
+              'Luxury high-end abstract financial markets background, sleek architectural depth, subtle glowing holographic candlestick data vectors, deep obsidian slate and rich bronze tones, cinematic lighting, ultra-clean negative space. Completely text-free background, no words, no letters, no typography, no logos.';
+          } else {
+            visualSubject = `${params.prompt}. High-end editorial book cover background artwork, cinematic lighting, elegant composition with generous negative space for overlaid typography. Completely text-free, no words, no letters, no typography, no logos.`;
+          }
+        }
+
         const productionPrompt = `
-Style: ${params.style} book illustration, soft natural lighting, editorial publishing quality.
-Subject: ${params.prompt}
-Book: "${params.bookTitle}"
+Style: ${params.style || 'Modern editorial'} book artwork, soft natural lighting, editorial publishing quality.
+Subject: ${visualSubject}
 ${params.characterBible ? `Character Specification: ${JSON.stringify(params.characterBible)}` : ''}
-${params.isCover ? 'Composition: Centered portrait, luxury book cover composition with negative space for typography.' : 'Composition: High-resolution editorial scene.'}
+${params.isCover ? 'Composition: Centered portrait, luxury book cover composition with negative space for typography. CRITICAL: Absolutely no text, no title words, no numbers, no watermarks, no logos.' : 'Composition: High-resolution editorial scene. No text, no logos, no borders, no signatures.'}
 `.trim();
 
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${this.apiKey}`;
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 3500);
-        let response: Response;
-        try {
-          response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            signal: controller.signal,
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: productionPrompt }] }],
-              generationConfig: {
-                responseModalities: ['IMAGE'],
-              },
-            }),
-          });
-        } finally {
-          clearTimeout(timer);
-        }
+        const candidateModels = ['gemini-2.5-flash-image', 'gemini-3.1-flash-image'];
 
-        if (response.ok) {
-          const data = await response.json();
-          const imagePart = data.candidates?.[0]?.content?.parts?.find(
-            (p: { inlineData?: { data?: string } }) => p.inlineData?.data
-          );
-          if (imagePart?.inlineData?.data) {
-            return {
-              base64: imagePart.inlineData.data,
-              storagePath: `books/${encodeURIComponent(params.bookTitle)}/${Date.now()}.png`,
-              provider: 'gemini-image',
-            };
+        for (const model of candidateModels) {
+          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.apiKey}`;
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 25000);
+
+          try {
+            const response = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: controller.signal,
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: productionPrompt }] }],
+                generationConfig: {
+                  responseModalities: ['IMAGE'],
+                },
+              }),
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              const imagePart = data.candidates?.[0]?.content?.parts?.find(
+                (p: { inlineData?: { data?: string } }) => p.inlineData?.data
+              );
+              if (imagePart?.inlineData?.data) {
+                return {
+                  base64: imagePart.inlineData.data,
+                  storagePath: `books/${encodeURIComponent(params.bookTitle)}/${Date.now()}.png`,
+                  provider: 'gemini-image',
+                };
+              }
+            } else {
+              const errBody = await response.text().catch(() => '');
+              console.warn(`[GeminiImageProvider] Model ${model} returned HTTP ${response.status}: ${errBody.slice(0, 200)}`);
+            }
+          } catch (fetchErr) {
+            console.warn(`[GeminiImageProvider] Call to ${model} failed:`, fetchErr);
+          } finally {
+            clearTimeout(timer);
           }
-        } else {
-          console.warn(`[GeminiImageProvider] Gemini returned HTTP ${response.status}. Failing over to FLUX provider.`);
         }
       } catch (err) {
-        console.warn('[GeminiImageProvider] Error generating with Gemini, failing over to FLUX provider:', err);
+        console.warn('[GeminiImageProvider] Gemini image generation failed:', err);
       }
     }
 
-    // Failover: generate real publication artwork via FLUX
+    // Cover safety enforcement: Pollinations covers are blocked unless explicitly allowed
+    if (params.isCover && !allowWatermarked) {
+      throw new Error(
+        'Clean commercial cover generation required: Gemini cover generation failed and watermarked fallback covers are blocked (ALLOW_PROVIDER_WATERMARKED_COVERS=false).'
+      );
+    }
+
+    // Interior illustrations failover to FLUX provider
     return this.fallbackProvider.generateImage(params);
   }
 }
-
