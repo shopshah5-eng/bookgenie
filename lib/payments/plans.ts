@@ -2,7 +2,7 @@
 // Canonical single source of truth for all BookGenie plans and entitlements.
 // Shared by frontend pricing UI, backend quota checks, Razorpay orders, and exports.
 
-export type PlanId = 'free' | 'book' | 'book_plus' | 'creator';
+export type PlanId = 'free' | 'pro' | 'creator';
 
 export interface PlanDefinition {
   id: PlanId;
@@ -50,52 +50,26 @@ export const CANONICAL_PLANS: Record<PlanId, PlanDefinition> = {
     canRegenerate: false,
     prioritySupport: false,
   },
-  book: {
-    id: 'book',
-    name: 'BOOK',
+  pro: {
+    id: 'pro',
+    name: 'PRO',
     badge: 'Most Popular',
-    priceInr: 199,
-    amountPaise: 19900,
+    priceInr: 299,
+    amountPaise: 29900,
     billingType: 'one_time',
     currency: 'INR',
-    description: 'Perfect for authors publishing a complete single book with commercial rights.',
+    description: 'Full-length illustrated publication with no watermark and commercial rights.',
     features: [
-      '₹199 one-time payment',
+      '₹299 one-time payment',
       '1 complete ebook',
-      'Up to 30 pages',
-      'PDF + EPUB exports',
-      'No watermark',
-      'Commercial use license',
-    ],
-    maxPagesPerBook: 30,
-    maxBooksAllowed: 1,
-    allowedFormats: ['pdf', 'epub'],
-    hasWatermark: false,
-    commercialUse: true,
-    enhancedIllustrations: false,
-    canRegenerate: false,
-    prioritySupport: false,
-  },
-  book_plus: {
-    id: 'book_plus',
-    name: 'BOOK PLUS',
-    badge: 'Best Value',
-    priceInr: 399,
-    amountPaise: 39900,
-    billingType: 'one_time',
-    currency: 'INR',
-    description: 'Full-length illustrated publication with iterative revision and refinement.',
-    features: [
-      '₹399 one-time payment',
-      '1 extended ebook',
-      'Up to 60 pages',
+      'Up to 50 pages',
       'PDF + EPUB exports',
       'No watermark',
       'Commercial use license',
       'Enhanced illustrations',
       'Regeneration & refinement dock',
     ],
-    maxPagesPerBook: 60,
+    maxPagesPerBook: 50,
     maxBooksAllowed: 1,
     allowedFormats: ['pdf', 'epub'],
     hasWatermark: false,
@@ -107,7 +81,7 @@ export const CANONICAL_PLANS: Record<PlanId, PlanDefinition> = {
   creator: {
     id: 'creator',
     name: 'CREATOR',
-    badge: 'Pro Subscription',
+    badge: 'Unlimited Power',
     priceInr: 799,
     amountPaise: 79900,
     billingType: 'subscription',
@@ -134,13 +108,14 @@ export const CANONICAL_PLANS: Record<PlanId, PlanDefinition> = {
   },
 };
 
-export const ORDERED_PLAN_IDS: PlanId[] = ['free', 'book', 'book_plus', 'creator'];
+export const ORDERED_PLAN_IDS: PlanId[] = ['free', 'pro', 'creator'];
 
 export function getPlan(planId: string): PlanDefinition | null {
   const normalized = planId.toLowerCase().trim();
   if (normalized === 'free' || normalized === 'discovery') return CANONICAL_PLANS.free;
-  if (normalized === 'book') return CANONICAL_PLANS.book;
-  if (normalized === 'book_plus' || normalized === 'bookplus') return CANONICAL_PLANS.book_plus;
-  if (normalized === 'creator' || normalized === 'pro' || normalized === 'premium') return CANONICAL_PLANS.creator;
+  if (normalized === 'pro' || normalized === 'book' || normalized === 'book_plus' || normalized === 'bookplus') {
+    return CANONICAL_PLANS.pro;
+  }
+  if (normalized === 'creator' || normalized === 'premium') return CANONICAL_PLANS.creator;
   return null;
 }

@@ -215,24 +215,24 @@ export function MinimalPricing() {
           </div>
         )}
 
-        {/* 4 Plans Grid: FREE, BOOK, BOOK PLUS, CREATOR */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+        {/* 3 Plans Grid: FREE, PRO, CREATOR */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-5xl mx-auto">
           {ORDERED_PLAN_IDS.map((planId) => {
             const plan = CANONICAL_PLANS[planId];
             const isCreator = plan.id === 'creator';
-            const isBookPlus = plan.id === 'book_plus';
+            const isPro = plan.id === 'pro';
             const isCurrent = user && currentTier === plan.id;
             const isLoading = loadingPlanId === plan.id;
 
             return (
               <div
                 key={plan.id}
-                className={`flex flex-col justify-between rounded-2xl p-6 transition-all duration-200 ${
+                className={`flex flex-col justify-between rounded-2xl p-7 transition-all duration-200 ${
                   isCreator
                     ? 'border border-[#111111] bg-[#111111] text-white shadow-xl relative'
-                    : isBookPlus
-                    ? 'border-2 border-[#111111] bg-white text-[#111111] shadow-md relative'
-                    : 'border border-[#EAEAEA] bg-white text-[#111111] hover:border-[#111111]/30 hover:shadow-xs'
+                    : isPro
+                    ? 'border-2 border-[#111111] bg-white text-[#111111] shadow-lg relative'
+                    : 'border border-[#EAEAEA] bg-white text-[#111111] hover:border-[#111111]/30 hover:shadow-sm'
                 }`}
               >
                 <div>
@@ -242,14 +242,14 @@ export function MinimalPricing() {
                       className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider ${
                         isCreator
                           ? 'bg-white/15 text-white'
-                          : isBookPlus
+                          : isPro
                           ? 'bg-[#111111] text-white'
                           : 'bg-[#F0F0F0] text-[#666666]'
                       }`}
                     >
                       {plan.badge || plan.name}
                     </span>
-                    {isBookPlus && <Sparkles className="w-4 h-4 text-amber-500" />}
+                    {isPro && <Sparkles className="w-4 h-4 text-amber-500" />}
                     {isCreator && <Sparkles className="w-4 h-4 text-amber-300" />}
                   </div>
 
@@ -301,7 +301,7 @@ export function MinimalPricing() {
                           className={`w-4 h-4 shrink-0 mt-0.5 ${
                             isCreator
                               ? 'text-amber-300'
-                              : isBookPlus
+                              : isPro
                               ? 'text-[#111111]'
                               : 'text-neutral-700'
                           }`}
@@ -334,7 +334,7 @@ export function MinimalPricing() {
                       className={`w-full py-2.5 px-4 rounded-full text-center text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-60 ${
                         isCreator
                           ? 'bg-white text-[#111111] hover:bg-neutral-100 shadow-sm'
-                          : isBookPlus
+                          : isPro
                           ? 'bg-[#111111] text-white hover:bg-neutral-900 shadow-sm'
                           : 'bg-[#F5F5F3] text-[#111111] hover:bg-[#EAEAEA]'
                       }`}

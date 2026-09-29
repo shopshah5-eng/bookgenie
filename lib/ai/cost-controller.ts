@@ -26,20 +26,11 @@ export const PLAN_LIMITS: Record<PlanId, PlanEntitlement> = {
     commercialUse: false,
     priorityQueue: false,
   },
-  book: {
-    tier: 'book',
-    name: 'BOOK (₹199)',
+  pro: {
+    tier: 'pro',
+    name: 'PRO (₹299)',
     maxBooksPerMonth: 1,
-    maxPagesPerBook: 30,
-    hasWatermark: false,
-    commercialUse: true,
-    priorityQueue: false,
-  },
-  book_plus: {
-    tier: 'book_plus',
-    name: 'BOOK PLUS (₹399)',
-    maxBooksPerMonth: 1,
-    maxPagesPerBook: 60,
+    maxPagesPerBook: 50,
     hasWatermark: false,
     commercialUse: true,
     priorityQueue: false,
@@ -232,8 +223,8 @@ ${
       if (!entError && entitlements && entitlements.length > 0) {
         // Find best matching entitlement that covers requested pages, or largest available
         const activeEnt = entitlements.find((e) => requestedPages <= e.max_pages) || entitlements[0];
-        const planKey = (activeEnt.plan_id as PlanId) || 'book';
-        const plan = PLAN_LIMITS[planKey] || PLAN_LIMITS.book;
+        const planKey = (activeEnt.plan_id as PlanId) || 'pro';
+        const plan = PLAN_LIMITS[planKey] || PLAN_LIMITS.pro;
 
         if (requestedPages > activeEnt.max_pages) {
           return {

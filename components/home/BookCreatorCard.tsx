@@ -32,6 +32,8 @@ export function BookCreatorCard() {
     ? 100
     : activeTier === 'creator'
     ? 100
+    : activeTier === 'pro'
+    ? 50
     : activeTier === 'book_plus'
     ? 60
     : activeTier === 'book'

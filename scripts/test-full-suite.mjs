@@ -47,20 +47,16 @@ async function runTests() {
 
   // 1. Canonical Plan Definitions
   await test('1. Canonical Plan Definitions: IDs, prices, and limits align exactly', () => {
-    assert.deepEqual(ORDERED_PLAN_IDS, ['free', 'book', 'book_plus', 'creator']);
+    assert.deepEqual(ORDERED_PLAN_IDS, ['free', 'pro', 'creator']);
     assert.equal(CANONICAL_PLANS.free.priceInr, 0);
     assert.equal(CANONICAL_PLANS.free.maxPagesPerBook, 10);
     assert.equal(CANONICAL_PLANS.free.hasWatermark, true);
 
-    assert.equal(CANONICAL_PLANS.book.priceInr, 199);
-    assert.equal(CANONICAL_PLANS.book.amountPaise, 19900);
-    assert.equal(CANONICAL_PLANS.book.maxPagesPerBook, 30);
-    assert.equal(CANONICAL_PLANS.book.hasWatermark, false);
-
-    assert.equal(CANONICAL_PLANS.book_plus.priceInr, 399);
-    assert.equal(CANONICAL_PLANS.book_plus.amountPaise, 39900);
-    assert.equal(CANONICAL_PLANS.book_plus.maxPagesPerBook, 60);
-    assert.equal(CANONICAL_PLANS.book_plus.canRegenerate, true);
+    assert.equal(CANONICAL_PLANS.pro.priceInr, 299);
+    assert.equal(CANONICAL_PLANS.pro.amountPaise, 29900);
+    assert.equal(CANONICAL_PLANS.pro.maxPagesPerBook, 50);
+    assert.equal(CANONICAL_PLANS.pro.hasWatermark, false);
+    assert.equal(CANONICAL_PLANS.pro.canRegenerate, true);
 
     assert.equal(CANONICAL_PLANS.creator.priceInr, 799);
     assert.equal(CANONICAL_PLANS.creator.amountPaise, 79900);
@@ -70,10 +66,8 @@ async function runTests() {
 
   // 2. Razorpay Order Server-Side Amount Integrity
   await test('2. Razorpay order amount comes strictly from server plan definition (never client amount)', () => {
-    const bookPlan = getPlan('book');
-    assert.equal(bookPlan?.amountPaise, 19900);
-    const bookPlusPlan = getPlan('book_plus');
-    assert.equal(bookPlusPlan?.amountPaise, 39900);
+    const proPlan = getPlan('pro');
+    assert.equal(proPlan?.amountPaise, 29900);
     const creatorPlan = getPlan('creator');
     assert.equal(creatorPlan?.amountPaise, 79900);
   });

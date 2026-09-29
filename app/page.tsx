@@ -32,7 +32,7 @@ export default function HomePage() {
         {/* 4. How It Works (Create Your eBook in 3 Simple Steps: 1, 2, 3) */}
         <MinimalHowItWorks />
 
-        {/* 6. Pricing Plans (Free, Book, Book Plus, Creator) */}
+        {/* 6. Pricing Plans (Free, Pro, Creator) */}
         <MinimalPricing />
 
         {/* 7. Frequently Asked Questions (2-Column Accordion + View All) */}
