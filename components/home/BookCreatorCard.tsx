@@ -14,13 +14,25 @@ export function BookCreatorCard() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [activeTier, setActiveTier] = useState<string>(() => (user?.user_metadata?.tier || 'free').toLowerCase());
+
+  useEffect(() => {
+    if (user) {
+      fetch('/api/subscription/upgrade')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.tier) setActiveTier(String(data.tier).toLowerCase());
+        })
+        .catch(() => {});
+    }
+  }, [user]);
+
   // Derive max pages dynamically from user tier
-  const tier = (user?.user_metadata?.tier || 'free').toLowerCase();
   const maxPages = !user
     ? 300
-    : tier === 'pro' || tier === 'boutique-press'
+    : activeTier === 'pro' || activeTier === 'boutique-press'
     ? 300
-    : tier === 'creator' || tier === 'studio-atelier'
+    : activeTier === 'creator' || activeTier === 'studio-atelier'
     ? 64
     : 16;
 

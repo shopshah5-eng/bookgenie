@@ -10,13 +10,29 @@ export function MinimalPricing() {
   const router = useRouter();
   const { user, openAuthModal } = useAuth();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
+  const [currentTier, setCurrentTier] = useState<string>('free');
 
-  const handleAction = (planId: string) => {
+  React.useEffect(() => {
+    if (user) {
+      fetch('/api/subscription/upgrade')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.tier) setCurrentTier(data.tier);
+        })
+        .catch(() => {});
+    }
+  }, [user]);
+
+  const handleAction = (planId: 'free' | 'creator' | 'pro') => {
     if (!user) {
-      openAuthModal('signup', '/pricing');
+      openAuthModal('signup', `/pricing?plan=${planId}&autoSelect=true`);
       return;
     }
-    router.push('/pricing');
+    if (planId === currentTier) {
+      router.push('/create');
+      return;
+    }
+    router.push(`/pricing?plan=${planId}&autoSelect=true`);
   };
 
   return (
@@ -103,12 +119,21 @@ export function MinimalPricing() {
                 </li>
               </ul>
             </div>
-            <Link
-              href="/create"
-              className="w-full py-3 px-4 rounded-full text-center text-xs font-semibold text-[#111111] bg-[#F5F5F3] hover:bg-[#EAEAEA] transition-colors cursor-pointer"
-            >
-              Start Free
-            </Link>
+            {user && currentTier === 'free' ? (
+              <Link
+                href="/create"
+                className="w-full py-3 px-4 rounded-full text-center text-xs font-semibold text-neutral-600 bg-neutral-200 transition-colors cursor-pointer"
+              >
+                Active Plan ✓
+              </Link>
+            ) : (
+              <button
+                onClick={() => handleAction('free')}
+                className="w-full py-3 px-4 rounded-full text-center text-xs font-semibold text-[#111111] bg-[#F5F5F3] hover:bg-[#EAEAEA] transition-colors cursor-pointer"
+              >
+                Start Free
+              </button>
+            )}
           </div>
 
           {/* Card 2: Pro (Most Popular) */}
@@ -159,9 +184,13 @@ export function MinimalPricing() {
             </div>
             <button
               onClick={() => handleAction('creator')}
-              className="w-full py-3 px-4 rounded-full text-center text-xs font-semibold text-[#111111] bg-white hover:bg-[#F0F0F0] transition-colors cursor-pointer"
+              className={`w-full py-3 px-4 rounded-full text-center text-xs font-semibold transition-colors cursor-pointer ${
+                user && currentTier === 'creator'
+                  ? 'bg-neutral-800 text-neutral-300 border border-white/20'
+                  : 'text-[#111111] bg-white hover:bg-[#F0F0F0]'
+              }`}
             >
-              Upgrade to Pro
+              {user && currentTier === 'creator' ? 'Active Plan ✓' : 'Upgrade to Pro'}
             </button>
           </div>
 
@@ -212,9 +241,13 @@ export function MinimalPricing() {
             </div>
             <button
               onClick={() => handleAction('pro')}
-              className="w-full py-3 px-4 rounded-full text-center text-xs font-semibold text-[#111111] bg-[#F5F5F3] hover:bg-[#EAEAEA] transition-colors cursor-pointer"
+              className={`w-full py-3 px-4 rounded-full text-center text-xs font-semibold transition-colors cursor-pointer ${
+                user && currentTier === 'pro'
+                  ? 'bg-neutral-200 text-neutral-600'
+                  : 'text-[#111111] bg-[#F5F5F3] hover:bg-[#EAEAEA]'
+              }`}
             >
-              Join Premium
+              {user && currentTier === 'pro' ? 'Active Plan ✓' : 'Join Premium'}
             </button>
           </div>
 

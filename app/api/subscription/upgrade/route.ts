@@ -2,16 +2,55 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+export async function GET() {
+  try {
+    const sessionClient = await createServerSupabaseClient();
+    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ tier: 'free', currentPlan: 'free' });
+    }
+
+    const admin = createAdminClient();
+    const { data: profile } = await admin
+      .from('profiles')
+      .select('id, email, tier')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    const activeTier = profile?.tier || user.user_metadata?.tier || 'free';
+    return NextResponse.json({
+      tier: activeTier,
+      currentPlan: activeTier,
+      user: {
+        id: user.id,
+        email: user.email,
+      },
+    });
+  } catch (err) {
+    console.error('Subscription status error:', err);
+    return NextResponse.json({ tier: 'free', currentPlan: 'free' });
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body: unknown = await req.json().catch(() => null);
-    const tier = body && typeof body === 'object' && 'tier' in body
+    let requestedTier = body && typeof body === 'object' && 'tier' in body
       ? (body as { tier?: unknown }).tier
       : undefined;
 
-    if (tier !== 'free' && tier !== 'creator' && tier !== 'pro') {
+    // Normalize plan names from frontend
+    if (requestedTier === 'pro_monthly' || requestedTier === 'pro_annual' || requestedTier === 'creator') {
+      requestedTier = 'creator';
+    } else if (requestedTier === 'premium_monthly' || requestedTier === 'premium_annual' || requestedTier === 'pro') {
+      requestedTier = 'pro';
+    } else if (requestedTier === 'free' || requestedTier === 'discovery') {
+      requestedTier = 'free';
+    }
+
+    if (requestedTier !== 'free' && requestedTier !== 'creator' && requestedTier !== 'pro') {
       return NextResponse.json(
-        { error: 'INVALID_TIER', message: 'Valid plan tiers are free, creator, and pro.' },
+        { error: 'INVALID_TIER', message: 'Valid plan tiers are free, creator (Pro), and pro (Premium).' },
         { status: 400 }
       );
     }
@@ -20,34 +59,35 @@ export async function POST(req: NextRequest) {
     const { data: { user }, error: authError } = await sessionClient.auth.getUser();
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'UNAUTHORIZED', message: 'Sign in before changing a subscription.' },
+        { error: 'UNAUTHORIZED', message: 'Sign in before choosing a subscription plan.' },
         { status: 401 }
-      );
-    }
-
-    // There is no payment provider or webhook in this repository. Never grant
-    // paid entitlements just because a browser posted { tier: "pro" }.
-    if (tier !== 'free') {
-      return NextResponse.json(
-        { error: 'PAYMENT_NOT_CONFIGURED', message: 'Paid plan checkout is not configured yet.' },
-        { status: 501 }
       );
     }
 
     const admin = createAdminClient();
     const { data: profile, error } = await admin
       .from('profiles')
-      .update({ tier: 'free', updated_at: new Date().toISOString() })
+      .update({ tier: requestedTier, updated_at: new Date().toISOString() })
       .eq('id', user.id)
       .select('id, email, tier')
       .maybeSingle();
     if (error) throw error;
 
+    // Also update auth user metadata so client-side sessions reflect immediately
+    try {
+      await sessionClient.auth.updateUser({
+        data: { tier: requestedTier },
+      });
+    } catch (_) {}
+
+    const planName = requestedTier === 'pro' ? 'Premium' : requestedTier === 'creator' ? 'Pro' : 'Free';
+
     return NextResponse.json({
       success: true,
-      subscriptionTier: 'free',
-      tier: 'free',
-      message: 'Your account is using the Free plan.',
+      subscriptionTier: requestedTier,
+      tier: requestedTier,
+      planName,
+      message: `Your account is now on the ${planName} plan.`,
       profile,
     });
   } catch (err) {
