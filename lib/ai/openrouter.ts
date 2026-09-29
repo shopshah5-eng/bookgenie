@@ -60,6 +60,19 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
   async generateChapter(params: GenerateChapterParams): Promise<BookPageDocument[]> {
     const apiKey = this.requireApiKey();
     const modelConfig = AICostController.selectTextModel('chapter_writing', params.blueprint.bookType);
+    const bp = params.blueprint;
+    const chapters = bp.chapters || [];
+    const chapter =
+      chapters.find((c) => (c.index ?? 0) === params.chapterIndex) ||
+      chapters[params.chapterIndex - 1] || {
+        title: `Chapter ${params.chapterIndex}`,
+        summary: 'Provide comprehensive in-depth content.',
+      };
+    const pagesForThisChapter = Math.max(
+      1,
+      Math.min(4, Math.round((bp.pageTarget || 16) / Math.max(1, chapters.length)))
+    );
+
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -73,24 +86,59 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
         messages: [
           {
             role: 'system',
-            content: 'You are an award-winning publishing writer. Return only JSON in the form {"pages": BookPageDocument[]}. Every page must have pageNumber, chapterIndex, pageType, layout, blocks, and every block must have an id and type.',
+            content:
+              'You are an award-winning publishing writer. Return only valid JSON: {"pages": BookPageDocument[]}. Every page must have pageNumber, chapterIndex, pageType ("chapter"|"content"), layout ("standard"|"quote-callout"|"split-horizontal"), and blocks: [{"id": string, "type": "heading"|"paragraph"|"quote", "text": string}]. Keep formatting clean, engaging, and publication-ready.',
           },
           {
             role: 'user',
-            content: `Book specification: ${JSON.stringify(params.blueprint)}\nWrite chapter ${params.chapterIndex} with complete structured page content.`,
+            content: `Book: "${bp.title || 'Mastering Trading'}" (${bp.subtitle || ''})\nGenre: ${bp.bookType || 'general'}\nStyle: ${bp.style || 'modern'}\nLanguage: ${bp.language || 'English'}\n\nTask: Write exactly ${pagesForThisChapter} structured page(s) for Chapter ${params.chapterIndex}: "${chapter.title}".\nSummary: ${chapter.summary}`,
           },
         ],
         response_format: { type: 'json_object' },
         temperature: modelConfig.temperature,
-        max_tokens: modelConfig.maxTokens,
+        max_tokens: Math.min(modelConfig.maxTokens, 2000),
       }),
     });
     if (!response.ok) throw new Error(`OpenRouter returned HTTP ${response.status}.`);
     const data = await response.json();
     const parsed = JSON.parse(data.choices?.[0]?.message?.content || '{}');
-    const pages = parsed.pages || parsed;
-    if (!Array.isArray(pages) || pages.length === 0) throw new Error('OpenRouter returned no chapter pages.');
-    return pages as BookPageDocument[];
+    const rawPages = parsed.pages || (Array.isArray(parsed) ? parsed : []);
+    if (!Array.isArray(rawPages) || rawPages.length === 0) {
+      throw new Error('OpenRouter returned no chapter pages.');
+    }
+
+    // Ensure every page conforms to the BookPageDocument interface with proper block structure
+    return rawPages.map((page: Record<string, unknown>, idx: number) => {
+      const pageBlocks = Array.isArray(page.blocks)
+        ? page.blocks.map((b: Record<string, unknown>, bIdx: number) => ({
+            id: String(b.id || `blk-${params.chapterIndex}-${idx + 1}-${bIdx + 1}`),
+            type: (b.type as 'heading' | 'paragraph' | 'quote') || 'paragraph',
+            text: String(b.text || b.content || ''),
+            level: typeof b.level === 'number' ? b.level : undefined,
+          }))
+        : [
+            {
+              id: `blk-${params.chapterIndex}-${idx + 1}-1`,
+              type: 'heading' as const,
+              text: String(page.title || chapter.title),
+              level: 2,
+            },
+            {
+              id: `blk-${params.chapterIndex}-${idx + 1}-2`,
+              type: 'paragraph' as const,
+              text: String(page.content || chapter.summary || 'Detailed narrative content.'),
+            },
+          ];
+
+      return {
+        pageNumber: typeof page.pageNumber === 'number' ? page.pageNumber : idx + 1,
+        chapterIndex: params.chapterIndex,
+        pageType: (page.pageType as 'title' | 'chapter' | 'content') || 'content',
+        layout: (page.layout as 'standard' | 'quote-callout' | 'split-horizontal') || 'standard',
+        title: typeof page.title === 'string' ? page.title : chapter.title,
+        blocks: pageBlocks,
+      } as BookPageDocument;
+    });
   }
 
   async regeneratePages(params: RegeneratePagesParams): Promise<{

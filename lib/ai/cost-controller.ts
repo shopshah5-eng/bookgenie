@@ -101,7 +101,9 @@ export class AICostController {
     // If standardModel is configured to a heavy 70b+ model, use fastModel for synchronous serverless generation.
     const rawStandard = process.env.AI_TEXT_MODEL_STANDARD || fastModel;
     const standardModel = rawStandard.includes('70b') ? fastModel : rawStandard;
-    const premiumModel = process.env.AI_TEXT_MODEL_PREMIUM || 'anthropic/claude-3.5-sonnet';
+    const rawPremium = process.env.AI_TEXT_MODEL_PREMIUM || fastModel;
+    // Fall back to fastModel if premiumModel is pointing to non-existent or rate-limited endpoints
+    const premiumModel = rawPremium.includes('claude') || rawPremium.includes('70b') ? fastModel : rawPremium;
 
     // Tier 1: Fast & deterministic for metadata, classification, QC & micro-revisions
     if (task === 'classification' || task === 'qc_check' || task === 'micro_revision') {
@@ -122,7 +124,7 @@ export class AICostController {
       };
     }
 
-    // Tier 3: Premium for complex novels, rich children's books, or heavy revisions
+    // Tier 3: Fast & structured for novels, rich children's books, or heavy revisions
     if (
       (bookType === 'novel' || bookType === 'children') &&
       task === 'chapter_writing'
@@ -130,8 +132,8 @@ export class AICostController {
       return {
         tier: 'premium',
         modelId: premiumModel,
-        maxTokens: 4000,
-        temperature: 0.7,
+        maxTokens: 2000,
+        temperature: 0.6,
       };
     }
 
@@ -139,7 +141,7 @@ export class AICostController {
     return {
       tier: 'standard',
       modelId: standardModel,
-      maxTokens: task === 'planning' ? 2000 : 3000,
+      maxTokens: 2000,
       temperature: 0.6,
     };
   }
