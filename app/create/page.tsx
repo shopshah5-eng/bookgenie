@@ -53,7 +53,7 @@ function CreatePageContent() {
 
   const [title, setTitle] = useState('');
   const [prompt, setPrompt] = useState('');
-  const [bookType, setBookType] = useState('novel');
+  const [bookType, setBookType] = useState('auto');
   const [language, setLanguage] = useState('english');
   const [voiceTone, setVoiceTone] = useState('mccarthy');
   // Free accounts are limited to one book of up to 16 pages. Start inside
@@ -504,14 +504,15 @@ function CreatePageContent() {
                       onChange={(e) => setBookType(e.target.value)}
                       className="w-full bg-surface-container-low dark:bg-black/30 border border-surface-container-highest dark:border-white/10 px-3 py-2 rounded text-on-surface dark:text-[#f1effa] font-label-ui text-label-ui outline-none"
                     >
-                      <option value="novel">Literary Speculative Fiction</option>
+                      <option value="auto">Auto — Let BookGenie understand the prompt</option>
                       <option value="guide">Non-Fiction / Treatise / Field Guide</option>
+                      <option value="course">Educational Course &amp; Curriculum</option>
+                      <option value="workbook">Structured Execution Workbook</option>
+                      <option value="novel">Literary Speculative Fiction</option>
                       <option value="children">Children&apos;s Picture Folio</option>
                       <option value="coloring">Coloring &amp; Line Engravings</option>
                       <option value="journal">Poetry &amp; Micro-Anthology</option>
                       <option value="recipe">Artisan Culinary Collection</option>
-                      <option value="workbook">Structured Execution Workbook</option>
-                      <option value="auto">Other / Custom Folio</option>
                     </select>
                   </div>
                 </div>

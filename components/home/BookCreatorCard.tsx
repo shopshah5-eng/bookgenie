@@ -88,6 +88,7 @@ export function BookCreatorCard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: cleanPrompt,
+          bookType: 'auto',
           pageTarget: pages,
         }),
       });

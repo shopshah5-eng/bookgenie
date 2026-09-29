@@ -3,6 +3,13 @@ import type { IImageProvider, GenerateImageParams, ImageGenerationResult } from 
 
 export class PollinationsImageProvider implements IImageProvider {
   async generateImage(params: GenerateImageParams): Promise<ImageGenerationResult> {
+    const allowWatermarked = process.env.ALLOW_PROVIDER_WATERMARKED_COVERS === 'true';
+    if (params.isCover && !allowWatermarked) {
+      throw new Error(
+        'Clean commercial cover generation required: Pollinations cover generation is blocked when watermark-free quality is required (ALLOW_PROVIDER_WATERMARKED_COVERS=false).'
+      );
+    }
+
     const promptText = `${params.prompt}, style: ${params.style || 'editorial'} book illustration, soft natural lighting, high resolution editorial publication artwork`;
     const width = params.aspectRatio === '16:9' ? 1024 : params.isCover ? 768 : 800;
     const height = params.aspectRatio === '16:9' ? 576 : params.isCover ? 1024 : 800;

@@ -22,7 +22,7 @@ export class GeminiImageProvider implements IImageProvider {
 
           if (isTrading) {
             visualSubject =
-              'Luxury high-end abstract financial markets background, sleek architectural depth, subtle glowing holographic candlestick data vectors, deep obsidian slate and rich bronze tones, cinematic lighting, ultra-clean negative space. Completely text-free background, no words, no letters, no typography, no logos.';
+              'Sophisticated financial-market editorial background, modern executive trading floor, multi-monitor professional market charts with glowing price action vectors, analytical geometry, deep midnight blue, teal, obsidian charcoal and restrained bronze accents, cinematic studio lighting, elegant atmospheric depth with generous clean negative space for overlaid title typography. Completely text-free background artwork, absolutely no words, no letters, no typography, no wax candles, no people holding books, no numbers, no watermarks, no logos.';
           } else {
             visualSubject = `${params.prompt}. High-end editorial book cover background artwork, cinematic lighting, elegant composition with generous negative space for overlaid typography. Completely text-free, no words, no letters, no typography, no logos.`;
           }
@@ -82,9 +82,15 @@ ${params.isCover ? 'Composition: Centered portrait, luxury book cover compositio
       }
     }
 
-    // Graceful failover: If Gemini fails (e.g., quota exceeded / billing not enabled yet),
-    // failover to the resilient fallback provider so book creation NEVER crashes.
-    console.warn('[GeminiImageProvider] Gemini unavailable, routing to fallback image provider...');
+    // Cover safety enforcement: Pollinations covers are blocked when watermark-free quality is required
+    if (params.isCover && !allowWatermarked) {
+      throw new Error(
+        'Clean commercial cover generation required: Gemini cover generation failed and watermarked fallback covers are blocked (ALLOW_PROVIDER_WATERMARKED_COVERS=false).'
+      );
+    }
+
+    // Interior illustrations failover to fallback provider
+    console.warn('[GeminiImageProvider] Gemini unavailable for interior plate, routing to fallback image provider...');
     return this.fallbackProvider.generateImage(params);
   }
 }

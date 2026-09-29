@@ -43,17 +43,20 @@ export function normalizeManuscriptPages(
 
   if (nonEmptyPages.length === 0) return pages;
 
-  // 2. Clean blocks inside each page: deduplicate duplicate headings and trim whitespace
+  // 2. Clean blocks inside each page: deduplicate duplicate headings,
+  // remove headings that repeat the page/chapter title, and trim whitespace
   const cleanedPages: BookPageDocument[] = [];
   for (const page of nonEmptyPages) {
     const seenHeadings = new Set<string>();
     const cleanedBlocks: ContentBlock[] = [];
+    const normalizedPageTitle = (page.title || '').trim().toLowerCase();
 
     for (const block of page.blocks) {
       if (block.type === 'heading') {
         const normalized = (block.text || '').trim().toLowerCase();
-        if (!normalized || seenHeadings.has(normalized)) {
-          continue; // skip duplicate or empty heading
+        // Skip duplicate headings or headings that blindly repeat the page title
+        if (!normalized || seenHeadings.has(normalized) || (normalizedPageTitle && normalized === normalizedPageTitle)) {
+          continue;
         }
         seenHeadings.add(normalized);
       }
@@ -66,16 +69,21 @@ export function normalizeManuscriptPages(
     });
   }
 
-  // 3. Merge sparse pages (pages with ONLY a heading or ONLY a quote, and no paragraph or image)
+  // 3. Merge sparse pages:
+  // - Pages with ONLY a heading or ONLY a quote
+  // - Pages with < 70 total words and no image (unless marked full-bleed/callout)
   const substantivePages: BookPageDocument[] = [];
   for (let i = 0; i < cleanedPages.length; i++) {
     const page = cleanedPages[i];
-    const hasSubstantiveContent = page.blocks.some(
-      (b) => (b.type === 'paragraph' && (b.text || '').trim().length >= 30) || b.type === 'image'
-    );
+    const hasImage = page.blocks.some((b) => b.type === 'image' || Boolean(b.url || b.imageUrl));
+    const wordCount = page.blocks.reduce((acc, b) => {
+      return acc + (b.text ? b.text.trim().split(/\s+/).filter(Boolean).length : 0);
+    }, 0);
 
-    if (!hasSubstantiveContent && substantivePages.length > 0) {
-      // Merge blocks into the preceding page
+    const isSubstantive = hasImage || wordCount >= 70 || page.layout === 'full-bleed';
+
+    if (!isSubstantive && substantivePages.length > 0) {
+      // Merge blocks into the preceding substantive page
       const target = substantivePages[substantivePages.length - 1];
       target.blocks = [...target.blocks, ...page.blocks];
     } else {

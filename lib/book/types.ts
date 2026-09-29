@@ -84,6 +84,7 @@ export interface BookBlueprint {
   visualPlan: VisualPlanItem[];
   characterBible?: Record<string, string>;
   prompt?: string;
+  requestedBookType?: string;
   uploadedContext?: string;
   generatedPages?: BookPageDocument[];
 }

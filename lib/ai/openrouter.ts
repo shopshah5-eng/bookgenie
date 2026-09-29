@@ -13,13 +13,20 @@ export class OpenRouterTextProvider implements ITextProvider {
 
   async generateBlueprint(params: GenerateBlueprintParams): Promise<BookBlueprint> {
     const apiKey = this.requireApiKey();
-    const modelConfig = AICostController.selectTextModel('planning', params.bookType === 'auto' ? undefined : params.bookType);
+    const isTrading = /trading|finance|stock|market|crypto|forex|invest|option|futures|candlestick|technical analysis/i.test(
+      params.prompt
+    );
+    const effectiveType = params.bookType === 'auto' || !params.bookType
+      ? (isTrading ? 'guide' : undefined)
+      : params.bookType;
+    const modelConfig = AICostController.selectTextModel('planning', effectiveType);
+
     const systemPrompt = `You are the master publishing strategist for BookGenie.
 Analyze the user's prompt and optional source content, then return strictly valid JSON matching this schema:
 {
   "title": string,
   "subtitle": string,
-  "bookType": "novel"|"children"|"coloring"|"course"|"guide"|"workbook"|"recipe"|"history"|"journal"|"lifestyle",
+  "bookType": "guide"|"course"|"workbook"|"novel"|"children"|"coloring"|"recipe"|"history"|"journal"|"lifestyle",
   "audience": string,
   "language": string,
   "style": string,
@@ -27,6 +34,27 @@ Analyze the user's prompt and optional source content, then return strictly vali
   "chapters": [{ "index": number, "title": string, "summary": string, "allocatedPages": number }],
   "visualPlan": [{ "pageNumber": number, "visualType": "cover"|"illustration"|"diagram"|"none", "promptSpec": string, "layout": "standard"|"image-top"|"image-bottom"|"image-left"|"image-right"|"full-bleed" }]
 }
+CRITICAL RULES FOR BOOK TYPE AND CURRICULUM:
+1. When Requested Book Type is "auto" and the topic is trading, investing, finance, crypto, forex, stocks, or technical analysis, you MUST set "bookType" to "guide", "course", or "workbook". NEVER output "novel" for financial, educational, or instructional subjects.
+2. For trading and financial education books, the chapters curriculum MUST comprehensively span:
+   - Beginner foundations & market mechanics
+   - Market types and financial instruments (stocks, ETFs, futures, options)
+   - Orders, order book dynamics, and trade execution
+   - Candlesticks, price action, and bar analysis
+   - Technical analysis principles
+   - Support, resistance, supply, and demand
+   - Trends, swing structure, and market cycles
+   - Technical indicators (moving averages, RSI, MACD, volume)
+   - Capital preservation and risk management
+   - Position sizing formulas and risk-to-reward ratios
+   - Leverage mechanics and margin liquidation risks
+   - Transaction fees, commissions, and execution slippage
+   - Trading psychology, discipline, and emotional biases
+   - Backtesting rules and performance evaluation
+   - Strategy development and trade planning
+   - Advanced case studies and market scenario breakdowns
+   - Practical exercises and actionable trader checklists
+   - Comprehensive financial glossary
 Do not include markdown fences or commentary.`;
     const userPrompt = `User Prompt: ${params.prompt}
 Requested Book Type: ${params.bookType || 'auto'}

@@ -54,6 +54,7 @@ export async function GET(req: NextRequest) {
       imageProvider: {
         selected: imageProviderEnv,
         configured: imageProviderEnv === 'gemini' ? isGeminiConfigured : true,
+        reachable: imageProviderEnv === 'gemini' ? isGeminiConfigured : true,
         coverSafe,
         allowWatermarkedCovers: allowWatermarked,
         status: isGeminiConfigured || imageProviderEnv === 'pollinations' ? 'ready' : 'fallback_mode',

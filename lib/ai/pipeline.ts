@@ -52,20 +52,25 @@ export class GenerationPipeline {
 
     const targetPages = Number(params.pageTarget) || 16;
 
+    const isTradingPrompt = /trading|finance|invest|forex|crypto|stock|market|candlestick|technical analysis|option|futures/i.test(params.prompt);
+    const initialBookType: BookType = params.bookType && params.bookType !== 'auto'
+      ? params.bookType
+      : (isTradingPrompt ? 'guide' : 'guide');
+
     // Initial placeholder document
     const initialDoc: BookDocument = {
       schemaVersion: 1,
       id: bookId,
       userId: validUserId,
       title: params.prompt.slice(0, 45).trim() || 'Untitled eBook',
-      bookType: (params.bookType === 'auto' ? 'novel' : params.bookType) || 'novel',
+      bookType: initialBookType,
       language: params.language || 'English',
       style: params.style || 'Modern',
       pageCount: targetPages,
       blueprint: {
         title: params.prompt.slice(0, 45).trim() || 'Untitled eBook',
-        subtitle: 'A Beautiful Illustrated eBook',
-        bookType: (params.bookType === 'auto' ? 'novel' : params.bookType) || 'novel',
+        subtitle: isTradingPrompt ? 'A Comprehensive Practical Guide' : 'A Beautiful Illustrated Publication',
+        bookType: initialBookType,
         audience: 'General',
         language: params.language || 'English',
         style: params.style || 'Modern',
@@ -73,6 +78,7 @@ export class GenerationPipeline {
         chapters: [],
         visualPlan: [],
         prompt: params.prompt,
+        requestedBookType: params.bookType || 'auto',
         uploadedContext: params.uploadedContext,
       },
       pages: [],
@@ -221,8 +227,19 @@ export class GenerationPipeline {
               },
               ...generatedVisualPlan,
             ];
-        const mergedBlueprint = {
+
+        const isTrading = /trading|finance|stock|market|crypto|forex|invest|option|futures|candlestick|technical analysis/i.test(
+          `${generatedBlueprint.title} ${generatedBlueprint.subtitle || ''} ${promptText}`
+        );
+        const resolvedBookType: BookType = (blueprint.requestedBookType && blueprint.requestedBookType !== 'auto')
+          ? (blueprint.requestedBookType as BookType)
+          : isTrading
+          ? 'guide'
+          : (generatedBlueprint.bookType || 'guide');
+
+        const updatedBlueprint = {
           ...generatedBlueprint,
+          bookType: resolvedBookType,
           visualPlan,
           prompt: promptText,
         };
@@ -231,9 +248,10 @@ export class GenerationPipeline {
         const { error: planningBookError } = await supabase
           .from('books')
           .update({
-            title: mergedBlueprint.title,
-            subtitle: mergedBlueprint.subtitle,
-            blueprint: mergedBlueprint as unknown as Record<string, unknown>,
+            title: updatedBlueprint.title,
+            subtitle: updatedBlueprint.subtitle,
+            book_type: resolvedBookType,
+            blueprint: updatedBlueprint as unknown as Record<string, unknown>,
             status: 'planning',
             progress: 20,
           })
@@ -256,8 +274,8 @@ export class GenerationPipeline {
           status: 'processing',
           stage: 'cover',
           progress: 25,
-          title: mergedBlueprint.title,
-          subtitle: mergedBlueprint.subtitle,
+          title: updatedBlueprint.title,
+          subtitle: updatedBlueprint.subtitle,
         };
       }
 
@@ -272,7 +290,7 @@ export class GenerationPipeline {
         let coverPrompt: string;
         if (isTrading) {
           coverPrompt =
-            'Luxury high-end abstract financial markets background, sleek architectural depth, subtle glowing holographic candlestick data vectors, deep obsidian slate and rich bronze tones, cinematic lighting, ultra-clean negative space. Completely text-free background, no words, no letters, no typography, no logos.';
+            'Sophisticated financial-market editorial background, modern executive trading floor, multi-monitor professional market charts with glowing price action vectors, analytical geometry, deep midnight blue, teal, obsidian charcoal and restrained bronze accents, cinematic studio lighting, elegant atmospheric depth with generous clean negative space for overlaid title typography. Completely text-free background artwork, absolutely no words, no letters, no typography, no wax candles, no people holding books, no numbers, no watermarks, no logos.';
         } else {
           const spec = blueprint.visualPlan?.find((item) => item.visualType === 'cover')?.promptSpec;
           coverPrompt = spec
@@ -531,12 +549,13 @@ export class GenerationPipeline {
 
           const rawCaption = nextVisual.promptSpec || `${book?.title || promptText} illustration`;
           const cleanCaption = rawCaption
-            .replace(/^(illustration of|diagram of|image of|a detailed|high quality|modern|cinematic|clean)\s+/i, '')
+            .replace(/^(illustration of|diagram of|image of|a detailed|high quality|modern|cinematic|clean|sophisticated|professional)\s+/i, '')
             .split(/[,.;]/)[0]
             .trim();
-          const editorialCaption = cleanCaption
+          const shortTopic = cleanCaption
             ? cleanCaption.charAt(0).toUpperCase() + cleanCaption.slice(1)
-            : 'Editorial Illustration';
+            : 'Key Concepts';
+          const editorialCaption = `Illustration for ${shortTopic}`;
 
           const imagePrompt = `${rawCaption}. High resolution editorial publication artwork, no text, no words, no letters, no logos, no watermarks, no provider branding, no borders, no signatures, no UI elements.`;
           const activeImageProvider = GenerationPipeline.getImageProviderForPlan(book?.plan_id);
@@ -703,19 +722,28 @@ export class GenerationPipeline {
       // STAGE 5: FINALIZING & COMPLETION (95% -> 100%)
       // -------------------------------------------------------------
       if (stage === 'finalizing') {
+        const finalBookType = (book?.book_type && book.book_type !== 'novel')
+          ? book.book_type
+          : (blueprint.bookType && blueprint.bookType !== 'novel')
+          ? blueprint.bookType
+          : 'guide';
+
         const finalDoc: BookDocument = {
           schemaVersion: 1,
           id: bookId,
           userId: book?.user_id || '',
           title: book?.title || blueprint.title || 'Untitled eBook',
           subtitle: book?.subtitle || blueprint.subtitle || '',
-          bookType: book?.book_type || blueprint.bookType || 'novel',
+          bookType: finalBookType,
           language: book?.language || blueprint.language || 'English',
           style: book?.style || blueprint.style || 'Modern',
           pageCount: book?.page_count || 16,
           coverAssetId: book?.cover_asset_id || undefined,
           coverUrl: book?.cover_url || book?.cover_image_url || undefined,
-          blueprint,
+          blueprint: {
+            ...blueprint,
+            bookType: finalBookType,
+          },
           pages: blueprint.generatedPages || [],
           versionNumber: 1,
           createdAt: new Date().toISOString(),
@@ -743,6 +771,7 @@ export class GenerationPipeline {
         const { error: completedBookError } = await supabase
           .from('books')
           .update({
+            book_type: finalBookType,
             status: 'completed',
             progress: 100,
           })

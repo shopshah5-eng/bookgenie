@@ -100,6 +100,10 @@ blockquote {
   }
 
   // Cover Page
+  const isPaidVerified = book.hasWatermark === false;
+  const editionText = isPaidVerified ? 'First Edition' : 'BookGenie Edition';
+  const subtitleText = book.subtitle || (isPaidVerified ? 'First Edition' : 'A publication crafted with BookGenie');
+
   const coverHtml = `<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="${book.language || 'en'}">
@@ -112,8 +116,8 @@ blockquote {
   <div class="cover-wrapper">
     ${hasCoverImage ? `<p><img src="${coverHref}" alt="Cover" style="max-width:100%; height:auto; margin:0 auto 1.5em; border-radius:8px;"/></p>` : ''}
     <h1>${escapeXml(book.title)}</h1>
-    <div class="subtitle">${escapeXml(book.subtitle || 'A publication crafted with BookGenie')}</div>
-    <p><em>${escapeXml(book.bookType)} • BookGenie Edition</em></p>
+    <div class="subtitle">${escapeXml(subtitleText)}</div>
+    <p><em>${escapeXml(book.bookType)} • ${editionText}</em></p>
   </div>
 </body>
 </html>`;

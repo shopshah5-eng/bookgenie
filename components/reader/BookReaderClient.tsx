@@ -451,10 +451,10 @@ export function BookReaderClient({ initialBook, bookId }: BookReaderClientProps)
                           </div>
                         )}
                         <span className="font-label-caps text-label-caps text-secondary dark:text-[#fcba64] uppercase tracking-wider mb-0.5">
-                          {block.caption ? 'Illustrated Plate' : 'Editorial Plate'}
+                          {imgUrl ? (block.caption ? 'Illustrated Plate' : 'Editorial Plate') : 'Illustration unavailable'}
                         </span>
                         <p className="font-body-sm text-[12px] opacity-80 italic max-w-sm">
-                          {block.caption || 'Archival plate synthesized for this leaf'}
+                          {imgUrl ? (block.caption || 'Archival plate synthesized for this leaf') : 'Illustration unavailable for this chapter plate'}
                         </p>
                       </div>
                     );

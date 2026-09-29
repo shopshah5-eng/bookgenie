@@ -48,10 +48,14 @@ export async function generateBookPdfBuffer(book: BookDocument): Promise<Uint8Ar
   doc.rect(margin - 5, margin - 5, contentWidth + 10, pageHeight - margin * 2 + 10);
 
   // Genre badge
+  const isPaidVerified = book.hasWatermark === false;
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
   doc.setTextColor(140, 95, 46); // editorial bronze
-  doc.text(`${bookType.toUpperCase()} • BOOKGENIE EDITION`, pageWidth / 2, 60, {
+  const editionBadge = isPaidVerified
+    ? `${bookType.toUpperCase()} EDITION`
+    : `${bookType.toUpperCase()} • BOOKGENIE EDITION`;
+  doc.text(editionBadge, pageWidth / 2, 60, {
     align: 'center',
   });
 
@@ -105,7 +109,10 @@ export async function generateBookPdfBuffer(book: BookDocument): Promise<Uint8Ar
   );
 
   doc.setFontSize(8);
-  doc.text('Crafted with BookGenie AI Publishing Studio  •  All Commercial Rights Reserved', pageWidth / 2, pageHeight - 25, {
+  const bottomCredit = isPaidVerified
+    ? 'First Edition  •  All Commercial Rights Reserved'
+    : 'Crafted with BookGenie AI Publishing Studio  •  All Commercial Rights Reserved';
+  doc.text(bottomCredit, pageWidth / 2, pageHeight - 25, {
     align: 'center',
   });
 
@@ -272,7 +279,9 @@ export async function generateBookPdfBuffer(book: BookDocument): Promise<Uint8Ar
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(160, 150, 140);
-    doc.text('BookGenie Studio Edition', margin, pageHeight - 12);
+    if (!isPaidVerified) {
+      doc.text('BookGenie Studio Edition', margin, pageHeight - 12);
+    }
     doc.text(`${page.pageNumber || idx + 1}`, pageWidth - margin, pageHeight - 12, {
       align: 'right',
     });
