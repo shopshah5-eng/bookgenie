@@ -26,6 +26,9 @@ export class GenerationPipeline {
     uploadedContext?: string;
     pageTarget?: number;
     chapterScale?: number;
+    planId?: string;
+    hasWatermark?: boolean;
+    commercialUse?: boolean;
   }): Promise<{ bookId: string; jobId: string }> {
     const bookId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `00000000-0000-4000-8000-${Date.now().toString(16).padStart(12, '0')}`;
     const jobId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `00000000-0000-4000-9000-${Date.now().toString(16).padStart(12, '0')}`;
@@ -84,6 +87,9 @@ export class GenerationPipeline {
         progress: 5,
         page_count: targetPages,
         page_target: targetPages,
+        plan_id: params.planId || 'free',
+        has_watermark: params.hasWatermark ?? true,
+        commercial_use: params.commercialUse ?? false,
         blueprint: initialDoc.blueprint as unknown as Record<string, unknown>,
       });
       if (bErr) {

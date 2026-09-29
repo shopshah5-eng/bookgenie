@@ -29,12 +29,14 @@ export function BookCreatorCard() {
 
   // Derive max pages dynamically from user tier
   const maxPages = !user
-    ? 300
-    : activeTier === 'pro' || activeTier === 'boutique-press'
-    ? 300
-    : activeTier === 'creator' || activeTier === 'studio-atelier'
-    ? 64
-    : 16;
+    ? 100
+    : activeTier === 'creator'
+    ? 100
+    : activeTier === 'book_plus'
+    ? 60
+    : activeTier === 'book'
+    ? 30
+    : 10;
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseInt(e.target.value, 10);
@@ -161,15 +163,15 @@ export function BookCreatorCard() {
                 />
               </div>
 
-              {user && maxPages < 300 && (
+              {user && maxPages < 100 && (
                 <p className="text-[11px] text-[#888888] mt-2">
                   Current plan limit: {maxPages} pages.{' '}
                   <button
                     type="button"
-                    onClick={() => router.push('/pricing')}
+                    onClick={() => router.push('/#pricing')}
                     className="underline hover:text-[#111111] cursor-pointer"
                   >
-                    Upgrade for up to 300 pages.
+                    Upgrade on the homepage for up to 100 pages.
                   </button>
                 </p>
               )}

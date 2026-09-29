@@ -2,41 +2,55 @@
 // Intelligent multi-tier router & cost controller for BookGenie
 // Determines the cheapest acceptable model for each task and manages prompt caching
 
-import type { BookType } from '@/lib/book/types';
-import { createAdminClient } from '@/lib/supabase/admin';
+import type { BookType } from '../book/types';
+import { createAdminClient } from '../supabase/admin';
+import { CANONICAL_PLANS, type PlanId, type PlanDefinition } from '../payments/plans';
 
 export interface PlanEntitlement {
-  tier: 'free' | 'creator' | 'pro';
+  tier: PlanId;
   name: string;
   maxBooksPerMonth: number;
   maxPagesPerBook: number;
-  maxImagesPerMonth: number;
+  hasWatermark: boolean;
+  commercialUse: boolean;
   priorityQueue: boolean;
 }
 
-export const PLAN_LIMITS: Record<string, PlanEntitlement> = {
+export const PLAN_LIMITS: Record<PlanId, PlanEntitlement> = {
   free: {
     tier: 'free',
-    name: 'Free Starter',
+    name: 'FREE (₹0)',
     maxBooksPerMonth: 1,
-    maxPagesPerBook: 16,
-    maxImagesPerMonth: 4,
+    maxPagesPerBook: 10,
+    hasWatermark: true,
+    commercialUse: false,
+    priorityQueue: false,
+  },
+  book: {
+    tier: 'book',
+    name: 'BOOK (₹199)',
+    maxBooksPerMonth: 1,
+    maxPagesPerBook: 30,
+    hasWatermark: false,
+    commercialUse: true,
+    priorityQueue: false,
+  },
+  book_plus: {
+    tier: 'book_plus',
+    name: 'BOOK PLUS (₹399)',
+    maxBooksPerMonth: 1,
+    maxPagesPerBook: 60,
+    hasWatermark: false,
+    commercialUse: true,
     priorityQueue: false,
   },
   creator: {
     tier: 'creator',
-    name: 'Pro Creator ($15/mo)',
-    maxBooksPerMonth: 15,
-    maxPagesPerBook: 64,
-    maxImagesPerMonth: 60,
-    priorityQueue: false,
-  },
-  pro: {
-    tier: 'pro',
-    name: 'Premium Atelier ($39/mo)',
-    maxBooksPerMonth: 50,
-    maxPagesPerBook: 160,
-    maxImagesPerMonth: 250,
+    name: 'CREATOR (₹799/mo)',
+    maxBooksPerMonth: 5,
+    maxPagesPerBook: 100,
+    hasWatermark: false,
+    commercialUse: true,
     priorityQueue: true,
   },
 };
@@ -188,64 +202,164 @@ ${
   }
 
   /**
-   * Enforces backend plan entitlements and validates user quota before generation
+   * Enforces backend plan entitlements and validates user quota before generation.
+   * Checks for valid unused entitlements, active creator subscriptions, or the free tier quota.
    */
   static async validatePlanQuota(
     userId: string,
-    requestedPages = 16
-  ): Promise<{ allowed: boolean; reason?: string; tier: string; limits: PlanEntitlement }> {
+    requestedPages = 10
+  ): Promise<{
+    allowed: boolean;
+    reason?: string;
+    tier: PlanId;
+    limits: PlanEntitlement;
+    entitlementId?: string;
+    hasWatermark: boolean;
+    commercialUse: boolean;
+    canRegenerate: boolean;
+  }> {
     try {
       const supabase = createAdminClient();
 
-      // 1. Fetch user subscription tier
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('tier')
-        .eq('id', userId)
-        .single();
-      if (profileError || !profile) throw profileError || new Error('User profile not found.');
-
-      const userTier = (profile.tier as 'free' | 'creator' | 'pro') || 'free';
-      const limits = PLAN_LIMITS[userTier] || PLAN_LIMITS.free;
-
-      // 2. Validate requested page limit
-      if (requestedPages > limits.maxPagesPerBook) {
-        return {
-          allowed: false,
-          reason: `Your ${limits.name} plan supports up to ${limits.maxPagesPerBook} pages per book. Please reduce page target or upgrade your plan.`,
-          tier: userTier,
-          limits,
-        };
-      }
-
-      // 3. Count books created in current calendar month
-      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
-      const { count, error } = await supabase
-        .from('books')
-        .select('*', { count: 'exact', head: true })
+      // 1. Check for unused paid entitlement (Book / Book Plus / Creator one-time or grant credits)
+      const { data: entitlements, error: entError } = await supabase
+        .from('entitlements')
+        .select('*')
         .eq('user_id', userId)
-        .gte('created_at', startOfMonth);
+        .gt('books_remaining', 0)
+        .order('max_pages', { ascending: false });
 
-      if (error || typeof count !== 'number') throw error || new Error('Usage count unavailable.');
-      if (count >= limits.maxBooksPerMonth) {
+      if (!entError && entitlements && entitlements.length > 0) {
+        // Find best matching entitlement that covers requested pages, or largest available
+        const activeEnt = entitlements.find((e) => requestedPages <= e.max_pages) || entitlements[0];
+        const planKey = (activeEnt.plan_id as PlanId) || 'book';
+        const plan = PLAN_LIMITS[planKey] || PLAN_LIMITS.book;
+
+        if (requestedPages > activeEnt.max_pages) {
           return {
             allowed: false,
-            reason: `You have reached your monthly limit of ${limits.maxBooksPerMonth} book${
-              limits.maxBooksPerMonth > 1 ? 's' : ''
-            } on the ${limits.name} plan. Upgrade to continue generating books this month.`,
-            tier: userTier,
-            limits,
+            reason: `Your ${plan.name} entitlement supports up to ${activeEnt.max_pages} pages per book. Please reduce page target to ${activeEnt.max_pages} or upgrade.`,
+            tier: planKey,
+            limits: plan,
+            hasWatermark: activeEnt.has_watermark ?? false,
+            commercialUse: activeEnt.commercial_rights ?? true,
+            canRegenerate: activeEnt.can_regenerate ?? false,
           };
         }
 
-      return { allowed: true, tier: userTier, limits };
+        return {
+          allowed: true,
+          tier: planKey,
+          limits: plan,
+          entitlementId: activeEnt.id,
+          hasWatermark: activeEnt.has_watermark ?? false,
+          commercialUse: activeEnt.commercial_rights ?? true,
+          canRegenerate: activeEnt.can_regenerate ?? false,
+        };
+      }
+
+      // 2. Check for active subscription (Creator monthly plan)
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('status', 'active')
+        .maybeSingle();
+
+      if (sub) {
+        const creatorPlan = PLAN_LIMITS.creator;
+        if (requestedPages > creatorPlan.maxPagesPerBook) {
+          return {
+            allowed: false,
+            reason: `The Creator plan supports up to ${creatorPlan.maxPagesPerBook} pages per book.`,
+            tier: 'creator',
+            limits: creatorPlan,
+            hasWatermark: false,
+            commercialUse: true,
+            canRegenerate: true,
+          };
+        }
+
+        // Count books created in current calendar month
+        const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+        const { count, error: countErr } = await supabase
+          .from('books')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .gte('created_at', startOfMonth);
+
+        if (!countErr && typeof count === 'number' && count >= creatorPlan.maxBooksPerMonth) {
+          return {
+            allowed: false,
+            reason: `You have reached your monthly limit of ${creatorPlan.maxBooksPerMonth} books on the Creator plan.`,
+            tier: 'creator',
+            limits: creatorPlan,
+            hasWatermark: false,
+            commercialUse: true,
+            canRegenerate: true,
+          };
+        }
+
+        return {
+          allowed: true,
+          tier: 'creator',
+          limits: creatorPlan,
+          hasWatermark: false,
+          commercialUse: true,
+          canRegenerate: true,
+        };
+      }
+
+      // 3. Fallback to FREE plan
+      const freePlan = PLAN_LIMITS.free;
+      if (requestedPages > freePlan.maxPagesPerBook) {
+        return {
+          allowed: false,
+          reason: `The FREE plan supports up to ${freePlan.maxPagesPerBook} pages. Please select up to ${freePlan.maxPagesPerBook} pages or choose a plan (Book, Book Plus, or Creator).`,
+          tier: 'free',
+          limits: freePlan,
+          hasWatermark: true,
+          commercialUse: false,
+          canRegenerate: false,
+        };
+      }
+
+      // Count total lifetime books created by this user
+      const { count: totalBooks, error: booksErr } = await supabase
+        .from('books')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+      if (!booksErr && typeof totalBooks === 'number' && totalBooks >= freePlan.maxBooksPerMonth) {
+        return {
+          allowed: false,
+          reason: `You have already used your ${freePlan.maxBooksPerMonth} free ebook on the Free plan. Choose a plan from the homepage to generate your next book.`,
+          tier: 'free',
+          limits: freePlan,
+          hasWatermark: true,
+          commercialUse: false,
+          canRegenerate: false,
+        };
+      }
+
+      return {
+        allowed: true,
+        tier: 'free',
+        limits: freePlan,
+        hasWatermark: true,
+        commercialUse: false,
+        canRegenerate: false,
+      };
     } catch (err) {
       console.error('Quota check failed:', err);
       return {
         allowed: false,
         reason: 'Usage limits are temporarily unavailable. Please try again shortly.',
-        tier: 'unknown',
+        tier: 'free',
         limits: PLAN_LIMITS.free,
+        hasWatermark: true,
+        commercialUse: false,
+        canRegenerate: false,
       };
     }
   }

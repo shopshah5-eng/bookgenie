@@ -187,12 +187,39 @@ export async function POST(req: NextRequest) {
       uploadedContext: typeof uploadedContext === 'string' ? uploadedContext.slice(0, 25000) : undefined,
       pageTarget: targetPages,
       chapterScale: chapterScale || 1,
+      planId: quotaCheck.tier,
+      hasWatermark: quotaCheck.hasWatermark,
+      commercialUse: quotaCheck.commercialUse,
     });
+
+    // 6. Deduct entitlement credit if an explicit credit was used
+    if (quotaCheck.entitlementId) {
+      try {
+        const { createAdminClient } = await import('@/lib/supabase/admin');
+        const admin = createAdminClient();
+        const { data: ent } = await admin
+          .from('entitlements')
+          .select('books_remaining')
+          .eq('id', quotaCheck.entitlementId)
+          .single();
+        if (ent && ent.books_remaining > 0) {
+          await admin
+            .from('entitlements')
+            .update({ books_remaining: ent.books_remaining - 1 })
+            .eq('id', quotaCheck.entitlementId);
+        }
+      } catch (deductErr) {
+        console.warn('Entitlement deduction warning:', deductErr);
+      }
+    }
 
     return NextResponse.json({
       bookId,
       jobId,
       status: 'planning',
+      tier: quotaCheck.tier,
+      hasWatermark: quotaCheck.hasWatermark,
+      commercialUse: quotaCheck.commercialUse,
       message: 'Generation job successfully queued.',
     });
   } catch (err) {

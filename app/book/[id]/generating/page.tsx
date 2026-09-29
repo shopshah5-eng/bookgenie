@@ -272,7 +272,7 @@ export default function BookGeneratingPage({
               Home
             </Link>
             <Link
-              href="/pricing"
+              href="/#pricing"
               className="text-[14px] font-medium text-[#666666] hover:text-[#111111] transition-colors py-1"
             >
               Pricing

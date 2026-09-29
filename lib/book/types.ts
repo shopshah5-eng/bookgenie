@@ -105,6 +105,9 @@ export interface BookDocument {
   versionNumber: number;
   isShared?: boolean;
   shareToken?: string;
+  planId?: string;
+  hasWatermark?: boolean;
+  commercialUse?: boolean;
   createdAt: string;
   updatedAt: string;
 }

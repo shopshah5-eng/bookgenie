@@ -1,18 +1,44 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Check, Sparkles } from 'lucide-react';
+import { Check, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthContext';
+import { CANONICAL_PLANS, ORDERED_PLAN_IDS, type PlanId } from '@/lib/payments/plans';
+
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => {
+      open: () => void;
+      on: (event: string, callback: (response: unknown) => void) => void;
+    };
+  }
+}
+
+function loadRazorpayScript(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') return resolve(false);
+    if (window.Razorpay) return resolve(true);
+
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
 
 export function MinimalPricing() {
   const router = useRouter();
   const { user, openAuthModal } = useAuth();
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
   const [currentTier, setCurrentTier] = useState<string>('free');
+  const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
+  const [configError, setConfigError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       fetch('/api/subscription/upgrade')
         .then((res) => (res.ok ? res.json() : null))
@@ -23,16 +49,124 @@ export function MinimalPricing() {
     }
   }, [user]);
 
-  const handleAction = (planId: 'free' | 'creator' | 'pro') => {
-    if (!user) {
-      openAuthModal('signup', `/pricing?plan=${planId}&autoSelect=true`);
-      return;
-    }
-    if (planId === currentTier) {
+  const handleChoosePlan = async (planId: PlanId) => {
+    setConfigError(null);
+    setSuccessMessage(null);
+
+    // Free plan handler
+    if (planId === 'free') {
+      if (!user) {
+        openAuthModal('signup', '/create');
+        return;
+      }
       router.push('/create');
       return;
     }
-    router.push(`/pricing?plan=${planId}&autoSelect=true`);
+
+    // Paid plan handlers require authentication
+    if (!user) {
+      openAuthModal('signup', `/#pricing`);
+      return;
+    }
+
+    setLoadingPlanId(planId);
+
+    try {
+      // 1. Create server-side Razorpay order
+      const orderRes = await fetch('/api/payments/razorpay/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId }),
+      });
+
+      const orderData = await orderRes.json();
+
+      if (!orderRes.ok) {
+        if (orderRes.status === 503 || orderData.error === 'PAYMENTS_NOT_CONFIGURED') {
+          setConfigError(
+            orderData.message ||
+              'Payments are not configured yet. Please configure Razorpay keys to enable paid checkout.'
+          );
+        } else {
+          setConfigError(orderData.message || 'Failed to initiate checkout. Please try again.');
+        }
+        setLoadingPlanId(null);
+        return;
+      }
+
+      // 2. Load Razorpay script
+      const loaded = await loadRazorpayScript();
+      if (!loaded || !window.Razorpay) {
+        setConfigError('Could not load secure Razorpay checkout. Check your internet connection.');
+        setLoadingPlanId(null);
+        return;
+      }
+
+      // 3. Launch Razorpay modal
+      const plan = CANONICAL_PLANS[planId];
+      const rzp = new window.Razorpay({
+        key: orderData.keyId,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'BookGenie Atelier',
+        description: `${plan.name} Plan`,
+        order_id: orderData.orderId,
+        prefill: {
+          name: user.user_metadata?.full_name || '',
+          email: user.email || '',
+        },
+        theme: {
+          color: '#111111',
+        },
+        handler: async function (response: {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+        }) {
+          setLoadingPlanId(planId);
+          try {
+            const verifyRes = await fetch('/api/payments/razorpay/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                orderId: response.razorpay_order_id,
+                paymentId: response.razorpay_payment_id,
+                signature: response.razorpay_signature,
+                planId,
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+            if (verifyRes.ok && verifyData.verified) {
+              setCurrentTier(planId);
+              setSuccessMessage(
+                `Payment confirmed! You now have access to the ${plan.name} plan.`
+              );
+            } else {
+              setConfigError(
+                verifyData.message || 'Payment signature could not be verified by the server.'
+              );
+            }
+          } catch (verifyErr) {
+            console.error('Verification error:', verifyErr);
+            setConfigError('Verification failed. If your account was charged, please contact support.');
+          } finally {
+            setLoadingPlanId(null);
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            setLoadingPlanId(null);
+          },
+        },
+      });
+
+      rzp.open();
+    } catch (err) {
+      console.error('Checkout error:', err);
+      setConfigError('An unexpected error occurred while initiating checkout.');
+      setLoadingPlanId(null);
+    }
   };
 
   return (
@@ -40,7 +174,7 @@ export function MinimalPricing() {
       <div className="max-w-[1240px] mx-auto px-6">
         
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F5F5F3] text-[#666666] text-xs font-semibold uppercase tracking-wider mb-4 border border-[#EAEAEA]">
             Plans &amp; Pricing
           </div>
@@ -48,209 +182,181 @@ export function MinimalPricing() {
             Simple, transparent publishing plans.
           </h2>
           <p className="text-sm sm:text-base text-[#666666] mt-3 font-sans leading-relaxed">
-            Start creating free, or upgrade to Pro and Premium for high-volume publishing and commercial exports.
+            Start creating free, or upgrade with one-time credits or pro subscription for commercial publishing.
           </p>
-
-          {/* Billing Cycle Toggle */}
-          <div className="mt-8 inline-flex items-center gap-1.5 p-1 rounded-full bg-[#F5F5F3] border border-[#EAEAEA]">
-            <button
-              onClick={() => setBillingCycle('monthly')}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                billingCycle === 'monthly'
-                  ? 'bg-white text-[#111111] shadow-xs font-semibold'
-                  : 'text-[#666666] hover:text-[#111111]'
-              }`}
-            >
-              Monthly Billing
-            </button>
-            <button
-              onClick={() => setBillingCycle('annual')}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
-                billingCycle === 'annual'
-                  ? 'bg-white text-[#111111] shadow-xs font-semibold'
-                  : 'text-[#666666] hover:text-[#111111]'
-              }`}
-            >
-              <span>Annual Billing</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#111111] text-white">
-                Save 20%
-              </span>
-            </button>
-          </div>
         </div>
 
-        {/* 3 Cards Grid: Free, Pro, Premium */}
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-          
-          {/* Card 1: Free */}
-          <div className="flex flex-col justify-between rounded-2xl border border-[#EAEAEA] bg-white p-7 transition-all duration-200 hover:border-[#111111]/30 hover:shadow-sm">
+        {/* Global Alert Banners */}
+        {configError && (
+          <div className="max-w-2xl mx-auto mb-8 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs sm:text-sm flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
             <div>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-semibold text-[#888888] uppercase tracking-wider">
-                  Discovery
-                </span>
-              </div>
-              <h3 className="text-2xl font-bold text-[#111111] mb-1">
-                Free
-              </h3>
-              <p className="text-xs text-[#666666] mb-5 leading-relaxed">
-                Test the studio risk-free. Create your first book and experience the reading folio.
-              </p>
-              <div className="flex items-baseline gap-1 mb-5 pb-5 border-b border-[#F0F0F0]">
-                <span className="text-3xl font-bold text-[#111111]">$0</span>
-                <span className="text-xs text-[#888888]">/ forever free</span>
-              </div>
-              <ul className="space-y-3 mb-6 text-xs text-[#333333]">
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span><strong>1 Complete Book</strong> (up to 16 pages)</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span>4 Illustrated Plates &amp; Cover Art</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span>Interactive Reading Folio</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span>Notes &amp; Outline Ingestion</span>
-                </li>
-              </ul>
+              <p className="font-semibold text-amber-950">Notice</p>
+              <p className="mt-0.5 text-amber-800">{configError}</p>
             </div>
-            {user && currentTier === 'free' ? (
-              <Link
-                href="/create"
-                className="w-full py-3 px-4 rounded-full text-center text-xs font-semibold text-neutral-600 bg-neutral-200 transition-colors cursor-pointer"
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="max-w-2xl mx-auto mb-8 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs sm:text-sm flex items-start gap-3">
+            <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-emerald-950">Success</p>
+              <p className="mt-0.5 text-emerald-800">{successMessage}</p>
+              <div className="mt-2">
+                <Link
+                  href="/create"
+                  className="inline-block px-3 py-1.5 rounded-full bg-emerald-700 text-white text-xs font-semibold hover:bg-emerald-800 transition-colors"
+                >
+                  Start Creating Now →
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 4 Plans Grid: FREE, BOOK, BOOK PLUS, CREATOR */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+          {ORDERED_PLAN_IDS.map((planId) => {
+            const plan = CANONICAL_PLANS[planId];
+            const isCreator = plan.id === 'creator';
+            const isBookPlus = plan.id === 'book_plus';
+            const isCurrent = user && currentTier === plan.id;
+            const isLoading = loadingPlanId === plan.id;
+
+            return (
+              <div
+                key={plan.id}
+                className={`flex flex-col justify-between rounded-2xl p-6 transition-all duration-200 ${
+                  isCreator
+                    ? 'border border-[#111111] bg-[#111111] text-white shadow-xl relative'
+                    : isBookPlus
+                    ? 'border-2 border-[#111111] bg-white text-[#111111] shadow-md relative'
+                    : 'border border-[#EAEAEA] bg-white text-[#111111] hover:border-[#111111]/30 hover:shadow-xs'
+                }`}
               >
-                Active Plan ✓
-              </Link>
-            ) : (
-              <button
-                onClick={() => handleAction('free')}
-                className="w-full py-3 px-4 rounded-full text-center text-xs font-semibold text-[#111111] bg-[#F5F5F3] hover:bg-[#EAEAEA] transition-colors cursor-pointer"
-              >
-                Start Free
-              </button>
-            )}
-          </div>
+                <div>
+                  {/* Top Badge */}
+                  <div className="flex items-center justify-between mb-2">
+                    <span
+                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                        isCreator
+                          ? 'bg-white/15 text-white'
+                          : isBookPlus
+                          ? 'bg-[#111111] text-white'
+                          : 'bg-[#F0F0F0] text-[#666666]'
+                      }`}
+                    >
+                      {plan.badge || plan.name}
+                    </span>
+                    {isBookPlus && <Sparkles className="w-4 h-4 text-amber-500" />}
+                    {isCreator && <Sparkles className="w-4 h-4 text-amber-300" />}
+                  </div>
 
-          {/* Card 2: Pro (Most Popular) */}
-          <div className="relative flex flex-col justify-between rounded-2xl border border-[#111111] bg-[#111111] text-white p-7 shadow-lg transition-all duration-200 hover:-translate-y-1">
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white uppercase tracking-wider">
-                  Most Popular
-                </span>
-                <Sparkles className="w-4 h-4 text-amber-300" />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-1">
-                Pro
-              </h3>
-              <p className="text-xs text-[#AAAAAA] mb-5 leading-relaxed">
-                For authors and creators publishing complete books ready for Amazon KDP.
-              </p>
-              <div className="flex items-baseline gap-1 mb-5 pb-5 border-b border-white/10">
-                <span className="text-3xl font-bold text-white">
-                  {billingCycle === 'annual' ? '$12' : '$15'}
-                </span>
-                <span className="text-xs text-[#AAAAAA]">
-                  / month {billingCycle === 'annual' ? '($144/yr)' : ''}
-                </span>
-              </div>
-              <ul className="space-y-3 mb-6 text-xs text-[#DDDDDD]">
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                  <span><strong>15 Books</strong> / month (up to 64 pages)</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                  <span><strong>Unlimited PDF &amp; EPUB Exports</strong></span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                  <span>100% Commercial Rights</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                  <span>In-Reader Chapter Revision Dock</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                  <span>Permanent Bookshelf Cloud Storage</span>
-                </li>
-              </ul>
-            </div>
-            <button
-              onClick={() => handleAction('creator')}
-              className={`w-full py-3 px-4 rounded-full text-center text-xs font-semibold transition-colors cursor-pointer ${
-                user && currentTier === 'creator'
-                  ? 'bg-neutral-800 text-neutral-300 border border-white/20'
-                  : 'text-[#111111] bg-white hover:bg-[#F0F0F0]'
-              }`}
-            >
-              {user && currentTier === 'creator' ? 'Active Plan ✓' : 'Upgrade to Pro'}
-            </button>
-          </div>
+                  {/* Plan Name */}
+                  <h3
+                    className={`text-2xl font-bold tracking-tight mb-1 ${
+                      isCreator ? 'text-white' : 'text-[#111111]'
+                    }`}
+                  >
+                    {plan.name}
+                  </h3>
 
-          {/* Card 3: Premium */}
-          <div className="flex flex-col justify-between rounded-2xl border border-[#EAEAEA] bg-white p-7 transition-all duration-200 hover:border-[#111111]/30 hover:shadow-sm">
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-semibold text-[#888888] uppercase tracking-wider">
-                  Imprint &amp; Agency
-                </span>
-              </div>
-              <h3 className="text-2xl font-bold text-[#111111] mb-1">
-                Premium
-              </h3>
-              <p className="text-xs text-[#666666] mb-5 leading-relaxed">
-                For serial publishers and marketing agencies scaling continuous volume.
-              </p>
-              <div className="flex items-baseline gap-1 mb-5 pb-5 border-b border-[#F0F0F0]">
-                <span className="text-3xl font-bold text-[#111111]">
-                  {billingCycle === 'annual' ? '$32' : '$39'}
-                </span>
-                <span className="text-xs text-[#888888]">
-                  / month {billingCycle === 'annual' ? '($384/yr)' : ''}
-                </span>
-              </div>
-              <ul className="space-y-3 mb-6 text-xs text-[#333333]">
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span><strong>50 Books</strong> / mo (up to 300 pages)</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span><strong>250 Visual Plates</strong> with character lock</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span>Priority Studio Processing Queue</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span>Custom Imprint &amp; ISBN Ingestion</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-[#111111] shrink-0 mt-0.5" />
-                  <span>Markdown &amp; Raw Assets Archive</span>
-                </li>
-              </ul>
-            </div>
-            <button
-              onClick={() => handleAction('pro')}
-              className={`w-full py-3 px-4 rounded-full text-center text-xs font-semibold transition-colors cursor-pointer ${
-                user && currentTier === 'pro'
-                  ? 'bg-neutral-200 text-neutral-600'
-                  : 'text-[#111111] bg-[#F5F5F3] hover:bg-[#EAEAEA]'
-              }`}
-            >
-              {user && currentTier === 'pro' ? 'Active Plan ✓' : 'Join Premium'}
-            </button>
-          </div>
+                  {/* Price */}
+                  <div
+                    className={`flex items-baseline gap-1 my-3 pb-3 border-b ${
+                      isCreator ? 'border-white/10' : 'border-[#F0F0F0]'
+                    }`}
+                  >
+                    <span className="text-3xl font-extrabold tracking-tight">
+                      ₹{plan.priceInr}
+                    </span>
+                    <span
+                      className={`text-xs ${
+                        isCreator ? 'text-neutral-400' : 'text-[#777777]'
+                      }`}
+                    >
+                      {plan.billingType === 'subscription'
+                        ? '/ month'
+                        : plan.billingType === 'one_time'
+                        ? 'one-time'
+                        : 'forever'}
+                    </span>
+                  </div>
 
+                  {/* Description */}
+                  <p
+                    className={`text-xs mb-5 leading-relaxed min-h-[36px] ${
+                      isCreator ? 'text-neutral-300' : 'text-[#666666]'
+                    }`}
+                  >
+                    {plan.description}
+                  </p>
+
+                  {/* Feature Checklist */}
+                  <ul className="space-y-2.5 mb-6 text-xs">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <Check
+                          className={`w-4 h-4 shrink-0 mt-0.5 ${
+                            isCreator
+                              ? 'text-amber-300'
+                              : isBookPlus
+                              ? 'text-[#111111]'
+                              : 'text-neutral-700'
+                          }`}
+                        />
+                        <span className={isCreator ? 'text-neutral-200' : 'text-neutral-800'}>
+                          {feature}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Action CTA */}
+                <div>
+                  {isCurrent ? (
+                    <Link
+                      href="/create"
+                      className={`w-full py-2.5 px-4 rounded-full text-center text-xs font-semibold block transition-colors ${
+                        isCreator
+                          ? 'bg-neutral-800 text-neutral-300 border border-white/20'
+                          : 'bg-neutral-200 text-neutral-700'
+                      }`}
+                    >
+                      Active Plan ✓
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => handleChoosePlan(plan.id)}
+                      disabled={isLoading}
+                      className={`w-full py-2.5 px-4 rounded-full text-center text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-60 ${
+                        isCreator
+                          ? 'bg-white text-[#111111] hover:bg-neutral-100 shadow-sm'
+                          : isBookPlus
+                          ? 'bg-[#111111] text-white hover:bg-neutral-900 shadow-sm'
+                          : 'bg-[#F5F5F3] text-[#111111] hover:bg-[#EAEAEA]'
+                      }`}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Processing...</span>
+                        </>
+                      ) : (
+                        <span>
+                          {plan.id === 'free'
+                            ? 'Start Free'
+                            : `Choose ${plan.name}`}
+                        </span>
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
       </div>

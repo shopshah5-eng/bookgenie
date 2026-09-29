@@ -4,12 +4,13 @@ const isDev = process.env.NODE_ENV !== 'production';
 
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""};
+  script-src 'self' 'unsafe-inline' https://checkout.razorpay.com${isDev ? " 'unsafe-eval'" : ""};
   script-src-attr 'none';
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com data:;
-  img-src 'self' data: blob: https://image.pollinations.ai https://*.supabase.co;
-  connect-src 'self' https://*.supabase.co ws: wss:;
+  img-src 'self' data: blob: https://image.pollinations.ai https://*.supabase.co https://*.razorpay.com;
+  frame-src 'self' https://api.razorpay.com;
+  connect-src 'self' https://*.supabase.co https://api.razorpay.com https://lumberjack.razorpay.com ws: wss:;
   object-src 'none';
   base-uri 'self';
   form-action 'self';
@@ -30,6 +31,15 @@ const nextConfig: NextConfig = {
         hostname: '*.supabase.co',
       },
     ],
+  },
+  async redirects() {
+    return [
+      {
+        source: '/pricing',
+        destination: '/#pricing',
+        permanent: true,
+      },
+    ];
   },
   async headers() {
     return [

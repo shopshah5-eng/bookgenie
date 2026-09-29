@@ -33,15 +33,32 @@ export async function GET(
     if (bookError) throw bookError;
     if (!dbBook) return NextResponse.json({ error: 'BOOK_NOT_FOUND', message: 'Book not found.' }, { status: 404 });
 
-    if (!dbBook.is_shared) {
-      const sessionClient = await createServerSupabaseClient();
-      const { data: { user }, error: authError } = await sessionClient.auth.getUser();
-      if (authError || !user) {
-        return NextResponse.json({ error: 'UNAUTHORIZED', message: 'Please sign in to export this book.' }, { status: 401 });
+    const { getAuthenticatedUser } = await import('@/lib/supabase/server');
+    const { user } = await getAuthenticatedUser(req);
+    const tokenParam = new URL(req.url).searchParams.get('token');
+    const isOwner = Boolean(user && dbBook.user_id === user.id);
+    const isSharedTokenValid = Boolean(dbBook.is_shared && dbBook.share_token && tokenParam === dbBook.share_token);
+
+    if (!isOwner && !isSharedTokenValid) {
+      if (tokenParam) {
+        return NextResponse.json({ error: 'FORBIDDEN', message: 'Invalid or expired share token.' }, { status: 403 });
       }
-      if (dbBook.user_id !== user.id) {
-        return NextResponse.json({ error: 'FORBIDDEN', message: 'You do not have permission to export this book.' }, { status: 403 });
+      if (!user) {
+        return NextResponse.json({ error: 'UNAUTHORIZED', message: 'Please sign in or provide a valid share token to export this book.' }, { status: 401 });
       }
+      return NextResponse.json({ error: 'FORBIDDEN', message: 'You do not have permission to export this book.' }, { status: 403 });
+    }
+
+    // Format entitlement check: Free plan only supports PDF
+    const planId = dbBook.plan_id || 'free';
+    if (format === 'epub' && planId === 'free') {
+      return NextResponse.json(
+        {
+          error: 'FORMAT_NOT_ALLOWED',
+          message: 'EPUB exports are exclusive to paid plans (Book, Book Plus, and Creator). The Free plan supports PDF export.',
+        },
+        { status: 403 }
+      );
     }
 
     const { data: dbPages, error: pagesError } = await admin
@@ -78,6 +95,9 @@ export async function GET(
       versionNumber: dbBook.version_number || 1,
       isShared: dbBook.is_shared,
       shareToken: dbBook.share_token || undefined,
+      planId: dbBook.plan_id || 'free',
+      hasWatermark: dbBook.has_watermark !== false,
+      commercialUse: dbBook.commercial_use === true,
       createdAt: dbBook.created_at,
       updatedAt: dbBook.updated_at,
     };

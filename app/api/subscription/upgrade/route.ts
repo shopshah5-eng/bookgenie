@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   try {
     const { user, error: authError } = await getAuthenticatedUser(req);
     if (authError || !user) {
-      return NextResponse.json({ tier: 'free', currentPlan: 'free' });
+      return NextResponse.json({ tier: 'free', currentPlan: 'free', entitlements: [] });
     }
 
     const admin = createAdminClient();
@@ -16,10 +16,28 @@ export async function GET(req: NextRequest) {
       .eq('id', user.id)
       .maybeSingle();
 
-    const activeTier = profile?.tier || user.user_metadata?.tier || 'free';
+    // Check for active creator subscription
+    const { data: sub } = await admin
+      .from('subscriptions')
+      .select('plan_id, status')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .maybeSingle();
+
+    // Check for unused entitlements
+    const { data: entitlements } = await admin
+      .from('entitlements')
+      .select('plan_id, max_pages, books_remaining, has_watermark, commercial_rights')
+      .eq('user_id', user.id)
+      .gt('books_remaining', 0);
+
+    const activeTier = sub?.plan_id || (entitlements && entitlements.length > 0 ? entitlements[0].plan_id : profile?.tier || 'free');
+
     return NextResponse.json({
       tier: activeTier,
       currentPlan: activeTier,
+      hasSubscription: Boolean(sub),
+      entitlementsCount: entitlements?.length || 0,
       user: {
         id: user.id,
         email: user.email,
@@ -39,19 +57,14 @@ export async function POST(req: NextRequest) {
       : undefined;
 
     // Normalize plan names from frontend
-    if (requestedTier === 'pro_monthly' || requestedTier === 'pro_annual' || requestedTier === 'creator') {
+    if (requestedTier === 'creator') {
       requestedTier = 'creator';
-    } else if (requestedTier === 'premium_monthly' || requestedTier === 'premium_annual' || requestedTier === 'pro') {
-      requestedTier = 'pro';
+    } else if (requestedTier === 'book_plus' || requestedTier === 'bookplus') {
+      requestedTier = 'book_plus';
+    } else if (requestedTier === 'book') {
+      requestedTier = 'book';
     } else if (requestedTier === 'free' || requestedTier === 'discovery') {
       requestedTier = 'free';
-    }
-
-    if (requestedTier !== 'free' && requestedTier !== 'creator' && requestedTier !== 'pro') {
-      return NextResponse.json(
-        { error: 'INVALID_TIER', message: 'Valid plan tiers are free, creator (Pro), and pro (Premium).' },
-        { status: 400 }
-      );
     }
 
     const { user, sessionClient, error: authError } = await getAuthenticatedUser(req);
@@ -62,30 +75,38 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Only the FREE plan can be self-activated without Razorpay payment verification
+    if (requestedTier !== 'free') {
+      return NextResponse.json(
+        {
+          error: 'PAYMENT_REQUIRED',
+          message: 'Paid plans (Book, Book Plus, and Creator) require verified checkout through Razorpay. Client-supplied upgrades are prohibited.',
+        },
+        { status: 402 }
+      );
+    }
+
     const admin = createAdminClient();
     const { data: profile, error } = await admin
       .from('profiles')
-      .update({ tier: requestedTier, updated_at: new Date().toISOString() })
+      .update({ tier: 'free', updated_at: new Date().toISOString() })
       .eq('id', user.id)
       .select('id, email, tier')
       .maybeSingle();
     if (error) throw error;
 
-    // Also update auth user metadata so client-side sessions reflect immediately
     try {
       await sessionClient.auth.updateUser({
-        data: { tier: requestedTier },
+        data: { tier: 'free' },
       });
     } catch (_) {}
 
-    const planName = requestedTier === 'pro' ? 'Premium' : requestedTier === 'creator' ? 'Pro' : 'Free';
-
     return NextResponse.json({
       success: true,
-      subscriptionTier: requestedTier,
-      tier: requestedTier,
-      planName,
-      message: `Your account is now on the ${planName} plan.`,
+      subscriptionTier: 'free',
+      tier: 'free',
+      planName: 'FREE',
+      message: 'Your account is on the FREE plan.',
       profile,
     });
   } catch (err) {

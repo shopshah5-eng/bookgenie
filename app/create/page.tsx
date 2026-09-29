@@ -305,7 +305,7 @@ function CreatePageContent() {
               <span>Typeset Metrics &amp; Architecture</span>
             </Link>
             <Link
-              href="/pricing"
+              href="/#pricing"
               className="flex items-center gap-3 px-4 py-2.5 rounded font-label-ui text-label-ui text-on-surface-variant dark:text-neutral-400 hover:bg-surface-container dark:hover:bg-white/5 hover:text-on-surface transition-colors"
             >
               <span className="material-symbols-outlined text-[18px]">print</span>

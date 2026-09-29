@@ -276,6 +276,22 @@ export async function generateBookPdfBuffer(book: BookDocument): Promise<Uint8Ar
     doc.text(`${page.pageNumber || idx + 1}`, pageWidth - margin, pageHeight - 12, {
       align: 'right',
     });
+
+    // Watermark for FREE edition
+    if (book.hasWatermark !== false) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(26);
+      doc.setTextColor(225, 220, 212); // subtle light watermark
+      doc.text('CREATED WITH BOOKGENIE • FREE EDITION', pageWidth / 2, pageHeight / 2, {
+        align: 'center',
+        angle: 45,
+      });
+      doc.setFontSize(7.5);
+      doc.setTextColor(175, 120, 75);
+      doc.text('Free Edition • Upgrade to remove watermark', pageWidth / 2, pageHeight - 6, {
+        align: 'center',
+      });
+    }
   }
 
   // Return Uint8Array of binary PDF
