@@ -85,7 +85,7 @@ export const CANONICAL_PLANS: Record<PlanId, PlanDefinition> = {
       'PDF + EPUB exports',
       'No watermark',
       'Full commercial rights',
-      'Enhanced AI illustrations',
+      'Google Gemini Ultra-HD Artworks',
       'Interactive revision & redesign dock',
     ],
     maxPagesPerBook: 50,
@@ -114,7 +114,7 @@ export const CANONICAL_PLANS: Record<PlanId, PlanDefinition> = {
       'PDF + EPUB exports',
       'No watermark',
       'Full commercial license',
-      'High-definition illustrations',
+      'Google Gemini Ultra-HD Artworks',
       'Priority generation queue',
       'Fast author support',
     ],
@@ -144,7 +144,7 @@ export const CANONICAL_PLANS: Record<PlanId, PlanDefinition> = {
       'PDF + EPUB exports',
       'No watermark',
       'Full commercial license',
-      'Studio-grade illustrations',
+      'Google Gemini Studio-Grade Artworks',
       'Dedicated high-speed queue',
       '1-on-1 VIP publishing concierge',
     ],
@@ -160,6 +160,12 @@ export const CANONICAL_PLANS: Record<PlanId, PlanDefinition> = {
 };
 
 export const ORDERED_PLAN_IDS: PlanId[] = ['free', 'single', 'pro', 'creator'];
+
+export function isPaidTier(planId?: string | null): boolean {
+  if (!planId) return false;
+  const plan = getPlan(planId);
+  return Boolean(plan?.enhancedIllustrations);
+}
 
 export function getPlan(planId: string): PlanDefinition | null {
   const normalized = planId.toLowerCase().trim();

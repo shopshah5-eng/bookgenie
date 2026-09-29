@@ -8,12 +8,20 @@ import type { BookBlueprint, BookDocument, BookPageDocument, BookType } from '@/
 import { createAdminClient } from '@/lib/supabase/admin';
 import { persistGeneratedImage } from '@/lib/book/asset-storage';
 import { normalizeManuscriptPages } from '@/lib/book/manuscript-normalizer';
+import { isPaidTier } from '@/lib/payments/plans';
 
 export class GenerationPipeline {
   private static textProvider = new OpenRouterTextProvider();
-  private static imageProvider = process.env.AI_IMAGE_PROVIDER === 'gemini'
-    ? new GeminiImageProvider()
-    : new PollinationsImageProvider();
+  private static geminiProvider = new GeminiImageProvider();
+  private static pollinationsProvider = new PollinationsImageProvider();
+
+  public static getImageProviderForPlan(planId?: string | null) {
+    const isPaid = isPaidTier(planId);
+    if (isPaid && process.env.AI_IMAGE_PROVIDER === 'gemini') {
+      return this.geminiProvider;
+    }
+    return this.pollinationsProvider;
+  }
 
   /**
    * Fast initialization: inserts Book and Job, returns IDs in <250ms
@@ -275,10 +283,12 @@ export class GenerationPipeline {
         const ownerId = book?.user_id;
         if (!ownerId) throw new Error('Book owner is missing; cannot persist cover asset.');
 
+        const activeImageProvider = GenerationPipeline.getImageProviderForPlan(book?.plan_id);
+
         let result;
         try {
           result = await Promise.race([
-            this.imageProvider.generateImage({
+            activeImageProvider.generateImage({
               prompt: coverPrompt,
               bookTitle: isTrading ? 'Financial Markets Guide' : (book?.title || 'Publication'),
               style: book?.style || 'editorial',
@@ -529,10 +539,12 @@ export class GenerationPipeline {
             : 'Editorial Illustration';
 
           const imagePrompt = `${rawCaption}. High resolution editorial publication artwork, no text, no words, no letters, no logos, no watermarks, no provider branding, no borders, no signatures, no UI elements.`;
+          const activeImageProvider = GenerationPipeline.getImageProviderForPlan(book?.plan_id);
+
           let result;
           try {
             result = await Promise.race([
-              this.imageProvider.generateImage({
+              activeImageProvider.generateImage({
                 prompt: imagePrompt,
                 bookTitle: book?.title || 'Book',
                 style: book?.style || 'editorial',

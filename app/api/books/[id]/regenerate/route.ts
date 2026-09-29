@@ -102,8 +102,10 @@ export async function POST(
       return NextResponse.json({ error: 'NOT_FOUND', message: 'Publication not found.' }, { status: 404 });
     }
 
+    const { isPaidTier } = await import('@/lib/payments/plans');
+    const isPaid = isPaidTier(dbBook.plan_id);
     const textProvider = new OpenRouterTextProvider();
-    const imageProvider = process.env.AI_IMAGE_PROVIDER === 'gemini'
+    const imageProvider = isPaid && process.env.AI_IMAGE_PROVIDER === 'gemini'
       ? new GeminiImageProvider()
       : new PollinationsImageProvider();
 
