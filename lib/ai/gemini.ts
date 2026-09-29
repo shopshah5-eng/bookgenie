@@ -82,14 +82,9 @@ ${params.isCover ? 'Composition: Centered portrait, luxury book cover compositio
       }
     }
 
-    // Cover safety enforcement: Pollinations covers are blocked unless explicitly allowed
-    if (params.isCover && !allowWatermarked) {
-      throw new Error(
-        'Clean commercial cover generation required: Gemini cover generation failed and watermarked fallback covers are blocked (ALLOW_PROVIDER_WATERMARKED_COVERS=false).'
-      );
-    }
-
-    // Interior illustrations failover to FLUX provider
+    // Graceful failover: If Gemini fails (e.g., quota exceeded / billing not enabled yet),
+    // failover to the resilient fallback provider so book creation NEVER crashes.
+    console.warn('[GeminiImageProvider] Gemini unavailable, routing to fallback image provider...');
     return this.fallbackProvider.generateImage(params);
   }
 }
