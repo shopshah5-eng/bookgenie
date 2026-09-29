@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GenerationPipeline } from '@/lib/ai/pipeline';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createServerSupabaseClient, getAuthenticatedUser } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 interface JobRecord {
@@ -39,8 +39,7 @@ export async function GET(
 
     // Status is private operational data. Require the owner before querying a
     // job, otherwise a guessed job ID could be used to enumerate book metadata.
-    const sessionClient = await createServerSupabaseClient();
-    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+    const { user, error: authError } = await getAuthenticatedUser(req);
     if (authError || !user) {
       return NextResponse.json(
         { error: 'UNAUTHORIZED', message: 'Authentication required to view generation status.' },

@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { createServerSupabaseClient, getAuthenticatedUser } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 interface BookSummaryRow {
@@ -16,10 +16,9 @@ interface BookSummaryRow {
   share_token: string | null;
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const sessionClient = await createServerSupabaseClient();
-    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+    const { user, error: authError } = await getAuthenticatedUser(req);
     if (authError || !user) {
       return NextResponse.json(
         { error: 'UNAUTHORIZED', message: 'You must be signed in to view your bookshelf.' },

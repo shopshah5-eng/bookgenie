@@ -4,7 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GenerationPipeline } from '@/lib/ai/pipeline';
 import { AICostController } from '@/lib/ai/cost-controller';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createServerSupabaseClient, getAuthenticatedUser } from '@/lib/supabase/server';
 import type { BookType } from '@/lib/book/types';
 
 const ALLOWED_BOOK_TYPES: string[] = [
@@ -137,12 +137,7 @@ export async function POST(req: NextRequest) {
     let authenticatedUserId: string | null = null;
     let authConfigurationError = false;
     try {
-      const supabase = await createServerSupabaseClient();
-      const {
-        data: { user },
-        error: authError,
-      } = await supabase.auth.getUser();
-
+      const { user, error: authError } = await getAuthenticatedUser(req);
       if (user && !authError) {
         authenticatedUserId = user.id;
       }

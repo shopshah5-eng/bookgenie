@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createServerSupabaseClient, getAuthenticatedUser } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const sessionClient = await createServerSupabaseClient();
-    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+    const { user, error: authError } = await getAuthenticatedUser(req);
     if (authError || !user) {
       return NextResponse.json({ tier: 'free', currentPlan: 'free' });
     }
@@ -55,8 +54,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const sessionClient = await createServerSupabaseClient();
-    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+    const { user, sessionClient, error: authError } = await getAuthenticatedUser(req);
     if (authError || !user) {
       return NextResponse.json(
         { error: 'UNAUTHORIZED', message: 'Sign in before choosing a subscription plan.' },
