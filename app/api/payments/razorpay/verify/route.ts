@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
     // 2. Fetch existing purchase record for idempotency check
     const { data: purchase, error: purchaseError } = await admin
       .from('purchases')
-      .select('id, status, plan_id')
+      .select('id, status, plan_id, notes')
       .eq('razorpay_order_id', orderId)
       .maybeSingle();
 
@@ -116,11 +116,16 @@ export async function POST(req: NextRequest) {
     }
 
     // 4. Grant explicit entitlement in entitlements table
+    const customMaxPages =
+      purchase?.notes && typeof (purchase.notes as Record<string, unknown>).maxPages === 'number'
+        ? Number((purchase.notes as Record<string, unknown>).maxPages)
+        : plan.maxPagesPerBook;
+
     const { error: entError } = await admin.from('entitlements').insert({
       user_id: user.id,
       plan_id: plan.id,
       source_purchase_id: purchaseId || null,
-      max_pages: plan.maxPagesPerBook,
+      max_pages: customMaxPages,
       allowed_formats: plan.allowedFormats,
       has_watermark: plan.hasWatermark,
       commercial_rights: plan.commercialUse,

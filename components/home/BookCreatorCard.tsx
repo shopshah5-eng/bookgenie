@@ -29,16 +29,14 @@ export function BookCreatorCard() {
 
   // Derive max pages dynamically from user tier
   const maxPages = !user
-    ? 100
+    ? 200
     : activeTier === 'creator'
-    ? 100
+    ? 200
+    : activeTier === 'single'
+    ? 200
     : activeTier === 'pro'
-    ? 50
-    : activeTier === 'book_plus'
-    ? 60
-    : activeTier === 'book'
-    ? 30
-    : 10;
+    ? 100
+    : 20;
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseInt(e.target.value, 10);

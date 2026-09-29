@@ -47,29 +47,36 @@ async function runTests() {
 
   // 1. Canonical Plan Definitions
   await test('1. Canonical Plan Definitions: IDs, prices, and limits align exactly', () => {
-    assert.deepEqual(ORDERED_PLAN_IDS, ['free', 'pro', 'creator']);
+    assert.deepEqual(ORDERED_PLAN_IDS, ['free', 'single', 'pro', 'creator']);
     assert.equal(CANONICAL_PLANS.free.priceInr, 0);
-    assert.equal(CANONICAL_PLANS.free.maxPagesPerBook, 10);
+    assert.equal(CANONICAL_PLANS.free.maxPagesPerBook, 20);
     assert.equal(CANONICAL_PLANS.free.hasWatermark, true);
 
-    assert.equal(CANONICAL_PLANS.pro.priceInr, 299);
-    assert.equal(CANONICAL_PLANS.pro.amountPaise, 29900);
-    assert.equal(CANONICAL_PLANS.pro.maxPagesPerBook, 50);
-    assert.equal(CANONICAL_PLANS.pro.hasWatermark, false);
-    assert.equal(CANONICAL_PLANS.pro.canRegenerate, true);
+    assert.equal(CANONICAL_PLANS.single.priceInr, 299);
+    assert.equal(CANONICAL_PLANS.single.amountPaise, 29900);
+    assert.equal(CANONICAL_PLANS.single.maxPagesPerBook, 50);
+    assert.equal(CANONICAL_PLANS.single.hasWatermark, false);
+    assert.equal(CANONICAL_PLANS.single.canRegenerate, true);
 
-    assert.equal(CANONICAL_PLANS.creator.priceInr, 799);
-    assert.equal(CANONICAL_PLANS.creator.amountPaise, 79900);
-    assert.equal(CANONICAL_PLANS.creator.maxPagesPerBook, 100);
-    assert.equal(CANONICAL_PLANS.creator.maxBooksAllowed, 5);
+    assert.equal(CANONICAL_PLANS.pro.priceInr, 999);
+    assert.equal(CANONICAL_PLANS.pro.amountPaise, 99900);
+    assert.equal(CANONICAL_PLANS.pro.maxPagesPerBook, 100);
+    assert.equal(CANONICAL_PLANS.pro.maxBooksAllowed, 20);
+
+    assert.equal(CANONICAL_PLANS.creator.priceInr, 1999);
+    assert.equal(CANONICAL_PLANS.creator.amountPaise, 199900);
+    assert.equal(CANONICAL_PLANS.creator.maxPagesPerBook, 200);
+    assert.equal(CANONICAL_PLANS.creator.maxBooksAllowed, 50);
   });
 
-  // 2. Razorpay Order Server-Side Amount Integrity
+  // 2. Razorpay Order Server-Side Amount Integrity & Dynamic Single Plan Calculation
   await test('2. Razorpay order amount comes strictly from server plan definition (never client amount)', () => {
+    const singlePlan = getPlan('single');
+    assert.equal(singlePlan?.amountPaise, 29900);
     const proPlan = getPlan('pro');
-    assert.equal(proPlan?.amountPaise, 29900);
+    assert.equal(proPlan?.amountPaise, 99900);
     const creatorPlan = getPlan('creator');
-    assert.equal(creatorPlan?.amountPaise, 79900);
+    assert.equal(creatorPlan?.amountPaise, 199900);
   });
 
   // 3. Razorpay Signature Verification — Valid Signature
@@ -154,17 +161,17 @@ async function runTests() {
     assert.equal(data, false); // job 000... doesn't exist, returns false cleanly
   });
 
-  // 8. Free Plan Quota Enforcement: Page Limit Check (> 10 pages rejected)
-  await test('8. Free plan quota rejects requested page target exceeding 10 pages', async () => {
+  // 8. Free Plan Quota Enforcement: Page Limit Check (> 20 pages rejected)
+  await test('8. Free plan quota rejects requested page target exceeding 20 pages', async () => {
     // Generate a temporary test user UUID
     const tempUserId = crypto.randomUUID();
-    const result = await AICostController.validatePlanQuota(tempUserId, 16);
+    const result = await AICostController.validatePlanQuota(tempUserId, 25);
     assert.equal(result.allowed, false);
-    assert.match(result.reason || '', /FREE plan supports up to 10 pages/i);
+    assert.match(result.reason || '', /FREE plan supports up to 20 pages/i);
   });
 
   // 9. Free Plan Quota Enforcement: Lifetime 1 Ebook Limit
-  await test('9. Free plan allows 1 book under 10 pages, then rejects subsequent creations', async () => {
+  await test('9. Free plan allows 1 book under 20 pages, then rejects subsequent creations', async () => {
     // We create a temporary test user in auth
     const testEmail = `quota.tester.${Date.now()}@example.test`;
     const { data: userData, error: userError } = await supabase.auth.admin.createUser({

@@ -21,25 +21,34 @@ export const PLAN_LIMITS: Record<PlanId, PlanEntitlement> = {
     tier: 'free',
     name: 'FREE (₹0)',
     maxBooksPerMonth: 1,
-    maxPagesPerBook: 10,
+    maxPagesPerBook: 20,
     hasWatermark: true,
     commercialUse: false,
     priorityQueue: false,
   },
-  pro: {
-    tier: 'pro',
-    name: 'PRO (₹299)',
+  single: {
+    tier: 'single',
+    name: 'ONE-TIME BOOK (₹299+)',
     maxBooksPerMonth: 1,
-    maxPagesPerBook: 50,
+    maxPagesPerBook: 200,
     hasWatermark: false,
     commercialUse: true,
     priorityQueue: false,
   },
+  pro: {
+    tier: 'pro',
+    name: 'PRO (₹999/mo)',
+    maxBooksPerMonth: 20,
+    maxPagesPerBook: 100,
+    hasWatermark: false,
+    commercialUse: true,
+    priorityQueue: true,
+  },
   creator: {
     tier: 'creator',
-    name: 'CREATOR (₹799/mo)',
-    maxBooksPerMonth: 5,
-    maxPagesPerBook: 100,
+    name: 'CREATOR (₹1999/mo)',
+    maxBooksPerMonth: 50,
+    maxPagesPerBook: 200,
     hasWatermark: false,
     commercialUse: true,
     priorityQueue: true,
@@ -258,13 +267,14 @@ ${
         .maybeSingle();
 
       if (sub) {
-        const creatorPlan = PLAN_LIMITS.creator;
-        if (requestedPages > creatorPlan.maxPagesPerBook) {
+        const subPlanKey = (sub.plan_id as PlanId) === 'creator' ? 'creator' : 'pro';
+        const subPlan = PLAN_LIMITS[subPlanKey];
+        if (requestedPages > subPlan.maxPagesPerBook) {
           return {
             allowed: false,
-            reason: `The Creator plan supports up to ${creatorPlan.maxPagesPerBook} pages per book.`,
-            tier: 'creator',
-            limits: creatorPlan,
+            reason: `The ${subPlan.name} supports up to ${subPlan.maxPagesPerBook} pages per book.`,
+            tier: subPlanKey,
+            limits: subPlan,
             hasWatermark: false,
             commercialUse: true,
             canRegenerate: true,
@@ -279,12 +289,12 @@ ${
           .eq('user_id', userId)
           .gte('created_at', startOfMonth);
 
-        if (!countErr && typeof count === 'number' && count >= creatorPlan.maxBooksPerMonth) {
+        if (!countErr && typeof count === 'number' && count >= subPlan.maxBooksPerMonth) {
           return {
             allowed: false,
-            reason: `You have reached your monthly limit of ${creatorPlan.maxBooksPerMonth} books on the Creator plan.`,
-            tier: 'creator',
-            limits: creatorPlan,
+            reason: `You have reached your monthly limit of ${subPlan.maxBooksPerMonth} books on the ${subPlan.name}.`,
+            tier: subPlanKey,
+            limits: subPlan,
             hasWatermark: false,
             commercialUse: true,
             canRegenerate: true,
@@ -293,8 +303,8 @@ ${
 
         return {
           allowed: true,
-          tier: 'creator',
-          limits: creatorPlan,
+          tier: subPlanKey,
+          limits: subPlan,
           hasWatermark: false,
           commercialUse: true,
           canRegenerate: true,
@@ -306,7 +316,7 @@ ${
       if (requestedPages > freePlan.maxPagesPerBook) {
         return {
           allowed: false,
-          reason: `The FREE plan supports up to ${freePlan.maxPagesPerBook} pages. Please select up to ${freePlan.maxPagesPerBook} pages or choose a plan (Book, Book Plus, or Creator).`,
+          reason: `The FREE plan supports up to ${freePlan.maxPagesPerBook} pages. Please select up to ${freePlan.maxPagesPerBook} pages or choose a plan (One-Time Book, Pro, or Creator).`,
           tier: 'free',
           limits: freePlan,
           hasWatermark: true,

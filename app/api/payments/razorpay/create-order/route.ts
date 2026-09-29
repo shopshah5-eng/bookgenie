@@ -58,10 +58,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Server-enforced amount from canonical definition (never trust browser amount)
+    // Server-enforced amount from canonical definition with support for custom pages or annual interval
+    let orderAmountPaise = plan.amountPaise;
+    let selectedMaxPages = plan.maxPagesPerBook;
+    const requestedPages = typeof body?.pages === 'number' ? body.pages : undefined;
+    const isAnnual = body?.interval === 'annual';
+
+    if (plan.id === 'single' && requestedPages) {
+      const { calculateSinglePlanPrice } = await import('@/lib/payments/plans');
+      const dynamic = calculateSinglePlanPrice(requestedPages);
+      orderAmountPaise = dynamic.amountPaise;
+      selectedMaxPages = dynamic.maxPages;
+    } else if (isAnnual && plan.annualAmountPaise) {
+      orderAmountPaise = plan.annualAmountPaise;
+    }
+
     const receipt = `rcpt_${Date.now().toString(36)}_${user.id.slice(0, 8)}`;
     const order = await razorpay.orders.create({
-      amount: plan.amountPaise,
+      amount: orderAmountPaise,
       currency: 'INR',
       receipt,
       notes: {
@@ -69,6 +83,8 @@ export async function POST(req: NextRequest) {
         userEmail: user.email || '',
         planId: plan.id,
         planName: plan.name,
+        maxPages: String(selectedMaxPages),
+        interval: isAnnual ? 'annual' : 'monthly',
       },
     });
 
@@ -82,13 +98,14 @@ export async function POST(req: NextRequest) {
       user_id: user.id,
       plan_id: plan.id,
       razorpay_order_id: order.id,
-      amount: plan.amountPaise,
+      amount: orderAmountPaise,
       currency: 'INR',
       status: 'created',
       notes: {
         planName: plan.name,
         receipt,
         userEmail: user.email || '',
+        maxPages: selectedMaxPages,
       },
     });
 
@@ -100,11 +117,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       orderId: order.id,
-      amount: plan.amountPaise,
+      amount: orderAmountPaise,
       currency: 'INR',
       keyId: config.keyId,
       planId: plan.id,
       planName: plan.name,
+      maxPages: selectedMaxPages,
     });
   } catch (err) {
     console.error('Create Razorpay order error:', err);
