@@ -288,7 +288,20 @@ export class GenerationPipeline {
           ]);
         } catch (imgErr: unknown) {
           const errMsg = imgErr instanceof Error ? imgErr.message : String(imgErr);
-          console.warn(`[Pipeline] Cover image attempt timed out or failed: ${errMsg}. Retrying on next poll...`);
+          const visualPlan = blueprint.visualPlan || [];
+          const coverVisual = visualPlan.find((item) => item.visualType === 'cover');
+          const attempts = ((coverVisual as unknown as { _attempts?: number })?._attempts || 0) + 1;
+
+          if (attempts >= 2) {
+            throw new Error(`Cover generation failed after ${attempts} attempts: ${errMsg}`);
+          }
+
+          console.warn(`[Pipeline] Cover image attempt timed out or failed (attempt ${attempts}): ${errMsg}. Retrying on next poll...`);
+          const updatedVisualPlan = visualPlan.map((item) =>
+            item.visualType === 'cover' ? { ...item, _attempts: attempts } : item
+          );
+          await supabase.from('books').update({ blueprint: { ...blueprint, visualPlan: updatedVisualPlan } }).eq('id', bookId);
+
           return {
             id: jobId,
             book_id: bookId,
