@@ -107,10 +107,11 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
     let pagesToConsider = params.existingPages || [];
     if (params.targetPageNumbers && params.targetPageNumbers.length > 0) {
       pagesToConsider = pagesToConsider.filter((p) => params.targetPageNumbers!.includes(p.pageNumber));
-    } else if (rawInstruction.includes('chapter 1') || rawInstruction.includes('title') || rawInstruction.includes('heading')) {
-      pagesToConsider = pagesToConsider.slice(0, 4);
+    } else if (rawInstruction.includes('chapter 1') || rawInstruction.includes('heading') || rawInstruction.includes('title')) {
+      const ch1Pages = pagesToConsider.filter((p) => p.chapterIndex === 1);
+      pagesToConsider = ch1Pages.length > 0 ? ch1Pages.slice(0, 2) : pagesToConsider.slice(0, 2);
     } else {
-      pagesToConsider = pagesToConsider.slice(0, 8);
+      pagesToConsider = pagesToConsider.slice(0, 3);
     }
 
     const compactPages = pagesToConsider.map((p) => ({
@@ -118,45 +119,86 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
       chapterIndex: p.chapterIndex,
       title: p.title,
       layout: p.layout,
-      blocks: p.blocks,
+      blocks: (p.blocks || []).map((b) => ({
+        id: b.id,
+        type: b.type,
+        level: b.level,
+        text: b.text?.slice(0, 300),
+      })),
     }));
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20_000);
+    const callOpenRouter = async (payloadPages: unknown[], timeoutMs: number) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://bookgenie.ai',
+            'X-Title': 'BookGenie',
+            'Content-Type': 'application/json',
+          },
+          signal: controller.signal,
+          body: JSON.stringify({
+            model: modelConfig.modelId,
+            messages: [
+              {
+                role: 'system',
+                content:
+                  'You are BookGenie’s targeted editorial revision engine. Return only JSON: {"pages": BookPageDocument[], "requiresImageRegeneration": boolean, "imageInstructions": [{"pageNumber": number, "prompt": string}]}. In "pages", return ONLY the pages that are modified by the instruction. Never request new images unless the instruction explicitly changes a visual.',
+              },
+              {
+                role: 'user',
+                content: `Instruction: ${params.instruction}\nPages to revise: ${JSON.stringify(payloadPages)}`,
+              },
+            ],
+            response_format: { type: 'json_object' },
+            temperature: modelConfig.temperature,
+            max_tokens: modelConfig.maxTokens,
+          }),
+        });
+        if (!response.ok) throw new Error(`OpenRouter returned HTTP ${response.status}.`);
+        const data = await response.json();
+        const result = JSON.parse(data.choices?.[0]?.message?.content || '{}');
+        if (!Array.isArray(result.pages)) throw new Error('OpenRouter returned no revised pages.');
+        return result;
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    };
+
     try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://bookgenie.ai',
-          'X-Title': 'BookGenie',
-          'Content-Type': 'application/json',
-        },
-        signal: controller.signal,
-        body: JSON.stringify({
-          model: modelConfig.modelId,
-          messages: [
-            {
-              role: 'system',
-              content: 'You are BookGenie’s targeted editorial revision engine. Return only JSON: {"pages": BookPageDocument[], "requiresImageRegeneration": boolean, "imageInstructions": [{"pageNumber": number, "prompt": string}]}. In "pages", return ONLY the pages that are modified by the instruction. Never request new images unless the instruction explicitly changes a visual.',
-            },
-            {
-              role: 'user',
-              content: `Instruction: ${params.instruction}\nPages to revise: ${JSON.stringify(compactPages)}`,
-            },
-          ],
-          response_format: { type: 'json_object' },
-          temperature: modelConfig.temperature,
-          max_tokens: modelConfig.maxTokens,
-        }),
-      });
-      if (!response.ok) throw new Error(`OpenRouter returned HTTP ${response.status}.`);
-      const data = await response.json();
-      const result = JSON.parse(data.choices?.[0]?.message?.content || '{}');
-      if (!Array.isArray(result.pages)) throw new Error('OpenRouter returned no revised pages.');
-      return result;
-    } finally {
-      clearTimeout(timeoutId);
+      return await callOpenRouter(compactPages, 12_000);
+    } catch (firstErr) {
+      console.warn('[OpenRouter] Initial revision attempt failed, retrying with minimal target page:', firstErr);
+      try {
+        const minimalPage = compactPages.slice(0, 1);
+        return await callOpenRouter(minimalPage, 10_000);
+      } catch (secondErr) {
+        console.warn('[OpenRouter] Second revision attempt failed:', secondErr);
+        // Fallback for simple heading/title changes if AI endpoints are experiencing upstream timeouts
+        const titleMatch = params.instruction.match(/(?:heading|title)\s+(?:to\s*:?|is\s*:?)\s*([^\n\r]+)/i);
+        if (titleMatch && titleMatch[1]) {
+          const newTitle = titleMatch[1].trim().replace(/^["']|["']$/g, '');
+          const targetPage = pagesToConsider[0];
+          if (targetPage) {
+            return {
+              pages: [
+                {
+                  ...targetPage,
+                  title: newTitle,
+                  blocks: (targetPage.blocks || []).map((b) =>
+                    b.type === 'heading' ? { ...b, text: newTitle } : b
+                  ),
+                },
+              ],
+              requiresImageRegeneration: false,
+            };
+          }
+        }
+        throw secondErr;
+      }
     }
   }
 }
