@@ -16,7 +16,7 @@ export interface PlanEntitlement {
   priorityQueue: boolean;
 }
 
-export const PLAN_LIMITS: Record<PlanId, PlanEntitlement> = {
+export const PLAN_LIMITS: Record<string, PlanEntitlement> = {
   free: {
     tier: 'free',
     name: 'FREE (₹0)',
@@ -49,6 +49,25 @@ export const PLAN_LIMITS: Record<PlanId, PlanEntitlement> = {
     name: 'CREATOR (₹1999/mo)',
     maxBooksPerMonth: 50,
     maxPagesPerBook: 200,
+    hasWatermark: false,
+    commercialUse: true,
+    priorityQueue: true,
+  },
+  // Legacy aliases
+  book: {
+    tier: 'single',
+    name: 'ONE-TIME BOOK',
+    maxBooksPerMonth: 1,
+    maxPagesPerBook: 50,
+    hasWatermark: false,
+    commercialUse: true,
+    priorityQueue: false,
+  },
+  book_plus: {
+    tier: 'pro',
+    name: 'BOOK PLUS',
+    maxBooksPerMonth: 5,
+    maxPagesPerBook: 100,
     hasWatermark: false,
     commercialUse: true,
     priorityQueue: true,
@@ -258,7 +277,7 @@ ${
         };
       }
 
-      // 2. Check for active subscription (Creator monthly plan)
+      // 2. Check for active subscription or profile tier (Creator, Pro, Single)
       const { data: sub } = await supabase
         .from('subscriptions')
         .select('*')
@@ -266,17 +285,27 @@ ${
         .eq('status', 'active')
         .maybeSingle();
 
-      if (sub) {
-        const subPlanKey = (sub.plan_id as PlanId) === 'creator' ? 'creator' : 'pro';
-        const subPlan = PLAN_LIMITS[subPlanKey];
-        if (requestedPages > subPlan.maxPagesPerBook) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('tier')
+        .eq('id', userId)
+        .maybeSingle();
+
+      const profileTier = (profile?.tier as PlanId) || 'free';
+      const effectiveTier: PlanId | null = sub
+        ? ((sub.plan_id as PlanId) === 'creator' ? 'creator' : 'pro')
+        : (profileTier !== 'free' && PLAN_LIMITS[profileTier] ? profileTier : null);
+
+      if (effectiveTier) {
+        const plan = PLAN_LIMITS[effectiveTier] || PLAN_LIMITS.pro;
+        if (requestedPages > plan.maxPagesPerBook) {
           return {
             allowed: false,
-            reason: `The ${subPlan.name} supports up to ${subPlan.maxPagesPerBook} pages per book.`,
-            tier: subPlanKey,
-            limits: subPlan,
-            hasWatermark: false,
-            commercialUse: true,
+            reason: `The ${plan.name} supports up to ${plan.maxPagesPerBook} pages per book.`,
+            tier: effectiveTier,
+            limits: plan,
+            hasWatermark: plan.hasWatermark,
+            commercialUse: plan.commercialUse,
             canRegenerate: true,
           };
         }
@@ -289,24 +318,24 @@ ${
           .eq('user_id', userId)
           .gte('created_at', startOfMonth);
 
-        if (!countErr && typeof count === 'number' && count >= subPlan.maxBooksPerMonth) {
+        if (!countErr && typeof count === 'number' && count >= plan.maxBooksPerMonth) {
           return {
             allowed: false,
-            reason: `You have reached your monthly limit of ${subPlan.maxBooksPerMonth} books on the ${subPlan.name}.`,
-            tier: subPlanKey,
-            limits: subPlan,
-            hasWatermark: false,
-            commercialUse: true,
+            reason: `You have reached your monthly limit of ${plan.maxBooksPerMonth} books on the ${plan.name}.`,
+            tier: effectiveTier,
+            limits: plan,
+            hasWatermark: plan.hasWatermark,
+            commercialUse: plan.commercialUse,
             canRegenerate: true,
           };
         }
 
         return {
           allowed: true,
-          tier: subPlanKey,
-          limits: subPlan,
-          hasWatermark: false,
-          commercialUse: true,
+          tier: effectiveTier,
+          limits: plan,
+          hasWatermark: plan.hasWatermark,
+          commercialUse: plan.commercialUse,
           canRegenerate: true,
         };
       }

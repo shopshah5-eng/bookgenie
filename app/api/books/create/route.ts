@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
 
     const chapterScale = Number(body.chapterScale);
     const calculatedPages = Number(pageTarget) || (chapterScale === 2 ? 36 : chapterScale === 3 ? 72 : 16);
-    const targetPages = Math.min(Math.max(calculatedPages, 4), 150);
+    const targetPages = Math.min(Math.max(calculatedPages, 1), 200);
 
     // 3. Server Authentication Boundary (Strictly require verified Supabase user)
     let authenticatedUserId: string | null = null;
