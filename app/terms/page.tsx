@@ -98,7 +98,7 @@ export default function TermsPage() {
                 8. Payments and Subscriptions
               </h2>
               <p>
-                Paid tiers are billed in advance per book or on a monthly subscription schedule as specified at checkout. All prices are listed in Indian Rupees (₹) or local currency equivalents. You authorize BookGenie and our payment processors to charge your payment method for chosen plans.
+                Paid tiers are billed in advance per book or on a monthly subscription schedule as specified at checkout. All prices are listed in US Dollars ($) or local currency equivalents. You authorize BookGenie and our payment processors to charge your payment method for chosen plans.
               </p>
             </section>
 

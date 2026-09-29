@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Server-enforced amount from canonical definition with support for custom pages or annual interval
-    let orderAmountPaise = plan.amountPaise;
+    let orderAmountCents = plan.amountCents ?? plan.amountPaise ?? 0;
     let selectedMaxPages = plan.maxPagesPerBook;
     const requestedPages = typeof body?.pages === 'number' ? body.pages : undefined;
     const isAnnual = body?.interval === 'annual';
@@ -67,16 +67,16 @@ export async function POST(req: NextRequest) {
     if (plan.id === 'single' && requestedPages) {
       const { calculateSinglePlanPrice } = await import('@/lib/payments/plans');
       const dynamic = calculateSinglePlanPrice(requestedPages);
-      orderAmountPaise = dynamic.amountPaise;
+      orderAmountCents = dynamic.amountCents;
       selectedMaxPages = dynamic.maxPages;
-    } else if (isAnnual && plan.annualAmountPaise) {
-      orderAmountPaise = plan.annualAmountPaise;
+    } else if (isAnnual && (plan.annualAmountCents || plan.annualAmountPaise)) {
+      orderAmountCents = plan.annualAmountCents || plan.annualAmountPaise || 0;
     }
 
     const receipt = `rcpt_${Date.now().toString(36)}_${user.id.slice(0, 8)}`;
     const order = await razorpay.orders.create({
-      amount: orderAmountPaise,
-      currency: 'INR',
+      amount: orderAmountCents,
+      currency: 'USD',
       receipt,
       notes: {
         userId: user.id,
@@ -98,8 +98,8 @@ export async function POST(req: NextRequest) {
       user_id: user.id,
       plan_id: plan.id,
       razorpay_order_id: order.id,
-      amount: orderAmountPaise,
-      currency: 'INR',
+      amount: orderAmountCents,
+      currency: 'USD',
       status: 'created',
       notes: {
         planName: plan.name,
@@ -117,8 +117,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       orderId: order.id,
-      amount: orderAmountPaise,
-      currency: 'INR',
+      amount: orderAmountCents,
+      currency: 'USD',
       keyId: config.keyId,
       planId: plan.id,
       planName: plan.name,

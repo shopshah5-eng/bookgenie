@@ -143,7 +143,7 @@ export function MinimalPricing() {
       const rzp = new window.Razorpay({
         key: orderData.keyId,
         amount: orderData.amount,
-        currency: orderData.currency || 'INR',
+        currency: orderData.currency || 'USD',
         name: 'BookGenie Publishing',
         description: `${orderData.planName} (${orderData.maxPages ? `${orderData.maxPages} pages` : 'Complete plan'})`,
         order_id: orderData.orderId,
@@ -298,10 +298,10 @@ export function MinimalPricing() {
             // Compute display price based on interval or slider
             const displayPrice =
               isSingle
-                ? singlePricing.priceInr
-                : billingInterval === 'annual' && plan.annualPriceInr
-                ? plan.annualPriceInr
-                : plan.priceInr;
+                ? singlePricing.priceUsd
+                : billingInterval === 'annual' && plan.annualPriceUsd
+                ? plan.annualPriceUsd
+                : plan.priceUsd;
 
             const billingSubtext =
               plan.billingType === 'free'
@@ -359,7 +359,7 @@ export function MinimalPricing() {
                     }`}
                   >
                     <span className="text-3xl font-extrabold tracking-tight">
-                      ₹{displayPrice}
+                      ${displayPrice}
                     </span>
                     <span
                       className={`text-xs ${
@@ -401,9 +401,9 @@ export function MinimalPricing() {
                         className="w-full h-1.5 bg-[#EAEAEA] rounded-lg appearance-none cursor-pointer accent-[#111111]"
                       />
                       <div className="flex justify-between text-[10px] text-[#888888] mt-1 font-mono">
-                        <span>50p (₹299)</span>
-                        <span>100p (₹399)</span>
-                        <span>200p (₹599)</span>
+                        <span>50p ($9)</span>
+                        <span>100p ($14)</span>
+                        <span>200p ($24)</span>
                       </div>
                     </div>
                   )}

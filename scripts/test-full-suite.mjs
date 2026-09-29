@@ -72,11 +72,11 @@ async function runTests() {
   // 2. Razorpay Order Server-Side Amount Integrity & Dynamic Single Plan Calculation
   await test('2. Razorpay order amount comes strictly from server plan definition (never client amount)', () => {
     const singlePlan = getPlan('single');
-    assert.equal(singlePlan?.amountPaise, 29900);
+    assert.equal(singlePlan?.amountCents, 900);
     const proPlan = getPlan('pro');
-    assert.equal(proPlan?.amountPaise, 99900);
+    assert.equal(proPlan?.amountCents, 1900);
     const creatorPlan = getPlan('creator');
-    assert.equal(creatorPlan?.amountPaise, 199900);
+    assert.equal(creatorPlan?.amountCents, 3900);
   });
 
   // 3. Razorpay Signature Verification — Valid Signature

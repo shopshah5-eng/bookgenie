@@ -8,10 +8,13 @@ export interface PlanDefinition {
   id: PlanId;
   name: string;
   badge?: string;
-  priceInr: number;
-  amountPaise: number;
+  priceUsd: number;
+  amountCents: number;
+  // Backward compatibility accessors
+  priceInr?: number;
+  amountPaise?: number;
   billingType: 'free' | 'one_time' | 'subscription';
-  currency: 'INR';
+  currency: 'USD';
   description: string;
   features: string[];
   maxPagesPerBook: number;
@@ -22,24 +25,45 @@ export interface PlanDefinition {
   enhancedIllustrations: boolean;
   canRegenerate: boolean;
   prioritySupport: boolean;
+  annualPriceUsd?: number;
+  annualAmountCents?: number;
   annualPriceInr?: number;
   annualAmountPaise?: number;
 }
 
 /**
  * Calculates dynamic price for Single Book plan based on page count.
- * Base: ₹299 for up to 50 pages.
- * Beyond 50 pages: +₹2 per extra page (e.g., 100 pages = ₹399, 200 pages = ₹599).
+ * Base: $9 for up to 50 pages (900 cents).
+ * Beyond 50 pages: +$0.10 per extra page (e.g., 100 pages = $14, 200 pages = $24).
  */
-export function calculateSinglePlanPrice(pages: number): { priceInr: number; amountPaise: number; maxPages: number } {
+export function calculateSinglePlanPrice(pages: number): {
+  priceUsd: number;
+  amountCents: number;
+  maxPages: number;
+  priceInr: number;
+  amountPaise: number;
+} {
   const clampedPages = Math.min(Math.max(pages, 20), 200);
   if (clampedPages <= 50) {
-    return { priceInr: 299, amountPaise: 29900, maxPages: clampedPages };
+    return {
+      priceUsd: 9,
+      amountCents: 900,
+      maxPages: clampedPages,
+      priceInr: 9,
+      amountPaise: 900,
+    };
   }
   const extraPages = clampedPages - 50;
-  const extraCost = Math.round(extraPages * 2);
-  const totalInr = 299 + extraCost;
-  return { priceInr: totalInr, amountPaise: totalInr * 100, maxPages: clampedPages };
+  const extraCost = Math.round(extraPages * 0.1);
+  const totalUsd = 9 + extraCost;
+  const totalCents = totalUsd * 100;
+  return {
+    priceUsd: totalUsd,
+    amountCents: totalCents,
+    maxPages: clampedPages,
+    priceInr: totalUsd,
+    amountPaise: totalCents,
+  };
 }
 
 export const CANONICAL_PLANS: Record<PlanId, PlanDefinition> = {
@@ -47,13 +71,15 @@ export const CANONICAL_PLANS: Record<PlanId, PlanDefinition> = {
     id: 'free',
     name: 'FREE',
     badge: 'Starter',
+    priceUsd: 0,
+    amountCents: 0,
     priceInr: 0,
     amountPaise: 0,
     billingType: 'free',
-    currency: 'INR',
+    currency: 'USD',
     description: 'Test the studio risk-free. Create your first book with complete core layouts.',
     features: [
-      '₹0 forever',
+      '$0 forever',
       '1 complete ebook',
       'Up to 20 pages',
       'PDF export',
@@ -73,13 +99,15 @@ export const CANONICAL_PLANS: Record<PlanId, PlanDefinition> = {
     id: 'single',
     name: 'ONE-TIME BOOK',
     badge: 'Custom Length',
-    priceInr: 299,
-    amountPaise: 29900,
+    priceUsd: 9,
+    amountCents: 900,
+    priceInr: 9,
+    amountPaise: 900,
     billingType: 'one_time',
-    currency: 'INR',
+    currency: 'USD',
     description: 'Perfect for publishing a single complete book. Scale from 50 to 200 pages as needed.',
     features: [
-      'From ₹299 one-time payment',
+      'From $9 one-time payment',
       '1 complete ebook',
       '50 to 200 pages (scalable)',
       'PDF + EPUB exports',
@@ -101,12 +129,16 @@ export const CANONICAL_PLANS: Record<PlanId, PlanDefinition> = {
     id: 'pro',
     name: 'PRO',
     badge: 'Most Popular',
-    priceInr: 999,
-    amountPaise: 99900,
-    annualPriceInr: 799, // ₹799/mo billed annually
-    annualAmountPaise: 958800,
+    priceUsd: 19,
+    amountCents: 1900,
+    priceInr: 19,
+    amountPaise: 1900,
+    annualPriceUsd: 15, // $15/mo billed annually ($180/yr)
+    annualAmountCents: 18000,
+    annualPriceInr: 15,
+    annualAmountPaise: 18000,
     billingType: 'subscription',
-    currency: 'INR',
+    currency: 'USD',
     description: 'For active authors, teachers, and coaches releasing continuous publication series.',
     features: [
       '15 to 20 ebooks per month',
@@ -131,12 +163,16 @@ export const CANONICAL_PLANS: Record<PlanId, PlanDefinition> = {
     id: 'creator',
     name: 'CREATOR',
     badge: 'High Volume',
-    priceInr: 1999,
-    amountPaise: 199900,
-    annualPriceInr: 1599, // ₹1599/mo billed annually
-    annualAmountPaise: 1918800,
+    priceUsd: 39,
+    amountCents: 3900,
+    priceInr: 39,
+    amountPaise: 3900,
+    annualPriceUsd: 31, // $31/mo billed annually ($372/yr)
+    annualAmountCents: 37200,
+    annualPriceInr: 31,
+    annualAmountPaise: 37200,
     billingType: 'subscription',
-    currency: 'INR',
+    currency: 'USD',
     description: 'For publishing houses, prolific agencies, and serial digital creators producing at scale.',
     features: [
       '50 ebooks per month',

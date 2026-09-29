@@ -19,7 +19,7 @@ export interface PlanEntitlement {
 export const PLAN_LIMITS: Record<string, PlanEntitlement> = {
   free: {
     tier: 'free',
-    name: 'FREE (₹0)',
+    name: 'FREE ($0)',
     maxBooksPerMonth: 1,
     maxPagesPerBook: 20,
     hasWatermark: true,
@@ -28,7 +28,7 @@ export const PLAN_LIMITS: Record<string, PlanEntitlement> = {
   },
   single: {
     tier: 'single',
-    name: 'ONE-TIME BOOK (₹299+)',
+    name: 'ONE-TIME BOOK ($9+)',
     maxBooksPerMonth: 1,
     maxPagesPerBook: 200,
     hasWatermark: false,
@@ -37,7 +37,7 @@ export const PLAN_LIMITS: Record<string, PlanEntitlement> = {
   },
   pro: {
     tier: 'pro',
-    name: 'PRO (₹999/mo)',
+    name: 'PRO ($19/mo)',
     maxBooksPerMonth: 20,
     maxPagesPerBook: 100,
     hasWatermark: false,
@@ -46,7 +46,7 @@ export const PLAN_LIMITS: Record<string, PlanEntitlement> = {
   },
   creator: {
     tier: 'creator',
-    name: 'CREATOR (₹1999/mo)',
+    name: 'CREATOR ($39/mo)',
     maxBooksPerMonth: 50,
     maxPagesPerBook: 200,
     hasWatermark: false,

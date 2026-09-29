@@ -106,8 +106,8 @@ export async function POST(req: NextRequest) {
           razorpay_order_id: orderId,
           razorpay_payment_id: paymentId,
           razorpay_signature: signature,
-          amount: plan.amountPaise,
-          currency: 'INR',
+          amount: plan.amountCents ?? plan.amountPaise ?? 0,
+          currency: 'USD',
           status: 'captured',
         })
         .select('id')
