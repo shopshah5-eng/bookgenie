@@ -470,7 +470,7 @@ export function MinimalPricing() {
                           {plan.id === 'free'
                             ? 'Start Free (20 Pages)'
                             : isSingle
-                            ? `Get Book (₹${displayPrice})`
+                            ? `Get Book ($${displayPrice})`
                             : `Choose ${plan.name}`}
                         </span>
                       )}
