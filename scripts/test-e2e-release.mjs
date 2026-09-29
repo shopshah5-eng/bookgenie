@@ -335,8 +335,8 @@ async function run() {
   const publicShareRes = await fetch(`${PREVIEW_URL}/api/shared/${shareToken}`);
   console.log('Public share status:', publicShareRes.status, publicShareRes.statusText);
   const publicShareJson = await publicShareRes.json();
-  console.log('Public share book title:', publicShareJson.book?.title);
-  console.log('Public share author masked:', publicShareJson.book?.author || publicShareJson.book?.authorName);
+  console.log('Public share book title:', publicShareJson.title || publicShareJson.book?.title);
+  console.log('Public share author masked:', publicShareJson.author || publicShareJson.authorName || publicShareJson.book?.author || publicShareJson.book?.authorName);
 
   // Verify unauthenticated user CANNOT regenerate the book
   console.log('Testing unauthenticated regenerate attempt (should be 401/403)...');
