@@ -88,6 +88,12 @@ export interface BookBlueprint {
   uploadedContext?: string;
   generatedPages?: BookPageDocument[];
   planId?: string;
+  enhancedEditorialPrompt?: string;
+  nicheAnalysis?: {
+    coreReaderIntent?: string;
+    trendingStructuralPatterns?: string[];
+    competitiveDifferentiator?: string;
+  };
 }
 
 export interface BookDocument {

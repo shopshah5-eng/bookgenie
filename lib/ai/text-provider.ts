@@ -10,6 +10,7 @@ export interface GenerateBlueprintParams {
   language?: string;
   style?: string;
   planId?: string;
+  pageTarget?: number;
 }
 
 export interface GenerateChapterParams {

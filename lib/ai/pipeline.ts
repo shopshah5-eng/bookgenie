@@ -213,6 +213,7 @@ export class GenerationPipeline {
               style: blueprint.style,
               uploadedContext: (blueprint as BookBlueprint & { uploadedContext?: string }).uploadedContext,
               planId: blueprint.planId || 'free',
+              pageTarget: blueprint.pageTarget || (book as { page_target?: number }).page_target || 16,
             }),
             new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Blueprint provider timeout')), 22_000)),
           ]);

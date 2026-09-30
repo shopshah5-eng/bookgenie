@@ -74,6 +74,24 @@ export async function GET(
       });
     }
 
+    if (slug === 'glow-up') {
+      const diskPath = path.join(process.cwd(), 'public', 'downloads', '30-Day-Glow-Up-Man-Plan-2026.pdf');
+      if (!fs.existsSync(diskPath)) {
+        return NextResponse.json({ error: 'NOT_FOUND', message: 'PDF file not found on disk.' }, { status: 404 });
+      }
+      const buffer = fs.readFileSync(diskPath);
+
+      return new NextResponse(buffer as unknown as BodyInit, {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': 'attachment; filename="30-Day-Glow-Up-Man-Plan-2026.pdf"',
+          'Content-Length': buffer.byteLength.toString(),
+          'Cache-Control': 'public, max-age=3600',
+        },
+      });
+    }
+
     return NextResponse.json({ error: 'NOT_FOUND', message: 'Ebook not found.' }, { status: 404 });
   } catch (err) {
     console.error('Ebook download error:', err);

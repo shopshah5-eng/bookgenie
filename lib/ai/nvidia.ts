@@ -38,8 +38,8 @@ export class NvidiaTextProvider implements ITextProvider {
     const effectiveType = params.bookType === 'auto' || !params.bookType
       ? (isTrading ? 'guide' : 'guide')
       : params.bookType;
-
-    const systemPrompt = `You are the master publishing strategist for BookGenie. Return ONLY valid JSON (no commentary, no markdown) matching this schema:
+    const targetPages = params.pageTarget || 16;
+    const systemPrompt = `You are the master publishing strategist, editorial researcher, and trend analyst for BookGenie. Return ONLY valid JSON (no commentary, no markdown) matching this schema:
 {
   "title": string,
   "subtitle": string,
@@ -47,7 +47,13 @@ export class NvidiaTextProvider implements ITextProvider {
   "audience": string,
   "language": "${params.language || 'English'}",
   "style": "${params.style || 'Modern'}",
-  "pageTarget": 16,
+  "pageTarget": ${targetPages},
+  "enhancedEditorialPrompt": string,
+  "nicheAnalysis": {
+    "coreReaderIntent": string,
+    "trendingStructuralPatterns": string[],
+    "competitiveDifferentiator": string
+  },
   "chapters": [
     { "index": 1, "title": string, "summary": string, "allocatedPages": 4 }
   ],
@@ -55,10 +61,18 @@ export class NvidiaTextProvider implements ITextProvider {
     { "pageNumber": 1, "visualType": "cover", "promptSpec": string, "layout": "full-bleed" }
   ]
 }
+EDITORIAL INSTRUCTIONS:
+1. DECODE INTENT & NICHE: Analyze the user's prompt, identify the exact target audience, and research trending best-selling ebook patterns in that niche (Amazon KDP, Gumroad, field guides).
+2. STRUCTURE RULES:
+   - For Self-Care/Fitness/Glow-Up: Ground rules, baseline audit, daily base operating system, 2-day spreads with checkboxes [ ], WHO 2026 plate heuristic, troubleshooting detours, 30-day habit sheet, verified citations [01-17].
+   - For Trading/Finance: Market mechanics, order book dynamics, candlestick geometry, position sizing math, trade plans with invalidation levels, risk checklists.
+   - For Digital Products/Business: 2-weekend validation test, 30+ platform fees, organic flywheels, ad setups, 90-day plan.
+3. PAGE BUDGET: The sum of all chapter "allocatedPages" MUST equal exactly ${targetPages}.
 ${isTrading ? 'CRITICAL: For trading/finance books, all visualPlan items MUST specify technical candlestick diagrams, support/resistance structure, or risk/reward charts. NEVER specify people, anime, cartoons, or sketches.' : ''}`;
 
     const userPrompt = `User Prompt: ${params.prompt}
 Requested Book Type: ${params.bookType || 'auto'}
+Target Pages: ${targetPages}
 Language: ${params.language || 'English'}
 Style: ${params.style || 'Modern'}
 ${params.uploadedContext ? `Uploaded Context:\n${params.uploadedContext.slice(0, 3000)}` : ''}`;
@@ -114,26 +128,31 @@ ${params.uploadedContext ? `Uploaded Context:\n${params.uploadedContext.slice(0,
         summary: 'Provide comprehensive in-depth publication content.',
       };
 
-    const pagesForThisChapter = Math.max(
+    const pagesForThisChapter = chapter.allocatedPages || Math.max(
       1,
       Math.min(4, Math.round((bp.pageTarget || 16) / Math.max(1, chapters.length)))
     );
 
-    const systemPrompt = `You are an elite non-fiction book author, technical editor, and publishing specialist.
+    const systemPrompt = `You are an elite non-fiction book author, field guide designer, and publishing specialist.
 Return ONLY valid JSON: {"pages": BookPageDocument[]}.
 
 MANDATORY RULES:
-1. Every page must contain 240 to 380 meaningful words across multiple well-developed paragraphs, checklists, or step-by-step procedures. Never output sparse or empty pages.
-2. BAN ON REPETITIVE CLICHES: Do NOT repeat template formulas like "X is not just a pattern, it is an opportunity" or "By mastering the art of X...". Provide unique, actionable, technical instruction for each chapter.
-3. MATHEMATICAL RIGOR: In financial or risk sections, use exact formulas: Position Size = (Account Capital * Risk %) / (Entry - Stop Loss).
-4. Structure: Every page has pageNumber, chapterIndex: ${params.chapterIndex}, pageType ("chapter"|"content"), layout ("standard"|"quote-callout"|"split-horizontal"), and blocks: Array<{"id": string, "type": "heading"|"paragraph"|"quote"|"list"|"callout", "text"?: string, "items"?: string[]}>.`;
+1. SIMPLE WORDS ACCORDING TO GENRE: Write with supreme clarity in accessible, engaging words. Avoid academic jargon, condescending fluff, or purple prose.
+2. CONTENT DENSITY & VALUE: Every page must contain 240 to 380 meaningful words or dense structured content. Never output sparse or empty pages.
+3. RICH PUBLISHING BLOCKS: Include headings, subheadings, paragraphs, lists with checkboxes [ ] and time estimates (e.g. 15 MIN), callouts for checkpoints/rules, and structured comparative tables.
+4. BAN ON REPETITIVE CLICHES: Do NOT repeat template formulas like "X is not just a pattern, it is an opportunity" or "By mastering the art of X...".
+5. FACTUAL INTEGRITY: In financial or risk sections, use exact formulas: Position Size = (Account Capital * Risk %) / (Entry - Stop Loss). In health/fitness, adhere to WHO 2026 guidelines.
+6. STRUCTURE: Every page has pageNumber, chapterIndex: ${params.chapterIndex}, pageType ("chapter"|"content"), layout ("standard"|"quote-callout"|"split-horizontal"), and blocks: Array<{"id": string, "type": "heading"|"paragraph"|"quote"|"list"|"callout", "text"?: string, "items"?: string[]}>.`;
 
-    const userPrompt = `Book: "${bp.title || 'Practical Guide'}" (${bp.subtitle || ''})
+    const userPrompt = `Book Title: "${bp.title || 'Practical Field Guide'}" (${bp.subtitle || ''})
+Genre / Book Type: ${bp.bookType || 'guide'}
 Chapter ${params.chapterIndex}: "${chapter.title}"
 Chapter Focus & Summary: ${chapter.summary}
+${bp.enhancedEditorialPrompt ? `Editorial Blueprint: ${bp.enhancedEditorialPrompt}` : ''}
+${bp.nicheAnalysis ? `Trending Niche Insights: ${JSON.stringify(bp.nicheAnalysis)}` : ''}
 Target Pages for this chapter: ${pagesForThisChapter}
 
-Write ${pagesForThisChapter} dense, highly actionable, deeply insightful, publishable page(s).`;
+Write ${pagesForThisChapter} dense, highly actionable, deeply insightful, publishable page(s) in simple, accessible, high-impact words.`;
 
     try {
       const controller = new AbortController();

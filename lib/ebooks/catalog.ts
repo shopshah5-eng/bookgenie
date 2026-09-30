@@ -89,4 +89,36 @@ export const EBOOK_CATALOG: Record<string, EbookProduct> = {
       compatibility: 'Mobile, Tablet, Desktop, Kindle',
     },
   },
+
+  'glow-up': {
+    id: 'glow-up',
+    slug: 'glow-up',
+    title: '30 Day Glow Up: Man Plan',
+    subtitle: 'A Practical Field Guide to Skin, Fitness, Grooming, Nutrition, and Sustainable Habits',
+    badge: '40-Page Field Guide • 2026 Edition',
+    priceInr: 0,
+    originalPriceInr: 699,
+    isFree: true,
+    pageCount: 40,
+    coverImage: '/images/ebooks/glow-up-cover.jpg',
+    edition: '2026 Practical Field Guide',
+    author: 'BookGenie Editorial Studio',
+    tagline: 'Orientation • Operating System • 30 Daily Actions • Printable Habit Sheet',
+    highlights: [
+      'Full 40-page master field guide: Skincare routine, grooming guide, and style upgrade',
+      'Realistic baseline audit and 30-day operating system (Morning, Daytime, Evening)',
+      'Two simple strength sessions (Workout A & B) and adaptable progressive walking plan',
+      'Plate heuristic nutrition framework based on WHO 2026 health guidelines',
+      '2-day spreads for all 30 days with time-stamped checkboxes and checkpoints',
+      'Printable 30-day habit sheet, troubleshooting detours, and evidence-backed bibliography [01-17]',
+    ],
+    description:
+      'A better baseline, not a new face. This 40-page practical field guide strips away impossible promises and provides a grounded, evidence-backed roadmap covering sleep, strength, food, skincare, grooming, and presence with daily actionable checkpoints and a printable 30-day habit sheet.',
+    details: {
+      format: 'High-Resolution PDF (40 Pages)',
+      fileSize: '4.0 MB',
+      delivery: 'Instant Digital Download',
+      compatibility: 'Mobile, Tablet, Desktop, Kindle',
+    },
+  },
 };

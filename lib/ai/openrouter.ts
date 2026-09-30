@@ -21,8 +21,27 @@ export class OpenRouterTextProvider implements ITextProvider {
       : params.bookType;
     const modelConfig = AICostController.selectTextModel('planning', effectiveType, params.planId);
 
-    const systemPrompt = `You are the master publishing strategist for BookGenie.
-Analyze the user's prompt and optional source content, then return strictly valid JSON matching this schema:
+    const targetPages = params.pageTarget || 16;
+    const systemPrompt = `You are the master publishing strategist, editorial researcher, and trend analyst for BookGenie.
+Before architecting this book, you must perform a 4-step editorial analysis:
+1. DECODE USER INTENT & TARGET AUDIENCE:
+   - Identify what the user really wants to achieve and who the exact reader is.
+   - Expand the user's raw prompt into a comprehensive, high-resolution publishing vision ("enhancedEditorialPrompt").
+2. ANALYZE TRENDING BEST-SELLING EBOOK PATTERNS IN THIS NICHE:
+   - Analyze top-performing publications in this genre (Amazon KDP bestsellers, Gumroad guides, Substack field manuals).
+   - Identify the winning structural patterns in this niche:
+     * SELF-CARE / GLOW-UP / HEALTH: Needs an Orientation & Ground Rules (safe, realistic, no impossible promises), Baseline Self-Audit (Sleep, Movement, Nutrition, Care, Energy), 30-Day Operating System (Morning, Daytime, Evening), Heuristic Visual Guides (WHO 2026 plate ratios), 2-Day Action Spreads with time estimates (e.g. 15 MIN) & checklist boxes [ ], Troubleshooting Detours ("If life gets in the way"), Printable 30-Day Habit Sheets, and verified Research Citations (WHO, CDC, AAD, ISSN, ADA, NIH).
+     * TRADING / FINANCE: Needs Market Foundations & Mechanics, Order Types & Execution Dynamics, Candlesticks & Price Action Geometry, Exact Mathematical Position Sizing (Position Size = [Capital * Risk%] / [Entry - Stop]), 2-5% Allocation Rules, Trade Plans with Invalidation Levels, Risk-to-Reward Ratios (1:2 to 1:3), Trader Psychology, and Financial Glossary.
+     * DIGITAL PRODUCTS / BUSINESS / TECH: Needs 2-Weekend Validation Tests, 30+ Platform Fee & Margin Breakdowns (Gumroad, Payhip, Shopify, Etsy, KDP), Organic SEO & Social Flywheels (Pinterest, TikTok, YouTube), Step-by-Step Ad Setups, Value Ladder Funnels, and 90-Day Execution Calendars.
+     * FICTION / NOVELS: Three-act dramatic arc, vivid worldbuilding, complex character motivations, high sensory pacing.
+3. UP-TO-DATE RESEARCH & FACTUAL ACCURACY:
+   - Base all technical, nutritional, financial, or practical advice on verified, up-to-date 2026 standards.
+   - For educational guides, embed research source tags [01, 02] that map to an authoritative bibliography.
+4. STRICT PAGE TARGET ARCHITECTURE:
+   - Target Pages: ${targetPages}.
+   - The chapters curriculum MUST divide the book logically so the sum of "allocatedPages" across all chapters EQUALS EXACTLY ${targetPages}.
+
+Return strictly valid JSON matching this schema:
 {
   "title": string,
   "subtitle": string,
@@ -30,35 +49,28 @@ Analyze the user's prompt and optional source content, then return strictly vali
   "audience": string,
   "language": string,
   "style": string,
-  "pageTarget": number,
-  "chapters": [{ "index": number, "title": string, "summary": string, "allocatedPages": number }],
-  "visualPlan": [{ "pageNumber": number, "visualType": "cover"|"illustration"|"diagram"|"none", "promptSpec": string, "layout": "standard"|"image-top"|"image-bottom"|"image-left"|"image-right"|"full-bleed" }]
+  "pageTarget": ${targetPages},
+  "enhancedEditorialPrompt": string,
+  "nicheAnalysis": {
+    "coreReaderIntent": string,
+    "trendingStructuralPatterns": string[],
+    "competitiveDifferentiator": string
+  },
+  "chapters": [
+    { "index": number, "title": string, "summary": string, "allocatedPages": number }
+  ],
+  "visualPlan": [
+    { "pageNumber": number, "visualType": "cover"|"illustration"|"diagram"|"none", "promptSpec": string, "layout": "standard"|"image-top"|"image-bottom"|"image-left"|"image-right"|"full-bleed" }
+  ]
 }
-CRITICAL RULES FOR BOOK TYPE AND CURRICULUM:
+
+CRITICAL RULES:
 1. When Requested Book Type is "auto" and the topic is trading, investing, finance, crypto, forex, stocks, or technical analysis, you MUST set "bookType" to "guide", "course", or "workbook". NEVER output "novel" for financial, educational, or instructional subjects.
-2. For trading and financial education books, the chapters curriculum MUST comprehensively span:
-   - Beginner foundations & market mechanics
-   - Market types and financial instruments (stocks, ETFs, futures, options)
-   - Orders, order book dynamics, and trade execution
-   - Candlesticks, price action, and bar analysis
-   - Technical analysis principles
-   - Support, resistance, supply, and demand
-   - Trends, swing structure, and market cycles
-   - Technical indicators (moving averages, RSI, MACD, volume)
-   - Capital preservation and risk management
-   - Position sizing formulas and risk-to-reward ratios
-   - Leverage mechanics and margin liquidation risks
-   - Transaction fees, commissions, and execution slippage
-   - Trading psychology, discipline, and emotional biases
-   - Backtesting rules and performance evaluation
-   - Strategy development and trade planning
-   - Advanced case studies and market scenario breakdowns
-   - Practical exercises and actionable trader checklists
-   - Comprehensive financial glossary
-3. For trading, finance, and technical guides, all visualPlan items MUST specify precise technical chart diagrams, candlestick price action geometry, support/resistance breakouts, or risk/reward schematics. NEVER specify drawings of people, anime, cartoons, people reading notebooks, or generic office scenes.
+2. For trading, finance, and technical guides, all visualPlan items MUST specify precise technical chart diagrams, candlestick price action geometry, support/resistance breakouts, or risk/reward schematics. NEVER specify drawings of people, anime, cartoons, people reading notebooks, or generic office scenes.
 Do not include markdown fences or commentary.`;
     const userPrompt = `User Prompt: ${params.prompt}
 Requested Book Type: ${params.bookType || 'auto'}
+Target Pages: ${targetPages}
 Language: ${params.language || 'English'}
 Style: ${params.style || 'Modern'}
 ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.slice(0, 3000)}` : ''}`;
@@ -97,7 +109,7 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
         title: `Chapter ${params.chapterIndex}`,
         summary: 'Provide comprehensive in-depth content.',
       };
-    const pagesForThisChapter = Math.max(
+    const pagesForThisChapter = chapter.allocatedPages || Math.max(
       1,
       Math.min(4, Math.round((bp.pageTarget || 16) / Math.max(1, chapters.length)))
     );
@@ -106,32 +118,46 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
       `${bp.title || ''} ${bp.subtitle || ''} ${chapter.title || ''} ${chapter.summary || ''}`
     );
 
-    const systemPrompt = `You are an elite non-fiction book author, technical editor, and publishing specialist.
+    const systemPrompt = `You are an elite non-fiction book author, field guide designer, and publishing specialist.
 Return strictly valid JSON: {"pages": BookPageDocument[]}.
 
 MANDATORY EDITORIAL STANDARDS:
-1. WORD DENSITY & VALUE: Every page must contain approximately 240 to 380 substantive, high-value words across multiple well-developed paragraphs, checklists, or step-by-step guides. Never leave pages sparse or half-empty.
-2. STRICT BAN ON REPETITIVE CLICHES:
+1. SIMPLE, COMPELLING WORDS ACCORDING TO GENRE:
+   - Write with supreme clarity using simple, grounded, and engaging words.
+   - Avoid academic posturing, filler words, or purple prose.
+   - For educational guides and field workbooks: write in a calm, realistic, actionable tone (e.g., "A better baseline, not a new face.", "Repeat, do not reinvent", "Fit is the quiet multiplier").
+2. CONTENT DENSITY & HIGH-VALUE PAGES:
+   - Every page must contain approximately 240 to 380 substantive words or dense structured content. Never leave pages sparse or half-empty.
+3. RICH PUBLISHING LAYOUTS:
+   - Use diverse content blocks:
+     * "heading" and "subheading"
+     * "paragraph"
+     * "list" with actionable bullet items or time-stamped checkboxes (e.g. "[ ] Brush with fluoride toothpaste for 2 minutes", "[ ] Choose broad-spectrum SPF 30+")
+     * "callout" / "quote" (for Checkpoints, Ground Rules, Honest Timelines, or Warning Notes)
+     * "table" / structured columns (e.g. Workout A vs Workout B, Morning vs Evening, What You Can Do Now vs What Takes Longer)
+     * Research source tags (e.g. "[01, 04]") when stating medical, scientific, dietary, or market facts.
+4. STRICT BAN ON REPETITIVE CLICHES:
    - NEVER use the formula: "X is not just a [pattern/tool], it's an opportunity to..."
    - NEVER use the formula: "By mastering the art of X, you will gain a competitive edge..."
    - NEVER use the formula: "Remember, X are not random events; they often follow predictable patterns..."
    - NEVER repeat the phrase: "manage risk, manage expectations, and manage emotions."
    Every section must provide unique, actionable, technical, or practical instructions.
-3. TOPIC SPECIFICITY: Do not repeat generic risk/fees boilerplate in every chapter. Focus strictly on the specific chapter topic:
-   - Structure chapters: Explain Swing High/Low mechanics, Break of Structure (BOS), Change of Character (CHOCH), Fair Value Gap (3-candle imbalance: Candle 1 wick to Candle 3 wick gap).
-   - Setup chapters: Give concrete trade rules with: 1) Market Context, 2) Entry Trigger, 3) Invalidation/Stop Loss level, 4) Take Profit target (1:2 to 1:3 R:R).
-   - Math & Risk chapters: Use exact mathematics. Formula: Position Size = (Account Capital * Risk %) / (Entry Price - Stop Loss Price).
-     Example: $10,000 account, 1% risk = $100 max risk. Entry at $50, stop loss at $48 ($2 risk/share) -> Position Size = $100 / $2 = 50 shares ($2,500 position). NEVER say a $1,000 stop loss on a $10,000 account is within a 1% risk rule!
-   - Psychology chapters: Address cognitive bias, revenge trading triggers, FOMO mitigation, and journaling protocols.
-   - Routine chapters: Step-by-step 15-minute pre-market routine, watchlist curation, and execution checklists.
-4. STRUCTURE: Every page must have pageNumber, chapterIndex, pageType ("chapter"|"content"), layout ("standard"|"quote-callout"|"split-horizontal"), and blocks: Array<{"id": string, "type": "heading"|"paragraph"|"quote"|"list"|"callout", "text"?: string, "items"?: string[]}>. When creating lists, provide items as an array of distinct strings.`;
+5. TOPIC SPECIFICITY & FACTUAL ACCURACY:
+   - If writing trading/finance: Position Size = (Account Capital * Risk %) / (Entry - Stop). Example: $10,000 account, 1% risk = $100 risk amount; $50 entry with $48 stop = 50 shares. NEVER state a $1,000 stop loss on a $10,000 account is 1% risk!
+   - If writing self-care/health/fitness: Follow WHO 2026 guidelines (150-300 min moderate/week; 2+ strength days), realistic timelines (acne treatments take 6-8 weeks; hair regrowth 6-12 months).
+   - If writing digital products/business: Specify real platform fees, 2-weekend validation tests, and step-by-step funnel architecture.
+6. STRUCTURE: Every page must have pageNumber, chapterIndex, pageType ("chapter"|"content"), layout ("standard"|"quote-callout"|"split-horizontal"), and blocks: Array<{"id": string, "type": "heading"|"paragraph"|"quote"|"list"|"callout", "text"?: string, "items"?: string[]}>. When creating lists, provide items as an array of distinct strings.`;
 
-    const userPrompt = `Book: "${bp.title || 'Practical Guide'}" (${bp.subtitle || ''})
+    const userPrompt = `Book Title: "${bp.title || 'Practical Field Guide'}" (${bp.subtitle || ''})
+Genre / Book Type: ${bp.bookType || 'guide'}
 Chapter ${params.chapterIndex}: "${chapter.title}"
-Chapter Focus & Summary: ${chapter.summary}
-Target Pages for this chapter: ${pagesForThisChapter}
+Chapter Focus & Scope: ${chapter.summary}
+${bp.enhancedEditorialPrompt ? `Editorial Blueprint: ${bp.enhancedEditorialPrompt}` : ''}
+${bp.nicheAnalysis ? `Trending Niche Best-Seller Insights: ${JSON.stringify(bp.nicheAnalysis)}` : ''}
+Target Pages to generate for this chapter: ${pagesForThisChapter}
 
-Write ${pagesForThisChapter} dense, deeply insightful, publishable page(s). Include exact tactical rules, step-by-step procedures, and zero repetitive filler.`;
+Write ${pagesForThisChapter} dense, deeply insightful, beautifully structured page(s) in simple, accessible, high-impact words.
+Use rich blocks: headings, subheadings, actionable checklists with checkboxes [ ], visual heuristics, step-by-step procedures, and zero repetitive filler.`;
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
