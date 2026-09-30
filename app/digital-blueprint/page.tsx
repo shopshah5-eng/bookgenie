@@ -25,6 +25,7 @@ export default function DigitalBlueprintStorePage() {
 
   const starterKit = EBOOK_CATALOG['starter-kit'];
   const blueprint = EBOOK_CATALOG['blueprint'];
+  const glowUp = EBOOK_CATALOG['glow-up'];
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-[#1A1612] antialiased flex flex-col selection:bg-[#EFE7D8]">
@@ -205,6 +206,51 @@ export default function DigitalBlueprintStorePage() {
             </div>
           </div>
         </div>
+
+        {/* EBOOK 3: 30 DAY GLOW UP MAN PLAN (40-PAGE FIELD GUIDE) */}
+        {glowUp && (
+          <div className="bg-[#FAF8F5] rounded-3xl border border-[#EAE4D8] p-6 sm:p-8 mb-16 shadow-[0_2px_16px_rgba(0,0,0,0.02)] flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+              <div className="relative w-28 sm:w-32 aspect-[2/3] rounded-2xl overflow-hidden shadow-md border border-black/10 shrink-0 bg-neutral-900 group">
+                <Image
+                  src={glowUp.coverImage}
+                  alt={glowUp.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+              <div className="max-w-xl">
+                <span className="inline-block px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-[11px] font-bold tracking-wide uppercase mb-2">
+                  {glowUp.badge}
+                </span>
+                <h3 className="font-serif text-2xl font-normal text-[#1A1612] mb-1">
+                  {glowUp.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-[#6B635B] font-light mb-4">
+                  {glowUp.subtitle}
+                </p>
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-xs text-[#554E46]">
+                  <span>✓ 40-Page Field Guide</span>
+                  <span>•</span>
+                  <span>✓ Workout A & B Routine</span>
+                  <span>•</span>
+                  <span>✓ 30-Day Habit Tracker</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full md:w-auto shrink-0 flex flex-col sm:flex-row items-center gap-3">
+              <a
+                href="/api/ebooks/download/glow-up"
+                download
+                className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-[#1A1612] hover:bg-[#2D2721] text-white text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-2 group cursor-pointer"
+              >
+                <Download className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
+                <span>Download Free 40-Page PDF</span>
+              </a>
+            </div>
+          </div>
+        )}
 
         {/* Why This Blueprint Works in 2026 */}
         <div className="bg-white rounded-3xl border border-[#EBE6DC] p-8 sm:p-12 mb-16 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
