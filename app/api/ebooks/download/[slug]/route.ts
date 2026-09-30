@@ -1,7 +1,9 @@
 // app/api/ebooks/download/[slug]/route.ts
-// Secure endpoint to download official PDF releases of Starter Kit & Profit Blueprint
+// Secure endpoint to download official original PDF releases of Starter Kit & Profit Blueprint
 
 import { NextRequest, NextResponse } from 'next/server';
+import fs from 'node:fs';
+import path from 'node:path';
 import { generateStarterKitPdf, generateBlueprintPdf } from '@/lib/ebooks/pdf-builder';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
 
@@ -13,7 +15,14 @@ export async function GET(
     const { slug } = await context.params;
 
     if (slug === 'starter-kit') {
-      const buffer = await generateStarterKitPdf();
+      const diskPath = path.join(process.cwd(), 'public', 'downloads', 'The-First-100-Online-Starter-Kit-2026.pdf');
+      let buffer: Uint8Array;
+      if (fs.existsSync(diskPath)) {
+        buffer = fs.readFileSync(diskPath);
+      } else {
+        buffer = await generateStarterKitPdf();
+      }
+
       return new NextResponse(buffer as unknown as BodyInit, {
         status: 200,
         headers: {
@@ -46,7 +55,14 @@ export async function GET(
         );
       }
 
-      const buffer = await generateBlueprintPdf();
+      const diskPath = path.join(process.cwd(), 'public', 'downloads', 'The-Digital-Product-Profit-Blueprint-2026.pdf');
+      let buffer: Uint8Array;
+      if (fs.existsSync(diskPath)) {
+        buffer = fs.readFileSync(diskPath);
+      } else {
+        buffer = await generateBlueprintPdf();
+      }
+
       return new NextResponse(buffer as unknown as BodyInit, {
         status: 200,
         headers: {
