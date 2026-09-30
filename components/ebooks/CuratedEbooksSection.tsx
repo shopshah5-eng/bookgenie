@@ -205,10 +205,15 @@ export function CuratedEbooksSection({ userEmail = '', isOwner = false }: Curate
                   {glowUp.subtitle}
                 </p>
 
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-emerald-700">FREE</span>
-                  <span className="text-xs text-neutral-400 line-through">₹699</span>
-                  <span className="text-xs text-[#8A8077] font-medium">• 40 Pages</span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xl font-bold text-amber-700">
+                    ₹{glowUp.priceInr}
+                  </span>
+                  <span className="text-xs text-neutral-400 line-through">₹499</span>
+                  <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 text-[10px] font-bold">
+                    70% OFF
+                  </span>
+                  <span className="text-xs text-[#8A8077] font-medium">• 40p</span>
                 </div>
               </div>
             </div>
@@ -225,15 +230,27 @@ export function CuratedEbooksSection({ userEmail = '', isOwner = false }: Curate
           </div>
 
           {/* Action */}
-          <div className="pt-3 border-t border-[#ECE5D8]">
-            <a
-              href="/api/ebooks/download/glow-up"
-              download
-              className="w-full py-2.5 px-4 rounded-xl bg-[#111111] hover:bg-[#222222] text-white text-xs font-semibold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer group"
-            >
-              <Download className="w-3.5 h-3.5 group-hover:-translate-y-0.5 transition-transform" />
-              <span>Download 40-Page Field Guide</span>
-            </a>
+          <div className="pt-3 border-t border-[#ECE5D8] flex flex-col gap-2">
+            {isOwner ? (
+              <a
+                href="/api/ebooks/download/glow-up"
+                download
+                className="w-full py-2.5 px-4 rounded-xl bg-[#111111] hover:bg-[#222222] text-white text-xs font-semibold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer group"
+                title="Direct VIP Download"
+              >
+                <Download className="w-3.5 h-3.5 group-hover:-translate-y-0.5 transition-transform" />
+                <span>Owner PDF (Instant VIP)</span>
+              </a>
+            ) : (
+              <button
+                onClick={() => setSelectedProduct(glowUp)}
+                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-neutral-950 text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer group"
+              >
+                <Lock className="w-3.5 h-3.5 text-neutral-900" />
+                <span>Checkout — ₹149</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            )}
           </div>
         </div>
       </div>

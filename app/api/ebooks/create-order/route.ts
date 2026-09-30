@@ -41,8 +41,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Amount: ₹299 = 29900 Paise
-    const amountInPaise = 29900;
+    const bookId = typeof body?.bookId === 'string' ? body.bookId.trim() : 'blueprint';
+    const { EBOOK_CATALOG } = await import('@/lib/ebooks/catalog');
+    const product = EBOOK_CATALOG[bookId] || EBOOK_CATALOG['blueprint'];
+    const amountInPaise = Math.round((product.priceInr || 299) * 100);
     const receipt = `ebk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
 
     const { user } = await getAuthenticatedUser(req).catch(() => ({ user: null }));
@@ -52,7 +54,8 @@ export async function POST(req: NextRequest) {
       currency: 'INR',
       receipt,
       notes: {
-        item: 'The Digital Product Profit Blueprint (2026 Edition)',
+        item: product.title,
+        bookId: product.id,
         buyerEmail: email,
         userId: user?.id || 'guest',
       },

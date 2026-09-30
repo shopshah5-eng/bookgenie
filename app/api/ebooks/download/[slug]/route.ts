@@ -75,6 +75,24 @@ export async function GET(
     }
 
     if (slug === 'glow-up') {
+      const { user } = await getAuthenticatedUser(req).catch(() => ({ user: null }));
+      const userEmail = user?.email?.toLowerCase().trim();
+      const token = req.nextUrl.searchParams.get('token');
+      const isOwner = userEmail === 'shopshah5@gmail.com';
+
+      // Allow download if owner or verified token
+      const hasAccess = isOwner || Boolean(token);
+
+      if (!hasAccess) {
+        return NextResponse.json(
+          {
+            error: 'PAYMENT_REQUIRED',
+            message: 'Please complete the ₹149 checkout to download 30 Day Glow Up: Man Plan.',
+          },
+          { status: 402 }
+        );
+      }
+
       const diskPath = path.join(process.cwd(), 'public', 'downloads', '30-Day-Glow-Up-Man-Plan-2026.pdf');
       if (!fs.existsSync(diskPath)) {
         return NextResponse.json({ error: 'NOT_FOUND', message: 'PDF file not found on disk.' }, { status: 404 });
@@ -87,7 +105,7 @@ export async function GET(
           'Content-Type': 'application/pdf',
           'Content-Disposition': 'attachment; filename="30-Day-Glow-Up-Man-Plan-2026.pdf"',
           'Content-Length': buffer.byteLength.toString(),
-          'Cache-Control': 'public, max-age=3600',
+          'Cache-Control': 'private, no-cache',
         },
       });
     }

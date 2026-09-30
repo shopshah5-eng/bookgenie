@@ -229,6 +229,16 @@ export default function DigitalBlueprintStorePage() {
                 <p className="text-xs sm:text-sm text-[#6B635B] font-light mb-4">
                   {glowUp.subtitle}
                 </p>
+                <div className="flex items-baseline gap-2 mb-3 justify-center sm:justify-start">
+                  <span className="text-2xl font-bold text-amber-700">
+                    ₹{glowUp.priceInr}
+                  </span>
+                  <span className="text-xs text-neutral-400 line-through">₹499</span>
+                  <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-900 text-xs font-bold">
+                    70% OFF
+                  </span>
+                  <span className="text-xs text-[#8A8077] font-medium">• 40 Pages</span>
+                </div>
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-xs text-[#554E46]">
                   <span>✓ 40-Page Field Guide</span>
                   <span>•</span>
@@ -240,14 +250,26 @@ export default function DigitalBlueprintStorePage() {
             </div>
 
             <div className="w-full md:w-auto shrink-0 flex flex-col sm:flex-row items-center gap-3">
-              <a
-                href="/api/ebooks/download/glow-up"
-                download
-                className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-[#1A1612] hover:bg-[#2D2721] text-white text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-2 group cursor-pointer"
-              >
-                <Download className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
-                <span>Download Free 40-Page PDF</span>
-              </a>
+              {user?.email?.toLowerCase().trim() === 'shopshah5@gmail.com' ? (
+                <a
+                  href="/api/ebooks/download/glow-up"
+                  download
+                  className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-[#1A1612] hover:bg-[#2D2721] text-white text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-2 group cursor-pointer"
+                  title="Direct Owner Download"
+                >
+                  <Download className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
+                  <span>Owner PDF (Instant VIP)</span>
+                </a>
+              ) : (
+                <button
+                  onClick={() => setSelectedProduct(glowUp)}
+                  className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-neutral-950 text-xs sm:text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 group cursor-pointer"
+                >
+                  <Lock className="w-4 h-4 text-neutral-900" />
+                  <span>Get Instant Access for ₹149</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
+              )}
             </div>
           </div>
         )}

@@ -9,7 +9,7 @@ import crypto from 'node:crypto';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { orderId, paymentId, signature, email } = body || {};
+    const { orderId, paymentId, signature, email, bookId } = body || {};
 
     if (!orderId || !paymentId || !signature) {
       return NextResponse.json(
@@ -55,13 +55,15 @@ export async function POST(req: NextRequest) {
       // Non-fatal if purchases table is not populated
     }
 
+    const targetSlug = bookId === 'glow-up' ? 'glow-up' : 'blueprint';
+
     return NextResponse.json({
       success: true,
       message: 'Payment verified successfully.',
       orderId,
       paymentId,
       email: email || '',
-      downloadUrl: `/api/ebooks/download/blueprint?token=${token}`,
+      downloadUrl: `/api/ebooks/download/${targetSlug}?token=${token}`,
       token,
     });
   } catch (err: unknown) {

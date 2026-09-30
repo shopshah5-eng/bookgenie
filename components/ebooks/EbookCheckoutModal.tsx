@@ -107,7 +107,7 @@ export function EbookCheckoutModal({
         currency: orderData.currency || 'INR',
         name: 'BookGenie Publishing',
         description: product.title,
-        image: '/images/ebooks/blueprint-cover.jpg',
+        image: product.coverImage || '/images/ebooks/blueprint-cover.jpg',
         order_id: orderData.orderId,
         prefill: {
           email: targetEmail,
@@ -135,6 +135,7 @@ export function EbookCheckoutModal({
                 paymentId: response.razorpay_payment_id,
                 signature: response.razorpay_signature,
                 email: targetEmail,
+                bookId: product.id,
               }),
             });
 
