@@ -102,9 +102,24 @@ export async function recordEbookOrder(order: EbookOrderRecord): Promise<void> {
   // 2. Persist locally
   saveLocalOrder(order);
 
-  // 3. Persist to Supabase if available
+  // 3. Persist to Supabase dedicated table and purchases table
   try {
     const admin = createAdminClient();
+
+    // Insert into dedicated ebook_orders table
+    await admin.from('ebook_orders').upsert({
+      order_code: order.orderCode,
+      razorpay_order_id: order.razorpayOrderId,
+      razorpay_payment_id: order.razorpayPaymentId,
+      slug: order.slug,
+      book_title: order.bookTitle,
+      amount: order.amount,
+      metadata: {
+        createdAt: order.createdAt,
+      },
+    }, { onConflict: 'order_code' });
+
+    // Also record in purchases table for consolidated bookkeeping
     await admin.from('purchases').insert({
       plan_id: order.slug,
       razorpay_order_id: order.razorpayOrderId,
@@ -120,7 +135,7 @@ export async function recordEbookOrder(order: EbookOrderRecord): Promise<void> {
       },
     });
   } catch (err) {
-    console.warn('[OrderStore] Supabase purchase insert notice:', err);
+    console.warn('[OrderStore] Supabase order persist notice:', err);
   }
 }
 
@@ -154,9 +169,35 @@ export async function findOrderByCodeOrId(query: string): Promise<EbookOrderReco
     return localMatch;
   }
 
-  // 3. Check Supabase
+  // 3. Check Supabase (dedicated ebook_orders table first)
   try {
     const admin = createAdminClient();
+
+    // Query ebook_orders table by order_code, payment_id, or order_id
+    const { data: ebookMatch } = await admin
+      .from('ebook_orders')
+      .select('*')
+      .or(`order_code.eq.${cleaned},razorpay_payment_id.eq.${rawCleaned},razorpay_order_id.eq.${rawCleaned}`)
+      .limit(1);
+
+    if (ebookMatch && ebookMatch.length > 0) {
+      const row = ebookMatch[0];
+      const record: EbookOrderRecord = {
+        orderCode: row.order_code,
+        razorpayOrderId: row.razorpay_order_id,
+        razorpayPaymentId: row.razorpay_payment_id,
+        slug: (row.slug === 'glow-up' ? 'glow-up' : 'blueprint') as 'blueprint' | 'glow-up',
+        bookTitle: row.book_title || 'Digital Edition',
+        amount: row.amount,
+        createdAt: row.created_at || new Date().toISOString(),
+      };
+      memoryOrders.set(record.orderCode, record);
+      memoryOrders.set(record.razorpayPaymentId, record);
+      memoryOrders.set(record.razorpayOrderId, record);
+      return record;
+    }
+
+    // Fallback: Check purchases table
     const { data } = await admin
       .from('purchases')
       .select('*')
