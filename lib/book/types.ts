@@ -87,6 +87,7 @@ export interface BookBlueprint {
   requestedBookType?: string;
   uploadedContext?: string;
   generatedPages?: BookPageDocument[];
+  planId?: string;
 }
 
 export interface BookDocument {

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
-import { Menu, X, ChevronDown, Edit3, BookOpen, LogOut, Check, Loader2 } from 'lucide-react';
+import { Menu, X, ChevronDown, Edit3, BookOpen, LogOut, Check, Loader2, Shield } from 'lucide-react';
 
 export function MinimalHeader() {
   const { user, openAuthModal, signOut, updateProfileName } = useAuth();
@@ -20,6 +20,7 @@ export function MinimalHeader() {
     booksRemaining?: number;
     hasWatermark?: boolean;
     commercialUse?: boolean;
+    isAdmin?: boolean;
   } | null>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -365,6 +366,17 @@ export function MinimalHeader() {
                       <BookOpen className="w-3.5 h-3.5 text-[#666666]" />
                       <span>My eBooks Library</span>
                     </Link>
+
+                    {quotaInfo?.isAdmin && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#9A6F3C] hover:bg-amber-50/50 transition-colors"
+                      >
+                        <Shield className="w-3.5 h-3.5 text-[#9A6F3C]" />
+                        <span>Admin Control Center</span>
+                      </Link>
+                    )}
                   </div>
 
                   {/* Sign Out Action */}
@@ -494,23 +506,34 @@ export function MinimalHeader() {
                   )}
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-[#F0F0F0]">
-                  <Link
-                    href="/my-ebooks"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-sm font-medium text-[#111111]"
-                  >
-                    My eBooks
-                  </Link>
-                  <button
-                    onClick={() => {
-                      signOut();
-                      setMobileMenuOpen(false);
-                    }}
-                    className="text-xs text-red-600 font-medium hover:text-red-700 cursor-pointer"
-                  >
-                    Sign Out
-                  </button>
+                <div className="flex flex-col gap-2 pt-2 border-t border-[#F0F0F0]">
+                  <div className="flex items-center justify-between">
+                    <Link
+                      href="/my-ebooks"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-sm font-medium text-[#111111]"
+                    >
+                      My eBooks
+                    </Link>
+                    <button
+                      onClick={() => {
+                        signOut();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="text-xs text-red-600 font-medium hover:text-red-700 cursor-pointer"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                  {quotaInfo?.isAdmin && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-xs font-medium text-[#9A6F3C] flex items-center gap-1.5"
+                    >
+                      <Shield className="w-3.5 h-3.5" /> Admin Control Center
+                    </Link>
+                  )}
                 </div>
               </div>
             ) : (

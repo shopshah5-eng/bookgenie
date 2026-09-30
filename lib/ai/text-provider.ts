@@ -9,6 +9,7 @@ export interface GenerateBlueprintParams {
   bookType?: BookType | 'auto';
   language?: string;
   style?: string;
+  planId?: string;
 }
 
 export interface GenerateChapterParams {

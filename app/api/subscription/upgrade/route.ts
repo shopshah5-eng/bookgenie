@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient, getAuthenticatedUser } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { isCurrentUserAdmin } from '@/lib/admin/auth';
 
 export async function GET(req: NextRequest) {
   try {
@@ -71,6 +72,7 @@ export async function GET(req: NextRequest) {
       commercialUse: planMeta.commercialUse || Boolean(entitlements?.some(e => e.commercial_rights)),
       hasSubscription: Boolean(sub),
       entitlementsCount: entitlements?.length || 0,
+      isAdmin: (await isCurrentUserAdmin(req)).isAdmin,
       user: {
         id: user.id,
         email: user.email,

@@ -19,6 +19,8 @@ export async function GET(req: NextRequest) {
     const geminiApiKey = process.env.GEMINI_API_KEY?.trim();
     const imageProviderEnv = (process.env.AI_IMAGE_PROVIDER || 'gemini').toLowerCase().trim();
     const allowWatermarked = process.env.ALLOW_PROVIDER_WATERMARKED_COVERS === 'true';
+    const nvidiaApiKey = process.env.NVIDIA_API_KEY?.trim();
+    const textProviderChoice = (process.env.AI_TEXT_PROVIDER || (nvidiaApiKey ? 'nvidia' : 'openrouter')).toLowerCase().trim();
 
     // 2. Check Supabase reachability
     let dbReachable = false;
@@ -61,11 +63,13 @@ export async function GET(req: NextRequest) {
       },
       providers: {
         text: {
-          provider: 'openrouter',
-          model: 'meta-llama/llama-3.1-8b-instruct',
-          configured: Boolean(openRouterApiKey),
-          reachable: Boolean(openRouterApiKey),
-          status: openRouterApiKey ? 'ready' : 'missing_api_key',
+          provider: textProviderChoice,
+          model: textProviderChoice === 'nvidia'
+            ? (process.env.AI_TEXT_MODEL_NVIDIA || 'meta/llama-3.2-11b-vision-instruct')
+            : (process.env.AI_TEXT_MODEL_STANDARD || 'meta-llama/llama-3.1-8b-instruct'),
+          configured: textProviderChoice === 'nvidia' ? Boolean(nvidiaApiKey) : Boolean(openRouterApiKey),
+          reachable: textProviderChoice === 'nvidia' ? Boolean(nvidiaApiKey) : Boolean(openRouterApiKey),
+          status: (textProviderChoice === 'nvidia' ? nvidiaApiKey : openRouterApiKey) ? 'ready' : 'missing_api_key',
         },
         image: {
           selected: imageProviderEnv,

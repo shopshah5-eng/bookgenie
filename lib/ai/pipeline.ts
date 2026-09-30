@@ -2,6 +2,8 @@
 // Core BookGenie Generation Pipeline & Server-Side Job Processor
 
 import { OpenRouterTextProvider } from './openrouter';
+import { NvidiaTextProvider } from './nvidia';
+import type { ITextProvider } from './text-provider';
 import { GeminiImageProvider } from './gemini';
 import { PollinationsImageProvider } from './pollinations';
 import type { BookBlueprint, BookDocument, BookPageDocument, BookType } from '@/lib/book/types';
@@ -11,9 +13,18 @@ import { normalizeManuscriptPages } from '@/lib/book/manuscript-normalizer';
 import { isPaidTier } from '@/lib/payments/plans';
 
 export class GenerationPipeline {
-  private static textProvider = new OpenRouterTextProvider();
+  private static openrouterTextProvider = new OpenRouterTextProvider();
+  private static nvidiaTextProvider = new NvidiaTextProvider();
   private static geminiProvider = new GeminiImageProvider();
   private static pollinationsProvider = new PollinationsImageProvider();
+
+  public static get textProvider(): ITextProvider {
+    const providerChoice = (process.env.AI_TEXT_PROVIDER || '').toLowerCase().trim();
+    if (providerChoice === 'nvidia' || (Boolean(process.env.NVIDIA_API_KEY) && providerChoice !== 'openrouter')) {
+      return this.nvidiaTextProvider;
+    }
+    return this.openrouterTextProvider;
+  }
 
   public static getImageProviderForPlan(planId?: string | null) {
     const isPaid = isPaidTier(planId);
@@ -80,6 +91,7 @@ export class GenerationPipeline {
         prompt: params.prompt,
         requestedBookType: params.bookType || 'auto',
         uploadedContext: params.uploadedContext,
+        planId: params.planId || 'free',
       },
       pages: [],
       versionNumber: 1,
@@ -200,6 +212,7 @@ export class GenerationPipeline {
               language: blueprint.language,
               style: blueprint.style,
               uploadedContext: (blueprint as BookBlueprint & { uploadedContext?: string }).uploadedContext,
+              planId: blueprint.planId || 'free',
             }),
             new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Blueprint provider timeout')), 22_000)),
           ]);
@@ -242,6 +255,7 @@ export class GenerationPipeline {
           bookType: resolvedBookType,
           visualPlan,
           prompt: promptText,
+          planId: blueprint.planId || 'free',
         };
 
         // Persist to Supabase and fail the stage if either durable write fails.

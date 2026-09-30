@@ -4,7 +4,7 @@
 
 import type { BookType } from '../book/types';
 import { createAdminClient } from '../supabase/admin';
-import { CANONICAL_PLANS, type PlanId, type PlanDefinition } from '../payments/plans';
+import { CANONICAL_PLANS, type PlanId, type PlanDefinition, isPaidTier } from '../payments/plans';
 
 export interface PlanEntitlement {
   tier: PlanId;
@@ -91,40 +91,57 @@ export interface ModelSelection {
 
 export class AICostController {
   /**
-   * Selects the most cost-effective text model based on task complexity and book type
+   * Selects the text model strictly based on task complexity, book type, and user plan tier.
+   * Free users are locked to free models and cannot access Claude 3.5 Sonnet or paid models.
    */
-  static selectTextModel(task: TextTaskType, bookType?: BookType): ModelSelection {
-    const fastModel = 'meta-llama/llama-3.1-8b-instruct';
-    const rawDev = process.env.AI_TEXT_MODEL_DEV || fastModel;
-    const devModel = rawDev.includes('free') ? fastModel : rawDev;
-    // Serverless functions have strict 26s execution limits.
-    // If standardModel is configured to a heavy 70b+ model, use fastModel for synchronous serverless generation.
-    const rawStandard = process.env.AI_TEXT_MODEL_STANDARD || fastModel;
-    const standardModel = rawStandard.includes('70b') ? fastModel : rawStandard;
-    const rawPremium = process.env.AI_TEXT_MODEL_PREMIUM || fastModel;
-    // Fall back to fastModel if premiumModel is pointing to non-existent or rate-limited endpoints
-    const premiumModel = rawPremium.includes('claude') || rawPremium.includes('70b') ? fastModel : rawPremium;
+  static selectTextModel(task: TextTaskType, bookType?: BookType, planId?: string | null): ModelSelection {
+    const isPaid = isPaidTier(planId);
 
+    // Free model: e.g. 'meta-llama/llama-3.1-8b-instruct:free' or fast 8B
+    const freeModel = process.env.AI_TEXT_MODEL_FREE?.trim() || 'meta-llama/llama-3.1-8b-instruct:free';
+    const fastModel = 'meta-llama/llama-3.1-8b-instruct';
+
+    // Production text model routing for paid subscribers:
+    // AI_TEXT_MODEL_STANDARD: e.g. 'deepseek/deepseek-chat' (~98% margin) or 'meta-llama/llama-3.3-70b-instruct'
+    const rawStandard = process.env.AI_TEXT_MODEL_STANDARD?.trim() || fastModel;
+    const standardModel = rawStandard || fastModel;
+
+    // AI_TEXT_MODEL_PREMIUM: e.g. 'anthropic/claude-3.5-sonnet'
+    const rawPremium = process.env.AI_TEXT_MODEL_PREMIUM?.trim() || fastModel;
+    const premiumModel = rawPremium || standardModel || fastModel;
+
+    // STRICT PROTECTION: Free plan users are strictly locked to free models!
+    // They can NEVER access Claude 3.5 Sonnet or paid tokens.
+    if (!isPaid) {
+      return {
+        tier: 'free_or_cheap',
+        modelId: freeModel,
+        maxTokens: task === 'chapter_writing' ? 2000 : 1200,
+        temperature: task === 'chapter_writing' ? 0.5 : 0.2,
+      };
+    }
+
+    // PAID USERS (Single, Pro, Creator):
     // Tier 1: Fast & deterministic for metadata, classification, QC & micro-revisions
     if (task === 'classification' || task === 'qc_check' || task === 'micro_revision') {
       return {
         tier: 'free_or_cheap',
         modelId: fastModel,
         maxTokens: task === 'micro_revision' ? 1500 : 1200,
-        temperature: 0.2, // low temp for deterministic JSON extraction
+        temperature: 0.2,
       };
     }
 
     if (task === 'complex_revision') {
       return {
         tier: 'standard',
-        modelId: fastModel,
+        modelId: standardModel,
         maxTokens: 2000,
         temperature: 0.4,
       };
     }
 
-    // Tier 3: Fast & structured for novels, rich children's books, or heavy revisions
+    // Tier 3: Premium Claude for novels, rich children's books
     if (
       (bookType === 'novel' || bookType === 'children') &&
       task === 'chapter_writing'

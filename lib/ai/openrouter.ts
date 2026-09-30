@@ -19,7 +19,7 @@ export class OpenRouterTextProvider implements ITextProvider {
     const effectiveType = params.bookType === 'auto' || !params.bookType
       ? (isTrading ? 'guide' : undefined)
       : params.bookType;
-    const modelConfig = AICostController.selectTextModel('planning', effectiveType);
+    const modelConfig = AICostController.selectTextModel('planning', effectiveType, params.planId);
 
     const systemPrompt = `You are the master publishing strategist for BookGenie.
 Analyze the user's prompt and optional source content, then return strictly valid JSON matching this schema:
@@ -87,7 +87,7 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
 
   async generateChapter(params: GenerateChapterParams): Promise<BookPageDocument[]> {
     const apiKey = this.requireApiKey();
-    const modelConfig = AICostController.selectTextModel('chapter_writing', params.blueprint.bookType);
+    const modelConfig = AICostController.selectTextModel('chapter_writing', params.blueprint.bookType, params.blueprint.planId);
     const bp = params.blueprint;
     const chapters = bp.chapters || [];
     const chapter =
@@ -192,7 +192,7 @@ Remember: Approximately 140-260 meaningful words per content page. No sparse or 
     const apiKey = this.requireApiKey();
     const rawInstruction = params.instruction.toLowerCase();
     const isVisual = ['image', 'illustration', 'picture', 'drawing', 'color'].some((word) => rawInstruction.includes(word));
-    const modelConfig = AICostController.selectTextModel(isVisual ? 'complex_revision' : 'micro_revision', params.blueprint?.bookType);
+    const modelConfig = AICostController.selectTextModel(isVisual ? 'complex_revision' : 'micro_revision', params.blueprint?.bookType, params.blueprint?.planId);
 
     // Filter to targeted/relevant pages to avoid huge prompt payloads and response truncation
     let pagesToConsider = params.existingPages || [];
