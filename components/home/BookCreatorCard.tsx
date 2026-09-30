@@ -147,21 +147,27 @@ export function BookCreatorCard() {
 
             {/* Prompt Textarea */}
             <div className="relative">
+              <label htmlFor="book-prompt-input" className="sr-only">
+                eBook Concept & Plot Instructions
+              </label>
               <textarea
+                id="book-prompt-input"
+                name="prompt"
+                aria-label="eBook Concept & Plot Instructions"
                 value={prompt}
-                onChange={(e) => setPrompt(e.target.value.slice(0, 2000))}
+                onChange={(e) => setPrompt(e.target.value.slice(0, 4000))}
                 placeholder="Write a detailed prompt for your eBook..."
                 rows={4}
-                className="w-full border border-[#EAEAEA] rounded-xl p-4 text-[14px] text-[#111111] placeholder:text-[#999999] focus:outline-none focus:border-[#111111] transition-all resize-none font-sans"
+                className="w-full border border-[#EAEAEA] rounded-xl p-4 text-[14px] text-[#111111] placeholder:text-[#999999] focus:outline-none focus:ring-2 focus:ring-[#111111]/10 focus:border-[#111111] transition-all resize-none font-sans"
               />
               <div className="absolute right-3.5 bottom-3.5 text-[11px] text-[#999999] font-sans select-none pointer-events-none">
-                {prompt.length}/2000
+                {prompt.length}/4000
               </div>
             </div>
 
             {/* Number of Pages Control */}
             <div>
-              <label className="block text-[13px] font-semibold text-[#111111] mb-3">
+              <label htmlFor="page-slider-input" className="block text-[13px] font-semibold text-[#111111] mb-3">
                 Number of Pages
               </label>
 
@@ -171,12 +177,13 @@ export function BookCreatorCard() {
                 {/* Slider */}
                 <div className="flex-1 relative flex items-center">
                   <input
+                    id="page-slider-input"
                     type="range"
                     min={1}
                     max={maxPages}
                     value={pages}
                     onChange={handleSliderChange}
-                    className="w-full h-1.5 bg-[#EAEAEA] rounded-lg appearance-none cursor-pointer accent-[#111111] focus:outline-none"
+                    className="w-full h-1.5 bg-[#EAEAEA] rounded-lg appearance-none cursor-pointer accent-[#111111] focus:outline-none focus:ring-2 focus:ring-[#111111]/10"
                     aria-label="Number of pages slider"
                   />
                 </div>

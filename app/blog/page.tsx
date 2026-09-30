@@ -128,9 +128,10 @@ export default function BlogPage() {
           {/* Articles Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {filteredArticles.map((article) => (
-              <article
+              <Link
                 key={article.slug}
-                className="bg-white rounded-2xl border border-[#EAEAEA] hover:border-[#CCCCCC] p-7 flex flex-col justify-between transition-all shadow-[0_2px_12px_rgba(0,0,0,0.02)] group"
+                href={`/blog/${article.slug}`}
+                className="bg-white rounded-2xl border border-[#EAEAEA] hover:border-[#111111] p-7 flex flex-col justify-between transition-all shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:shadow-md group cursor-pointer"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
@@ -157,7 +158,7 @@ export default function BlogPage() {
                     <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         </main>

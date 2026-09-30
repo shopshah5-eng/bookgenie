@@ -356,21 +356,6 @@ export function EbookCheckoutModal({
               </ul>
             </div>
 
-            {/* Owner Bypass Notice if shopshah5@gmail.com */}
-            {isOwner && (
-              <div className="p-3.5 mb-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center justify-between">
-                <span>🌟 <strong>Author/Owner Access Granted</strong>: You can download this directly.</span>
-                <a
-                  href={`/api/ebooks/download/${product.slug}`}
-                  download
-                  className="px-3 py-1.5 rounded-lg bg-amber-800 hover:bg-amber-900 text-white font-semibold text-xs inline-flex items-center gap-1"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Free Download</span>
-                </a>
-              </div>
-            )}
-
             {/* Instant Actions (No email required) */}
             {product.isFree ? (
               <div>

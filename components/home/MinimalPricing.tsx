@@ -392,13 +392,15 @@ export function MinimalPricing() {
                         </span>
                       </div>
                       <input
+                        id="pricing-custom-pages-slider"
+                        aria-label="Target book length in pages"
                         type="range"
                         min="20"
                         max="200"
                         step="5"
                         value={customPages}
                         onChange={(e) => setCustomPages(Number(e.target.value))}
-                        className="w-full h-1.5 bg-[#EAEAEA] rounded-lg appearance-none cursor-pointer accent-[#111111]"
+                        className="w-full h-1.5 bg-[#EAEAEA] rounded-lg appearance-none cursor-pointer accent-[#111111] focus:outline-none focus:ring-2 focus:ring-[#111111]/10"
                       />
                       <div className="flex justify-between text-[10px] text-[#888888] mt-1 font-mono">
                         <span>50p ($9)</span>

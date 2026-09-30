@@ -5,40 +5,47 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getRazorpayClient, getRazorpayConfig, isRazorpayConfigured } from '@/lib/payments/razorpay';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { EBOOK_CATALOG } from '@/lib/ebooks/catalog';
+
+// In-memory sliding rate-limiter: max 10 order creates per IP per 5 minutes
+const ipRateLimits = new Map<string, number[]>();
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown-ip';
+    const now = Date.now();
+    const timestamps = (ipRateLimits.get(ip) || []).filter((t) => now - t < 300_000);
+    if (timestamps.length >= 10) {
+      return NextResponse.json(
+        { error: 'RATE_LIMIT_EXCEEDED', message: 'Too many order requests. Please try again shortly.' },
+        { status: 429 }
+      );
+    }
+    timestamps.push(now);
+    ipRateLimits.set(ip, timestamps);
+
     const body = await req.json().catch(() => ({}));
-    const email = typeof body?.email === 'string' && body.email.includes('@') ? body.email.trim() : 'buyer@bookgenie.download';
-
-    if (!isRazorpayConfigured()) {
-      return NextResponse.json(
-        {
-          error: 'PAYMENTS_NOT_CONFIGURED',
-          message: 'Razorpay credentials are not yet configured on this server.',
-        },
-        { status: 503 }
-      );
-    }
-
-    const razorpay = getRazorpayClient();
-    const config = getRazorpayConfig();
-
-    if (!razorpay || !config) {
-      return NextResponse.json(
-        {
-          error: 'PAYMENTS_NOT_CONFIGURED',
-          message: 'Razorpay is temporarily unavailable.',
-        },
-        { status: 503 }
-      );
-    }
+    const email = typeof body?.email === 'string' && body.email.includes('@') ? body.email.trim() : 'support@bookgenie.app';
 
     const bookId = typeof body?.bookId === 'string' ? body.bookId.trim() : 'blueprint';
-    const { EBOOK_CATALOG } = await import('@/lib/ebooks/catalog');
-    const product = EBOOK_CATALOG[bookId] || EBOOK_CATALOG['blueprint'];
+    const product = EBOOK_CATALOG[bookId];
+    if (!product || product.isFree) {
+      return NextResponse.json(
+        { error: 'INVALID_PRODUCT', message: 'Requested eBook product is invalid or free.' },
+        { status: 400 }
+      );
+    }
     const amountInPaise = Math.round((product.priceInr || 299) * 100);
     const receipt = `ebk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+
+    const config = getRazorpayConfig();
+    const razorpay = getRazorpayClient();
+    if (!config || !razorpay) {
+      return NextResponse.json(
+        { error: 'PAYMENT_UNAVAILABLE', message: 'Payment gateway is not currently configured.' },
+        { status: 503 }
+      );
+    }
 
     const { user } = await getAuthenticatedUser(req).catch(() => ({ user: null }));
 

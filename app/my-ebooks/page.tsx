@@ -129,39 +129,26 @@ export default function MyEbooksPage() {
           </div>
         )}
 
-        {/* Curated Special Editions (Exclusive for shopshah5@gmail.com) */}
-        {!isLoading && user && user.email?.toLowerCase().trim() === 'shopshah5@gmail.com' && (
-          <CuratedEbooksSection userEmail={user.email} isOwner={true} />
-        )}
-
         {/* Empty state */}
         {!isLoading && user && books.length === 0 && (
-          user.email?.toLowerCase().trim() === 'shopshah5@gmail.com' ? (
-            <div className="text-center py-10 border-t border-[#F0F0F0]">
-              <p className="text-xs text-[#888888] font-light">
-                Your custom AI-generated books will appear here once you create them.
-              </p>
+          <div className="max-w-md mx-auto text-center py-20">
+            <div className="w-14 h-14 rounded-2xl bg-[#F7F7F6] border border-[#EAEAEA] flex items-center justify-center mx-auto mb-4 text-[#111111]">
+              <BookOpen className="w-6 h-6 stroke-[1.5]" />
             </div>
-          ) : (
-            <div className="max-w-md mx-auto text-center py-20">
-              <div className="w-14 h-14 rounded-2xl bg-[#F7F7F6] border border-[#EAEAEA] flex items-center justify-center mx-auto mb-4 text-[#111111]">
-                <BookOpen className="w-6 h-6 stroke-[1.5]" />
-              </div>
-              <h2 className="text-2xl font-serif text-[#111111] mb-2 font-normal">
-                Your bookshelf is empty.
-              </h2>
-              <p className="text-sm text-[#666666] mb-6 font-light">
-                Create your first book and it will appear here.
-              </p>
-              <Link
-                href="/"
-                className="px-6 py-3 rounded-full bg-[#111111] hover:bg-[#222222] text-white text-sm font-medium transition-all shadow-xs inline-flex items-center gap-2"
-              >
-                <span>Create Your First eBook</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          )
+            <h2 className="text-2xl font-serif text-[#111111] mb-2 font-normal">
+              Your bookshelf is empty.
+            </h2>
+            <p className="text-sm text-[#666666] mb-6 font-light">
+              Create your first book and it will appear here.
+            </p>
+            <Link
+              href="/"
+              className="px-6 py-3 rounded-full bg-[#111111] hover:bg-[#222222] text-white text-sm font-medium transition-all shadow-xs inline-flex items-center gap-2"
+            >
+              <span>Create Your First eBook</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         )}
 
         {/* Books Grid */}

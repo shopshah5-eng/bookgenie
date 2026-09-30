@@ -49,7 +49,11 @@ export async function GET(
       const userEmail = user?.email?.toLowerCase().trim();
       const token = req.nextUrl.searchParams.get('token');
       const orderCode = req.nextUrl.searchParams.get('orderCode');
-      const isOwner = userEmail === 'shopshah5@gmail.com';
+      const adminEmails = (process.env.ADMIN_EMAILS || 'saraitaj6@gmail.com')
+        .toLowerCase()
+        .split(',')
+        .map((e) => e.trim());
+      const isOwner = Boolean(userEmail && adminEmails.includes(userEmail));
 
       // Allow download if owner, verified orderCode, or verified HMAC token
       let hasAccess = isOwner;
@@ -99,7 +103,11 @@ export async function GET(
       const userEmail = user?.email?.toLowerCase().trim();
       const token = req.nextUrl.searchParams.get('token');
       const orderCode = req.nextUrl.searchParams.get('orderCode');
-      const isOwner = userEmail === 'shopshah5@gmail.com';
+      const adminEmails = (process.env.ADMIN_EMAILS || 'saraitaj6@gmail.com')
+        .toLowerCase()
+        .split(',')
+        .map((e) => e.trim());
+      const isOwner = Boolean(userEmail && adminEmails.includes(userEmail));
 
       // Allow download if owner, verified orderCode, or verified HMAC token
       let hasAccess = isOwner;

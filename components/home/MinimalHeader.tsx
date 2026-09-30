@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -417,8 +419,9 @@ export function MinimalHeader() {
         {/* Mobile menu trigger */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 text-[#111111] rounded-lg hover:bg-black/5 cursor-pointer"
+          className="md:hidden p-2 text-[#111111] rounded-lg hover:bg-black/5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#111111]/20"
           aria-label="Toggle navigation menu"
+          aria-expanded={mobileMenuOpen}
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>

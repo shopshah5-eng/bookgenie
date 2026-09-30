@@ -95,10 +95,11 @@ export default function ContactPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-[#444444] mb-2">
+                    <label htmlFor="contact-name-input" className="block text-xs font-semibold uppercase tracking-wider text-[#444444] mb-2">
                       Name
                     </label>
                     <input
+                      id="contact-name-input"
                       type="text"
                       required
                       value={name}
@@ -109,10 +110,11 @@ export default function ContactPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-[#444444] mb-2">
+                    <label htmlFor="contact-email-input" className="block text-xs font-semibold uppercase tracking-wider text-[#444444] mb-2">
                       Email
                     </label>
                     <input
+                      id="contact-email-input"
                       type="email"
                       required
                       value={email}
@@ -124,10 +126,11 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#444444] mb-2">
+                  <label htmlFor="contact-subject-input" className="block text-xs font-semibold uppercase tracking-wider text-[#444444] mb-2">
                     Subject
                   </label>
                   <input
+                    id="contact-subject-input"
                     type="text"
                     required
                     value={subject}
@@ -138,10 +141,11 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#444444] mb-2">
+                  <label htmlFor="contact-message-input" className="block text-xs font-semibold uppercase tracking-wider text-[#444444] mb-2">
                     Message
                   </label>
                   <textarea
+                    id="contact-message-input"
                     rows={6}
                     required
                     value={message}

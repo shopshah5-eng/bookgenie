@@ -2,16 +2,23 @@ User-agent: *
 Allow: /
 Allow: /pricing
 Allow: /how-it-works
+Allow: /features
+Allow: /about
+Allow: /help
 Allow: /contact
 Allow: /affiliate
 Allow: /faq
+Allow: /blog
+Allow: /blog/
+Allow: /digital-blueprint
+Allow: /glow-up
 Allow: /privacy
 Allow: /terms
 Allow: /refunds
 Allow: /cookies
-Allow: /shared/
 Disallow: /api/
 Disallow: /create
 Disallow: /my-ebooks
+Disallow: /shared/
 
 Sitemap: https://bookgenie-app.netlify.app/sitemap.xml

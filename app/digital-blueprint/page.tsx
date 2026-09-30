@@ -251,26 +251,14 @@ export default function DigitalBlueprintStorePage() {
             </div>
 
             <div className="w-full md:w-auto shrink-0 flex flex-col sm:flex-row items-center gap-3">
-              {user?.email?.toLowerCase().trim() === 'shopshah5@gmail.com' ? (
-                <a
-                  href="/api/ebooks/download/glow-up"
-                  download
-                  className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-[#1A1612] hover:bg-[#2D2721] text-white text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-2 group cursor-pointer"
-                  title="Direct Owner Download"
-                >
-                  <Download className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
-                  <span>Owner PDF (Instant VIP)</span>
-                </a>
-              ) : (
-                <button
-                  onClick={() => setSelectedProduct(glowUp)}
-                  className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-neutral-950 text-xs sm:text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 group cursor-pointer"
-                >
-                  <Lock className="w-4 h-4 text-neutral-900" />
-                  <span>Get Instant Access for ₹149</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-              )}
+              <button
+                onClick={() => setSelectedProduct(glowUp)}
+                className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-neutral-950 text-xs sm:text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 group cursor-pointer"
+              >
+                <Lock className="w-4 h-4 text-neutral-900" />
+                <span>Get Instant Access for ₹149</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
             </div>
           </div>
         )}
@@ -338,7 +326,6 @@ export default function DigitalBlueprintStorePage() {
           onClose={() => setSelectedProduct(null)}
           product={selectedProduct}
           initialEmail={user?.email || ''}
-          isOwner={user?.email?.toLowerCase().trim() === 'shopshah5@gmail.com'}
         />
       )}
     </div>
