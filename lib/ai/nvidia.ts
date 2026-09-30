@@ -54,7 +54,8 @@ export class NvidiaTextProvider implements ITextProvider {
   "visualPlan": [
     { "pageNumber": 1, "visualType": "cover", "promptSpec": string, "layout": "full-bleed" }
   ]
-}`;
+}
+${isTrading ? 'CRITICAL: For trading/finance books, all visualPlan items MUST specify technical candlestick diagrams, support/resistance structure, or risk/reward charts. NEVER specify people, anime, cartoons, or sketches.' : ''}`;
 
     const userPrompt = `User Prompt: ${params.prompt}
 Requested Book Type: ${params.bookType || 'auto'}
@@ -118,18 +119,21 @@ ${params.uploadedContext ? `Uploaded Context:\n${params.uploadedContext.slice(0,
       Math.min(4, Math.round((bp.pageTarget || 16) / Math.max(1, chapters.length)))
     );
 
-    const systemPrompt = `You are a master non-fiction book author and publishing writer.
+    const systemPrompt = `You are an elite non-fiction book author, technical editor, and publishing specialist.
 Return ONLY valid JSON: {"pages": BookPageDocument[]}.
-Mandatory Rules:
-1. Every page must contain 140 to 260 meaningful words across multiple well-developed paragraphs.
-2. Structure: Every page has pageNumber, chapterIndex: ${params.chapterIndex}, pageType ("chapter"|"content"), layout ("standard"|"quote-callout"|"split-horizontal"), and blocks: Array<{"id": string, "type": "heading"|"paragraph"|"quote", "text": string}>.
-3. No markdown fences, no commentary outside the JSON object.`;
+
+MANDATORY RULES:
+1. Every page must contain 240 to 380 meaningful words across multiple well-developed paragraphs, checklists, or step-by-step procedures. Never output sparse or empty pages.
+2. BAN ON REPETITIVE CLICHES: Do NOT repeat template formulas like "X is not just a pattern, it is an opportunity" or "By mastering the art of X...". Provide unique, actionable, technical instruction for each chapter.
+3. MATHEMATICAL RIGOR: In financial or risk sections, use exact formulas: Position Size = (Account Capital * Risk %) / (Entry - Stop Loss).
+4. Structure: Every page has pageNumber, chapterIndex: ${params.chapterIndex}, pageType ("chapter"|"content"), layout ("standard"|"quote-callout"|"split-horizontal"), and blocks: Array<{"id": string, "type": "heading"|"paragraph"|"quote"|"list"|"callout", "text"?: string, "items"?: string[]}>.`;
 
     const userPrompt = `Book: "${bp.title || 'Practical Guide'}" (${bp.subtitle || ''})
 Chapter ${params.chapterIndex}: "${chapter.title}"
-Chapter Summary: ${chapter.summary}
+Chapter Focus & Summary: ${chapter.summary}
 Target Pages for this chapter: ${pagesForThisChapter}
-Write complete, high quality, publishable pages.`;
+
+Write ${pagesForThisChapter} dense, highly actionable, deeply insightful, publishable page(s).`;
 
     try {
       const controller = new AbortController();

@@ -55,6 +55,7 @@ CRITICAL RULES FOR BOOK TYPE AND CURRICULUM:
    - Advanced case studies and market scenario breakdowns
    - Practical exercises and actionable trader checklists
    - Comprehensive financial glossary
+3. For trading, finance, and technical guides, all visualPlan items MUST specify precise technical chart diagrams, candlestick price action geometry, support/resistance breakouts, or risk/reward schematics. NEVER specify drawings of people, anime, cartoons, people reading notebooks, or generic office scenes.
 Do not include markdown fences or commentary.`;
     const userPrompt = `User Prompt: ${params.prompt}
 Requested Book Type: ${params.bookType || 'auto'}
@@ -105,23 +106,32 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
       `${bp.title || ''} ${bp.subtitle || ''} ${chapter.title || ''} ${chapter.summary || ''}`
     );
 
-    const systemPrompt = `You are a master non-fiction book author and publishing writer.
+    const systemPrompt = `You are an elite non-fiction book author, technical editor, and publishing specialist.
 Return strictly valid JSON: {"pages": BookPageDocument[]}.
-Mandatory Content Quality Rules:
-1. WORD DENSITY: Every content page must contain approximately 140 to 260 meaningful, substantive words across multiple well-developed paragraphs.
-2. NO SPARSE PAGES: Never output empty pages, single-sentence pages, or quote-only pages.
-3. HEADING INTEGRITY: Do NOT repeat the main chapter title on multiple consecutive pages. Only use subheadings for new topics.
-4. GUIDES & COURSES: Include explicit learning objectives, thorough conceptual explanations, concrete worked examples, practical checklists, reader exercises, and chapter recaps.
-5. TRADING & FINANCE: Rigorously cover risk control, position sizing calculations, leverage dangers, transaction fees, execution slippage, psychological discipline, and market uncertainty. Include educational risk warnings and avoid guaranteed-profit claims or personal financial advice.
-6. PAGE STRUCTURE: Every page must have pageNumber, chapterIndex, pageType ("chapter"|"content"), layout ("standard"|"quote-callout"|"split-horizontal"), and blocks: Array<{"id": string, "type": "heading"|"paragraph"|"quote", "text": string}>.`;
+
+MANDATORY EDITORIAL STANDARDS:
+1. WORD DENSITY & VALUE: Every page must contain approximately 240 to 380 substantive, high-value words across multiple well-developed paragraphs, checklists, or step-by-step guides. Never leave pages sparse or half-empty.
+2. STRICT BAN ON REPETITIVE CLICHES:
+   - NEVER use the formula: "X is not just a [pattern/tool], it's an opportunity to..."
+   - NEVER use the formula: "By mastering the art of X, you will gain a competitive edge..."
+   - NEVER use the formula: "Remember, X are not random events; they often follow predictable patterns..."
+   - NEVER repeat the phrase: "manage risk, manage expectations, and manage emotions."
+   Every section must provide unique, actionable, technical, or practical instructions.
+3. TOPIC SPECIFICITY: Do not repeat generic risk/fees boilerplate in every chapter. Focus strictly on the specific chapter topic:
+   - Structure chapters: Explain Swing High/Low mechanics, Break of Structure (BOS), Change of Character (CHOCH), Fair Value Gap (3-candle imbalance: Candle 1 wick to Candle 3 wick gap).
+   - Setup chapters: Give concrete trade rules with: 1) Market Context, 2) Entry Trigger, 3) Invalidation/Stop Loss level, 4) Take Profit target (1:2 to 1:3 R:R).
+   - Math & Risk chapters: Use exact mathematics. Formula: Position Size = (Account Capital * Risk %) / (Entry Price - Stop Loss Price).
+     Example: $10,000 account, 1% risk = $100 max risk. Entry at $50, stop loss at $48 ($2 risk/share) -> Position Size = $100 / $2 = 50 shares ($2,500 position). NEVER say a $1,000 stop loss on a $10,000 account is within a 1% risk rule!
+   - Psychology chapters: Address cognitive bias, revenge trading triggers, FOMO mitigation, and journaling protocols.
+   - Routine chapters: Step-by-step 15-minute pre-market routine, watchlist curation, and execution checklists.
+4. STRUCTURE: Every page must have pageNumber, chapterIndex, pageType ("chapter"|"content"), layout ("standard"|"quote-callout"|"split-horizontal"), and blocks: Array<{"id": string, "type": "heading"|"paragraph"|"quote"|"list"|"callout", "text"?: string, "items"?: string[]}>. When creating lists, provide items as an array of distinct strings.`;
 
     const userPrompt = `Book: "${bp.title || 'Practical Guide'}" (${bp.subtitle || ''})
-Genre: ${bp.bookType || 'guide'} | Style: ${bp.style || 'modern'} | Language: ${bp.language || 'English'}
+Chapter ${params.chapterIndex}: "${chapter.title}"
+Chapter Focus & Summary: ${chapter.summary}
+Target Pages for this chapter: ${pagesForThisChapter}
 
-Task: Write exactly ${pagesForThisChapter} substantive page(s) for Chapter ${params.chapterIndex}: "${chapter.title}".
-Summary: ${chapter.summary}
-${isTrading ? 'Trading Focus: Deeply explain risk management, leverage, fees, slippage, position sizing, worked trade examples, and actionable safety checklists.' : 'Guide Focus: Provide deep explanations, worked examples, actionable checklists, and structured concepts.'}
-Remember: Approximately 140-260 meaningful words per content page. No sparse or placeholder pages.`;
+Write ${pagesForThisChapter} dense, deeply insightful, publishable page(s). Include exact tactical rules, step-by-step procedures, and zero repetitive filler.`;
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',

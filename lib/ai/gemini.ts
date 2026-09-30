@@ -15,17 +15,19 @@ export class GeminiImageProvider implements IImageProvider {
       try {
         let visualSubject = params.prompt;
 
-        if (params.isCover) {
-          const isTrading = /trading|finance|stock|market|crypto|forex|invest|option|futures|candlestick|technical analysis/i.test(
-            `${params.bookTitle} ${params.prompt}`
-          );
+        const isTrading = /trading|finance|stock|market|crypto|forex|invest|option|futures|candlestick|technical analysis/i.test(
+          `${params.bookTitle} ${params.prompt}`
+        );
 
+        if (params.isCover) {
           if (isTrading) {
             visualSubject =
               'Sophisticated financial-market editorial background, modern executive trading floor, multi-monitor professional market charts with glowing price action vectors, analytical geometry, deep midnight blue, teal, obsidian charcoal and restrained bronze accents, cinematic studio lighting, elegant atmospheric depth with generous clean negative space for overlaid title typography. Completely text-free background artwork, absolutely no words, no letters, no typography, no wax candles, no people holding books, no numbers, no watermarks, no logos.';
           } else {
             visualSubject = `${params.prompt}. High-end editorial book cover background artwork, cinematic lighting, elegant composition with generous negative space for overlaid typography. Completely text-free, no words, no letters, no typography, no logos.`;
           }
+        } else if (isTrading) {
+          visualSubject = `Professional financial market technical analysis diagram representing ${params.prompt}, clean candlestick chart structure, support and resistance levels, high-contrast Bloomberg terminal and institutional trading desk aesthetic, deep navy and charcoal palette. Absolutely no people, no anime, no cartoons, no text, no words, no logos, no watermarks.`;
         }
 
         const productionPrompt = `

@@ -60,6 +60,26 @@ export function normalizeManuscriptPages(
         }
         seenHeadings.add(normalized);
       }
+
+      // Convert paragraph blocks that start with bullets into formal list blocks
+      if (block.type === 'paragraph' && (block.text?.trim().startsWith('•') || block.text?.trim().startsWith('- '))) {
+        block.type = 'list';
+      }
+
+      // Robust item splitting for list blocks
+      if (block.type === 'list' || (block.type as string) === 'bullet_list') {
+        if (!block.items || block.items.length === 0) {
+          const raw = block.text || '';
+          const parsed = raw
+            .split(/(?:\r?\n|(?<=\.)\s*,\s*|(?<=\.)\s*(?=[A-Z])|;\s*)/)
+            .map((s) => s.replace(/^[•\-\*\d\.\)\s]+/, '').trim())
+            .filter((s) => s.length > 0);
+          if (parsed.length > 0) {
+            block.items = parsed;
+          }
+        }
+      }
+
       cleanedBlocks.push(block);
     }
 
@@ -71,7 +91,7 @@ export function normalizeManuscriptPages(
 
   // 3. Merge sparse pages:
   // - Pages with ONLY a heading or ONLY a quote
-  // - Pages with < 70 total words and no image (unless marked full-bleed/callout)
+  // - Pages with < 160 total words and no image (unless marked full-bleed/callout)
   const substantivePages: BookPageDocument[] = [];
   for (let i = 0; i < cleanedPages.length; i++) {
     const page = cleanedPages[i];
@@ -80,7 +100,7 @@ export function normalizeManuscriptPages(
       return acc + (b.text ? b.text.trim().split(/\s+/).filter(Boolean).length : 0);
     }, 0);
 
-    const isSubstantive = hasImage || wordCount >= 70 || page.layout === 'full-bleed';
+    const isSubstantive = hasImage || wordCount >= 160 || page.layout === 'full-bleed';
 
     if (!isSubstantive && substantivePages.length > 0) {
       // Merge blocks into the preceding substantive page

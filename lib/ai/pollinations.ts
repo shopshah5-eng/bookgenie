@@ -10,7 +10,13 @@ export class PollinationsImageProvider implements IImageProvider {
       );
     }
 
-    const promptText = `${params.prompt}, style: ${params.style || 'editorial'} book illustration, soft natural lighting, high resolution editorial publication artwork`;
+    const isTrading = /trading|finance|stock|market|crypto|forex|invest|option|futures|candlestick|technical analysis/i.test(
+      `${params.bookTitle || ''} ${params.prompt || ''}`
+    );
+
+    const promptText = isTrading
+      ? `Clean institutional financial market technical analysis chart diagram, candlestick price action, support and resistance levels, high-contrast dark Bloomberg terminal style, vector trading visualization. No people, no anime, no cartoons, no text, no watermark, no logos`
+      : `${params.prompt}, style: ${params.style || 'editorial'} book illustration, soft natural lighting, high resolution editorial publication artwork`;
     const width = params.aspectRatio === '16:9' ? 1024 : params.isCover ? 768 : 800;
     const height = params.aspectRatio === '16:9' ? 576 : params.isCover ? 1024 : 800;
     const seed = Math.floor(Math.random() * 999999);

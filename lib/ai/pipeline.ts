@@ -571,7 +571,17 @@ export class GenerationPipeline {
             : 'Key Concepts';
           const editorialCaption = `Illustration for ${shortTopic}`;
 
-          const imagePrompt = `${rawCaption}. High resolution editorial publication artwork, no text, no words, no letters, no logos, no watermarks, no provider branding, no borders, no signatures, no UI elements.`;
+          const isTrading = /trading|finance|stock|market|crypto|forex|invest|option|futures|candlestick|technical analysis/i.test(
+            `${book?.title || ''} ${promptText || ''} ${nextVisual.promptSpec || ''}`
+          );
+
+          let imagePrompt: string;
+          if (isTrading) {
+            imagePrompt = `Clean professional financial market technical diagram or infographic representing ${shortTopic}, minimalist candlestick chart structure, support and resistance geometry, dark navy and charcoal Bloomberg terminal aesthetic, sleek vector trading lines, high resolution editorial financial diagram. Absolutely no people, no cartoon, no anime, no text, no words, no letters, no logos, no watermarks, no borders, no signatures.`;
+          } else {
+            imagePrompt = `${rawCaption}. High resolution editorial publication artwork, no text, no words, no letters, no logos, no watermarks, no provider branding, no borders, no signatures, no UI elements.`;
+          }
+
           const activeImageProvider = GenerationPipeline.getImageProviderForPlan(book?.plan_id);
 
           let result;
@@ -579,8 +589,8 @@ export class GenerationPipeline {
             result = await Promise.race([
               activeImageProvider.generateImage({
                 prompt: imagePrompt,
-                bookTitle: book?.title || 'Book',
-                style: book?.style || 'editorial',
+                bookTitle: isTrading ? 'Financial Markets Guide' : (book?.title || 'Book'),
+                style: isTrading ? 'technical-financial-editorial' : (book?.style || 'editorial'),
                 isCover: nextVisual.visualType === 'cover',
               }),
               new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Illustration provider timeout')), 22_000)),

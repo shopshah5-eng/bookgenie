@@ -189,7 +189,17 @@ export async function generateBookPdfBuffer(book: BookDocument): Promise<Uint8Ar
       } else if (block.type === 'list' || (block.type as string) === 'bullet_list') {
         doc.setFont('times', 'normal');
         doc.setFontSize(10);
-        const items: string[] = Array.isArray(block.items) ? block.items : block.text ? [block.text] : [];
+        let items: string[] = [];
+        if (Array.isArray(block.items) && block.items.length > 0) {
+          items = block.items;
+        } else if (block.text) {
+          // Robust item splitting for newlines, glitched ".,", bullet symbols, or semicolons
+          items = block.text
+            .split(/(?:\r?\n|(?<=\.)\s*,\s*|(?<=\.)\s*(?=[A-Z])|;\s*)/)
+            .map((s) => s.replace(/^[•\-\*\d\.\)\s]+/, '').trim())
+            .filter((s) => s.length > 0);
+          if (items.length === 0) items = [block.text];
+        }
         for (const item of items) {
           const cleanItem = stripHtml(item);
           const itemLines = doc.splitTextToSize(cleanItem, contentWidth - 12);
