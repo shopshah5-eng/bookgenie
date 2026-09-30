@@ -34,10 +34,10 @@ CREATE POLICY "books_delete_own" ON public.books
   FOR DELETE TO authenticated
   USING (auth.uid() = user_id);
 
--- 4. Purchases table: allow all canonical plans ('pro', 'creator', 'single', 'one_time', 'book', 'book_plus')
+-- 4. Purchases table: expand constraint to cover all active plans and digital products
 ALTER TABLE public.purchases DROP CONSTRAINT IF EXISTS purchases_plan_id_check;
 ALTER TABLE public.purchases ADD CONSTRAINT purchases_plan_id_check
-  CHECK (plan_id in ('pro', 'creator', 'single', 'one_time', 'book', 'book_plus'));
+  CHECK (plan_id in ('pro', 'creator', 'single', 'one_time', 'book', 'book_plus', 'blueprint', 'starter', 'glow-up'));
 
 -- 5. Profiles table: allow all current tiers
 ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_tier_check;
