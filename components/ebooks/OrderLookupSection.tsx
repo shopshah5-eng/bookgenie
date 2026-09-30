@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import {
   KeyRound,
   Download,
   CheckCircle2,
-  ArrowRight,
   Search,
-  Sparkles,
   ShieldCheck,
   AlertCircle,
   Clock,
@@ -39,22 +37,21 @@ export function OrderLookupSection() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [verifiedOrder, setVerifiedOrder] = useState<VerifiedOrder | null>(null);
-  const [recentPurchases, setRecentPurchases] = useState<StoredPurchase[]>([]);
-
-  // Load any previously completed orders from localStorage on this device
-  useEffect(() => {
+  const [recentPurchases, setRecentPurchases] = useState<StoredPurchase[]>(() => {
+    if (typeof window === 'undefined') return [];
     try {
       const raw = localStorage.getItem('bookgenie_purchased_orders');
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setRecentPurchases(parsed.slice(0, 3));
+          return parsed.slice(0, 3);
         }
       }
     } catch {
       // ignore
     }
-  }, []);
+    return [];
+  });
 
   const handleVerify = async (e?: React.FormEvent, customQuery?: string) => {
     if (e) e.preventDefault();

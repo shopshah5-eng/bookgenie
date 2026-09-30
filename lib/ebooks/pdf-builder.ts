@@ -963,3 +963,189 @@ export async function generateBlueprintPdf(): Promise<Uint8Array> {
 
   return doc.output('arraybuffer') as unknown as Uint8Array;
 }
+
+export async function generateGlowUpPdf(): Promise<Uint8Array> {
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pw = doc.internal.pageSize.getWidth();
+  const ph = doc.internal.pageSize.getHeight();
+  const margin = 20;
+  const cw = pw - margin * 2;
+
+  // PAGE 1: COVER
+  doc.setFillColor(18, 18, 20);
+  doc.rect(0, 0, pw, ph, 'F');
+
+  doc.setDrawColor(212, 175, 55);
+  doc.setLineWidth(0.8);
+  doc.rect(margin - 5, margin - 5, cw + 10, ph - margin * 2 + 10);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(212, 175, 55);
+  doc.text('OFFICIAL 2026 EDITION • MEN\'S TRANSFORMATION BLUEPRINT', pw / 2, 60, { align: 'center' });
+
+  doc.setFont('times', 'bold');
+  doc.setFontSize(32);
+  doc.setTextColor(255, 255, 255);
+  doc.text('30 DAY GLOW UP', pw / 2, 95, { align: 'center' });
+  doc.setFontSize(22);
+  doc.setTextColor(212, 175, 55);
+  doc.text('MAN PLAN', pw / 2, 110, { align: 'center' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+  doc.setTextColor(200, 200, 200);
+  doc.text('A Practical Field Guide to Skin, Fitness, Grooming, Nutrition,', pw / 2, 135, { align: 'center' });
+  doc.text('and Sustainable High-Performance Daily Habits', pw / 2, 143, { align: 'center' });
+
+  doc.setFillColor(30, 30, 35);
+  doc.roundedRect(pw / 2 - 50, 165, 100, 20, 3, 3, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(255, 255, 255);
+  doc.text('30-DAY ACTION PROTOCOL', pw / 2, 177, { align: 'center' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(150, 150, 150);
+  doc.text('Published by BookGenie Publishing • Verified Digital Release', pw / 2, ph - 25, { align: 'center' });
+
+  // PAGE 2: CORE PILLARS & MINDSET
+  doc.addPage();
+  addHeaderFooter(doc, '30 Day Glow Up — Core Pillars', 2, 4);
+
+  doc.setFont('times', 'bold');
+  doc.setFontSize(20);
+  doc.setTextColor(25, 25, 25);
+  doc.text('Phase 1: The 5 Non-Negotiable Pillars', margin, 32);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9.5);
+  doc.setTextColor(80, 80, 80);
+  doc.text('Real transformation comes from compound interest in simple, daily high-leverage habits.', margin, 40);
+
+  const pillars = [
+    { title: '1. Sleep & Recovery Architecture', desc: '7–8 hours strictly in a cool, dark room. Melatonin suppression starts 45 minutes before bed. No blue light.' },
+    { title: '2. Deep Hydration & Electrolytes', desc: '3.5 to 4 liters of water daily with pinch of pink salt in your morning glass to kickstart adrenal cellular hydration.' },
+    { title: '3. Simplified Morning & Evening Skincare', desc: 'Gentle cleanser, hyaluronic acid/niacinamide moisturizer, and mineral SPF 50 every morning. Retinoid 3x/week at night.' },
+    { title: '4. Progressive Resistance & Mobility', desc: '4 weight-lifting sessions weekly + 10,000 steps daily. Posture correction (face pulls, dead hangs, and hip flexor stretches).' },
+    { title: '5. Whole-Food Nutrition & Protein Density', desc: '1.6g–2.0g protein per kg of bodyweight. Zero seed oils where possible, zero liquid sugars, minimum 30g fiber.' }
+  ];
+
+  let p2Y = 52;
+  pillars.forEach((p) => {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(140, 95, 35);
+    doc.text(p.title, margin, p2Y);
+    p2Y += 5.5;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(50, 50, 50);
+    const split = doc.splitTextToSize(p.desc, cw);
+    doc.text(split, margin, p2Y);
+    p2Y += split.length * 4.8 + 6;
+  });
+
+  drawCallout(
+    doc,
+    margin,
+    p2Y + 4,
+    cw,
+    'The Rule of 30 Days:',
+    [
+      'Do not evaluate results on Day 3. Skin turnover takes 28 days. Neural adaptation takes 14 days.',
+      'Take day-1 front, side, and face photos in natural lighting. Compare only at Day 30.'
+    ]
+  );
+
+  // PAGE 3: 4-WEEK PROTOCOL TIMELINE
+  doc.addPage();
+  addHeaderFooter(doc, '30 Day Glow Up — 4-Week Schedule', 3, 4);
+
+  doc.setFont('times', 'bold');
+  doc.setFontSize(20);
+  doc.setTextColor(25, 25, 25);
+  doc.text('Phase 2: Weekly Progression Timeline', margin, 32);
+
+  const weeks = [
+    { week: 'Week 1: Detox & Baseline Setup (Days 1–7)', actions: ['Audit diet: remove soda, refined carbs, and junk snacks.', 'Start 10k daily steps and 3.5L hydration target.', 'Schedule barber consultation: choose haircut for your exact facial bone structure.'] },
+    { week: 'Week 2: Skin Clarity & Posture Realignment (Days 8–14)', actions: ['Introduce night retinol or salicylic acid treatment.', 'Daily 3-minute dead hang + posture wall slides.', 'Consistent wake-up time within 30 minutes every single day.'] },
+    { week: 'Week 3: Wardrobe, Scent & Grooming Polish (Days 15–21)', actions: ['Declutter ill-fitting clothing: fit matters 10x more than brand names.', 'Upgrade signature fragrance (apply to pulse points, never rub).', 'Trim and shape facial hair/brows with clean precision lines.'] },
+    { week: 'Week 4: Peak Energy, Body Composition & Habits (Days 22–30)', actions: ['Full body composition check-in: measure waist and muscle tone.', 'Maintain daily 100g+ protein consistency and clean energy.', 'Solidify your permanent 15-minute daily maintenance routine.'] }
+  ];
+
+  let p3Y = 48;
+  weeks.forEach((w) => {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10.5);
+    doc.setTextColor(18, 18, 18);
+    doc.text(w.week, margin, p3Y);
+    p3Y += 5;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(60, 60, 60);
+    w.actions.forEach((act) => {
+      doc.text(`• ${act}`, margin + 4, p3Y);
+      p3Y += 4.5;
+    });
+    p3Y += 4;
+  });
+
+  // PAGE 4: DAILY HABIT SCORECARD
+  doc.addPage();
+  addHeaderFooter(doc, '30 Day Glow Up — Daily Scorecard', 4, 4);
+
+  doc.setFont('times', 'bold');
+  doc.setFontSize(20);
+  doc.setTextColor(25, 25, 25);
+  doc.text('Phase 3: The Daily 100-Point Scorecard', margin, 32);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(80, 80, 80);
+  doc.text('Score at least 80 points daily to guarantee noticeable visible transformation by Day 30:', margin, 40);
+
+  const scorecard = [
+    { pts: '20 pts', item: 'Hydration: 3.5L+ clean water consumed throughout the day.' },
+    { pts: '20 pts', item: 'Activity: 10,000 steps OR 45-min strength/resistance session.' },
+    { pts: '20 pts', item: 'Nutrition: 100% whole foods, zero sugary drinks, reached protein target.' },
+    { pts: '20 pts', item: 'Skincare & Grooming: AM cleanse + SPF, PM cleanse + moisture.' },
+    { pts: '20 pts', item: 'Sleep: 7.5+ hours in bed, screens off 30 min before sleep.' }
+  ];
+
+  let p4Y = 50;
+  scorecard.forEach((sc) => {
+    doc.setFillColor(248, 246, 240);
+    doc.roundedRect(margin, p4Y, cw, 12, 2, 2, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(140, 95, 35);
+    doc.text(sc.pts, margin + 4, p4Y + 8);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(30, 30, 30);
+    doc.text(sc.item, margin + 25, p4Y + 8);
+
+    p4Y += 16;
+  });
+
+  drawCallout(
+    doc,
+    margin,
+    p4Y + 10,
+    cw,
+    '30-Day Completion Certificate & Verification:',
+    [
+      'Congratulations on taking control of your standards and self-image.',
+      'Share your progress or reach out to the BookGenie publishing desk for feedback.'
+    ]
+  );
+
+  return doc.output('arraybuffer') as unknown as Uint8Array;
+}
+

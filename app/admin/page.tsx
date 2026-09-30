@@ -12,10 +12,8 @@ import {
   DollarSign,
   RefreshCw,
   CheckCircle2,
-  AlertTriangle,
   XCircle,
   Cpu,
-  Layers,
   ShieldAlert,
   ArrowUpRight,
   Clock,
@@ -142,7 +140,10 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!authLoading) {
-      fetchMetrics();
+      const timer = setTimeout(() => {
+        void fetchMetrics();
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [authLoading, fetchMetrics]);
 

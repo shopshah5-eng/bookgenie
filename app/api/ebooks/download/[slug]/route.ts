@@ -4,8 +4,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'node:fs';
 import path from 'node:path';
-import { generateStarterKitPdf, generateBlueprintPdf } from '@/lib/ebooks/pdf-builder';
+import { generateStarterKitPdf, generateBlueprintPdf, generateGlowUpPdf } from '@/lib/ebooks/pdf-builder';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
+
+function getEbookDiskPath(filename: string): string | null {
+  const privatePath = path.join(process.cwd(), 'private_assets', 'downloads', filename);
+  if (fs.existsSync(privatePath)) return privatePath;
+  const legacyPublicPath = path.join(process.cwd(), 'public', 'downloads', filename);
+  if (fs.existsSync(legacyPublicPath)) return legacyPublicPath;
+  return null;
+}
 
 export async function GET(
   req: NextRequest,
@@ -15,9 +23,9 @@ export async function GET(
     const { slug } = await context.params;
 
     if (slug === 'starter-kit') {
-      const diskPath = path.join(process.cwd(), 'public', 'downloads', 'The-First-100-Online-Starter-Kit-2026.pdf');
+      const diskPath = getEbookDiskPath('The-First-100-Online-Starter-Kit-2026.pdf');
       let buffer: Uint8Array;
-      if (fs.existsSync(diskPath)) {
+      if (diskPath) {
         buffer = fs.readFileSync(diskPath);
       } else {
         buffer = await generateStarterKitPdf();
@@ -67,9 +75,9 @@ export async function GET(
         );
       }
 
-      const diskPath = path.join(process.cwd(), 'public', 'downloads', 'The-Digital-Product-Profit-Blueprint-2026.pdf');
+      const diskPath = getEbookDiskPath('The-Digital-Product-Profit-Blueprint-2026.pdf');
       let buffer: Uint8Array;
-      if (fs.existsSync(diskPath)) {
+      if (diskPath) {
         buffer = fs.readFileSync(diskPath);
       } else {
         buffer = await generateBlueprintPdf();
@@ -117,11 +125,13 @@ export async function GET(
         );
       }
 
-      const diskPath = path.join(process.cwd(), 'public', 'downloads', '30-Day-Glow-Up-Man-Plan-2026.pdf');
-      if (!fs.existsSync(diskPath)) {
-        return NextResponse.json({ error: 'NOT_FOUND', message: 'PDF file not found on disk.' }, { status: 404 });
+      const diskPath = getEbookDiskPath('30-Day-Glow-Up-Man-Plan-2026.pdf');
+      let buffer: Uint8Array;
+      if (diskPath) {
+        buffer = fs.readFileSync(diskPath);
+      } else {
+        buffer = await generateGlowUpPdf();
       }
-      const buffer = fs.readFileSync(diskPath);
 
       return new NextResponse(buffer as unknown as BodyInit, {
         status: 200,

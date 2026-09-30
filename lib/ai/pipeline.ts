@@ -153,6 +153,29 @@ export class GenerationPipeline {
   // Active progression locks for atomic step processing in serverless
   private static activeAdvancingLocks = new Set<string>();
 
+  private static async executeTextProviderWithFallback<T>(
+    operation: (provider: ITextProvider) => Promise<T>,
+    timeoutMs = 22_000
+  ): Promise<T> {
+    const primary = this.textProvider;
+    const fallback = primary === this.openrouterTextProvider ? this.nvidiaTextProvider : this.openrouterTextProvider;
+
+    try {
+      return await Promise.race([
+        operation(primary),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Primary text provider timeout')), timeoutMs)),
+      ]);
+    } catch (primaryErr) {
+      console.warn(
+        `[Pipeline] Primary provider failed: ${primaryErr instanceof Error ? primaryErr.message : primaryErr}. Falling back to secondary provider...`
+      );
+      return await Promise.race([
+        operation(fallback),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Fallback text provider timeout')), timeoutMs)),
+      ]);
+    }
+  }
+
   /**
    * Step-driven progression for serverless and polled environments.
    * Advances the generation pipeline by one or two cohesive stages per call,
@@ -167,6 +190,22 @@ export class GenerationPipeline {
 
     try {
       const supabase = createAdminClient();
+
+      // Check PostgreSQL atomic lease claim to prevent concurrent lambda executions
+      try {
+        const workerId = `worker_${process.pid || 'srv'}_${Math.random().toString(36).slice(2, 6)}`;
+        const { data: isClaimed } = await supabase.rpc('claim_generation_job', {
+          p_job_id: jobId,
+          p_worker_id: workerId,
+          p_lease_seconds: 45,
+        });
+        if (isClaimed === false) {
+          // Another worker/serverless lambda is actively processing this job
+          return null;
+        }
+      } catch (leaseErr) {
+        // Fallback gracefully if RPC is not callable or unsupported
+      }
 
       // 1. Fetch current job
       const { data: dbJob } = await supabase
@@ -205,8 +244,8 @@ export class GenerationPipeline {
       if (stage === 'planning' || stage === 'metadata') {
         let generatedBlueprint;
         try {
-          generatedBlueprint = await Promise.race([
-            this.textProvider.generateBlueprint({
+          generatedBlueprint = await this.executeTextProviderWithFallback((provider) =>
+            provider.generateBlueprint({
               prompt: promptText,
               bookType: blueprint.bookType,
               language: blueprint.language,
@@ -214,9 +253,8 @@ export class GenerationPipeline {
               uploadedContext: (blueprint as BookBlueprint & { uploadedContext?: string }).uploadedContext,
               planId: blueprint.planId || 'free',
               pageTarget: blueprint.pageTarget || (book as { page_target?: number }).page_target || 16,
-            }),
-            new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Blueprint provider timeout')), 22_000)),
-          ]);
+            })
+          );
         } catch (planErr: unknown) {
           const errMsg = planErr instanceof Error ? planErr.message : String(planErr);
           console.warn(`[Pipeline] Blueprint generation attempt failed: ${errMsg}. Retrying on next poll...`);
@@ -408,18 +446,14 @@ export class GenerationPipeline {
 
         if (nextChapter) {
           const chapterIndex = nextChapter.index ?? (chapters.indexOf(nextChapter) + 1);
-          const timeoutPromise = new Promise<BookPageDocument[]>((_, reject) =>
-            setTimeout(() => reject(new Error('Chapter provider timeout')), 22_000)
-          );
           let rawPages: BookPageDocument[];
           try {
-            rawPages = await Promise.race([
-              this.textProvider.generateChapter({
+            rawPages = await this.executeTextProviderWithFallback((provider) =>
+              provider.generateChapter({
                 blueprint,
                 chapterIndex,
-              }),
-              timeoutPromise,
-            ]);
+              })
+            );
           } catch (err: unknown) {
             const errMsg = err instanceof Error ? err.message : String(err);
             console.warn(`[Pipeline] Chapter ${chapterIndex} generation failed or timed out: ${errMsg}. Retrying on next poll...`);

@@ -4,7 +4,7 @@
 
 import type { BookType } from '../book/types';
 import { createAdminClient } from '../supabase/admin';
-import { CANONICAL_PLANS, type PlanId, type PlanDefinition, isPaidTier } from '../payments/plans';
+import { type PlanId, isPaidTier } from '../payments/plans';
 
 export interface PlanEntitlement {
   tier: PlanId;
@@ -373,16 +373,18 @@ ${
         };
       }
 
-      // Count total lifetime books created by this user
-      const { count: totalBooks, error: booksErr } = await supabase
+      // Count books created in current calendar month
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+      const { count: monthlyBooks, error: booksErr } = await supabase
         .from('books')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .gte('created_at', startOfMonth);
 
-      if (!booksErr && typeof totalBooks === 'number' && totalBooks >= freePlan.maxBooksPerMonth) {
+      if (!booksErr && typeof monthlyBooks === 'number' && monthlyBooks >= freePlan.maxBooksPerMonth) {
         return {
           allowed: false,
-          reason: `You have already used your ${freePlan.maxBooksPerMonth} free ebook on the Free plan. Choose a plan from the homepage to generate your next book.`,
+          reason: `You have reached your limit of ${freePlan.maxBooksPerMonth} free ebook this month. Choose a plan from the homepage to generate your next book immediately.`,
           tier: 'free',
           limits: freePlan,
           hasWatermark: true,

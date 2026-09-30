@@ -109,7 +109,7 @@ export async function GET(req: NextRequest) {
 
     // 4. Financial & Orders Summary (from purchases table)
     let totalRevenuePaise = 0;
-    let recentPurchases: any[] = [];
+    let recentPurchases: Array<Record<string, unknown>> = [];
     try {
       const { data: purchases } = await admin
         .from('purchases')

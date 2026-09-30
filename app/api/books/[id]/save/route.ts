@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import type { BookDocument } from '@/lib/book/types';
 
@@ -27,8 +26,8 @@ export async function POST(
       );
     }
 
-    const sessionClient = await createServerSupabaseClient();
-    const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+    const { getAuthenticatedUser } = await import('@/lib/supabase/server');
+    const { user, error: authError } = await getAuthenticatedUser(req);
     if (authError || !user) {
       return NextResponse.json(
         { error: 'UNAUTHORIZED', message: 'Authentication required to save changes.' },
