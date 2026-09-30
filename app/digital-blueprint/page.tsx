@@ -6,6 +6,7 @@ import { MinimalHeader } from '@/components/home/MinimalHeader';
 import { Footer } from '@/components/landing/Footer';
 import { EBOOK_CATALOG, EbookProduct } from '@/lib/ebooks/catalog';
 import { EbookCheckoutModal } from '@/components/ebooks/EbookCheckoutModal';
+import { OrderLookupSection } from '@/components/ebooks/OrderLookupSection';
 import {
   Download,
   CheckCircle2,
@@ -201,7 +202,7 @@ export default function DigitalBlueprintStorePage() {
                 <span>•</span>
                 <span>UPI, Cards, NetBanking</span>
                 <span>•</span>
-                <span>Delivered to Email</span>
+                <span>Instant Direct Download</span>
               </div>
             </div>
           </div>
@@ -273,6 +274,9 @@ export default function DigitalBlueprintStorePage() {
             </div>
           </div>
         )}
+
+        {/* VERIFY WITH ORDER NUMBER (RE-DOWNLOAD SECTION) */}
+        <OrderLookupSection />
 
         {/* Why This Blueprint Works in 2026 */}
         <div className="bg-white rounded-3xl border border-[#EBE6DC] p-8 sm:p-12 mb-16 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">

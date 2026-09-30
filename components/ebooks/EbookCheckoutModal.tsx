@@ -6,14 +6,15 @@ import {
   X,
   CheckCircle,
   Download,
-  Mail,
   ShieldCheck,
   ArrowRight,
   Sparkles,
   Lock,
+  Copy,
+  Check,
+  KeyRound,
 } from 'lucide-react';
 import type { EbookProduct } from '@/lib/ebooks/catalog';
-
 
 function loadRazorpayScript(): Promise<boolean> {
   return new Promise((resolve) => {
@@ -41,21 +42,28 @@ export function EbookCheckoutModal({
   isOpen,
   onClose,
   product,
-  initialEmail = '',
   isOwner = false,
 }: EbookCheckoutModalProps) {
-  const [email, setEmail] = useState(initialEmail);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [orderCode, setOrderCode] = useState<string>('');
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState<{
     orderId?: string;
     paymentId?: string;
-    email?: string;
+    orderCode?: string;
   }>({});
 
   if (!isOpen) return null;
+
+  const handleCopyOrderCode = () => {
+    if (!orderCode) return;
+    navigator.clipboard.writeText(orderCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
 
   const handleFreeDownload = () => {
     const a = document.createElement('a');
@@ -66,27 +74,19 @@ export function EbookCheckoutModal({
     document.body.removeChild(a);
     setIsCompleted(true);
     setDownloadUrl(`/api/ebooks/download/${product.slug}`);
-    setPaymentDetails({ email: email || 'your email' });
+    setOrderCode('FREE-EDITION');
   };
 
-  const handlePaidCheckout = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handlePaidCheckout = async () => {
     setError(null);
-
-    const targetEmail = (email || initialEmail).trim();
-    if (!targetEmail || !targetEmail.includes('@')) {
-      setError('Please provide a valid email address to receive your ebook.');
-      return;
-    }
-
     setIsProcessing(true);
 
     try {
-      // 1. Create Razorpay order on server
+      // 1. Create Razorpay order on server (no email required)
       const res = await fetch('/api/ebooks/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: targetEmail, bookId: product.id }),
+        body: JSON.stringify({ bookId: product.id }),
       });
 
       const orderData = await res.json();
@@ -105,13 +105,10 @@ export function EbookCheckoutModal({
         key: orderData.keyId,
         amount: orderData.amount,
         currency: orderData.currency || 'INR',
-        name: 'BookGenie Publishing',
+        name: 'BookGenie eBook Store',
         description: product.title,
         image: product.coverImage || '/images/ebooks/blueprint-cover.jpg',
         order_id: orderData.orderId,
-        prefill: {
-          email: targetEmail,
-        },
         theme: {
           color: '#111111',
         },
@@ -126,7 +123,7 @@ export function EbookCheckoutModal({
           razorpay_signature: string;
         }) => {
           try {
-            // 4. Verify signature on backend
+            // 4. Verify signature on backend & obtain unguessable Order Code
             const verifyRes = await fetch('/api/ebooks/verify-payment', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -134,7 +131,6 @@ export function EbookCheckoutModal({
                 orderId: response.razorpay_order_id,
                 paymentId: response.razorpay_payment_id,
                 signature: response.razorpay_signature,
-                email: targetEmail,
                 bookId: product.id,
               }),
             });
@@ -144,13 +140,32 @@ export function EbookCheckoutModal({
               throw new Error(verifyData.message || 'Payment signature verification failed.');
             }
 
+            const code = verifyData.orderCode || `BG-${response.razorpay_payment_id.slice(-8).toUpperCase()}`;
+            setOrderCode(code);
             setDownloadUrl(verifyData.downloadUrl);
             setPaymentDetails({
               orderId: response.razorpay_order_id,
               paymentId: response.razorpay_payment_id,
-              email: targetEmail,
+              orderCode: code,
             });
             setIsCompleted(true);
+
+            // Save purchase in browser localStorage so return visits instantly recognize the order
+            try {
+              const raw = localStorage.getItem('bookgenie_purchased_orders');
+              const list = raw ? JSON.parse(raw) : [];
+              list.unshift({
+                orderCode: code,
+                paymentId: response.razorpay_payment_id,
+                slug: product.slug,
+                title: product.title,
+                downloadUrl: verifyData.downloadUrl,
+                purchasedAt: new Date().toISOString(),
+              });
+              localStorage.setItem('bookgenie_purchased_orders', JSON.stringify(list.slice(0, 10)));
+            } catch (storageErr) {
+              console.warn('LocalStorage save notice:', storageErr);
+            }
           } catch (verifyErr: unknown) {
             const message = verifyErr instanceof Error ? verifyErr.message : 'Verification failed. Please contact support.';
             setError(message);
@@ -166,7 +181,7 @@ export function EbookCheckoutModal({
       const rzp = new window.Razorpay(options);
       rzp.on('payment.failed', (resp: unknown) => {
         const errorData = resp as { error?: { description?: string } } | undefined;
-        setError(errorData?.error?.description || 'Payment failed or was cancelled.');
+        setError(errorData?.error?.description || 'Payment was cancelled or failed.');
         setIsProcessing(false);
       });
       rzp.open();
@@ -190,43 +205,60 @@ export function EbookCheckoutModal({
           <X className="w-5 h-5" />
         </button>
 
-        {/* ---------------- THANK YOU SCREEN ---------------- */}
+        {/* ---------------- SUCCESS & DIRECT DOWNLOAD SCREEN ---------------- */}
         {isCompleted ? (
           <div className="p-8 sm:p-10 flex flex-col items-center text-center overflow-y-auto">
-            <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mb-5 text-amber-700 shadow-sm animate-in zoom-in duration-300">
+            <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center mb-4 text-emerald-700 shadow-sm animate-in zoom-in duration-300">
               <CheckCircle className="w-8 h-8 stroke-[2]" />
             </div>
 
-            <span className="px-3 py-1 rounded-full bg-neutral-100 text-neutral-700 text-xs font-semibold tracking-wide uppercase mb-2">
-              Order Confirmed
+            <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold tracking-wide uppercase mb-2">
+              Payment Confirmed
             </span>
 
-            <h2 className="font-serif text-2xl sm:text-3xl font-medium text-[#111111] mb-3">
-              Thank You For Your Order!
+            <h2 className="font-serif text-2xl sm:text-3xl font-medium text-[#111111] mb-2">
+              Thank You! Your eBook is Ready.
             </h2>
+            <p className="text-xs sm:text-sm text-neutral-600 mb-6 font-light max-w-md">
+              Download your full original PDF edition instantly below. You can also re-download anytime using your unique Order Number.
+            </p>
 
-            {/* Email Sent Callout Banner */}
-            <div className="w-full bg-[#FAF8F5] border border-[#EBE4D8] rounded-2xl p-4 sm:p-5 mb-6 text-left flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-white border border-[#DFD7C7] flex items-center justify-center shrink-0 text-amber-800 shadow-2xs">
-                <Mail className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-[#1A1612] mb-0.5">
-                  This eBook is sent to your email address:
-                </p>
-                <p className="text-sm font-mono font-medium text-amber-900 break-all">
-                  {paymentDetails.email || email || initialEmail || 'your email'}
-                </p>
-                <p className="text-xs text-[#7A7067] mt-1 font-light">
-                  Please check your inbox (and spam/promotions folder) for your receipt and copy.
-                </p>
-              </div>
-            </div>
+            {/* UNGUESSABLE ORDER CODE CALLOUT BOX */}
+            {orderCode && orderCode !== 'FREE-EDITION' && (
+              <div className="w-full bg-[#FAF8F5] border-2 border-amber-300/80 rounded-2xl p-5 mb-6 text-left shadow-xs">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+                    <KeyRound className="w-4 h-4 text-amber-700" />
+                    Your Unguessable Order Number
+                  </span>
+                  <span className="text-[10px] font-bold text-amber-900 bg-amber-100/90 border border-amber-200 px-2 py-0.5 rounded-full">
+                    Keep this safe
+                  </span>
+                </div>
 
-            {/* Instant Download Action */}
+                <div className="flex items-center justify-between bg-white border border-amber-200 rounded-xl px-4 py-3 gap-2">
+                  <span className="font-mono text-base sm:text-lg font-bold text-neutral-900 tracking-wider select-all">
+                    {orderCode}
+                  </span>
+                  <button
+                    onClick={handleCopyOrderCode}
+                    className="px-3.5 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+                  >
+                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copied ? 'Copied' : 'Copy'}</span>
+                  </button>
+                </div>
+
+                <p className="text-[12px] text-neutral-600 mt-2.5 font-light leading-relaxed">
+                  💡 <strong>Never lose access:</strong> If you close this website and return later, simply paste this Order Number in the <em>&ldquo;Verify with Order Number&rdquo;</em> section on our website to re-download without paying again!
+                </p>
+              </div>
+            )}
+
+            {/* DIRECT INSTANT DOWNLOAD BUTTON */}
             <div className="w-full mb-6">
               <a
-                href={downloadUrl || `/api/ebooks/download/${product.slug}`}
+                href={downloadUrl || `/api/ebooks/download/${product.slug}${orderCode ? `?orderCode=${encodeURIComponent(orderCode)}` : ''}`}
                 download
                 className="w-full py-4 px-6 rounded-2xl bg-[#111111] hover:bg-[#222222] text-white text-sm sm:text-base font-semibold transition-all shadow-md flex items-center justify-center gap-2 group cursor-pointer"
               >
@@ -234,7 +266,7 @@ export function EbookCheckoutModal({
                 <span>Download eBook Now (PDF)</span>
               </a>
               <p className="text-[11px] text-neutral-500 mt-2">
-                Format: {product.details.format} • {product.details.fileSize} • DRM-Free
+                Format: {product.details.format} • {product.details.fileSize} • 100% DRM-Free
               </p>
             </div>
 
@@ -250,11 +282,11 @@ export function EbookCheckoutModal({
               onClick={onClose}
               className="mt-6 text-xs text-neutral-600 hover:text-neutral-900 underline underline-offset-4 cursor-pointer"
             >
-              Back to My eBooks
+              Done & Return to Store
             </button>
           </div>
         ) : (
-          /* ---------------- CHECKOUT FORM ---------------- */
+          /* ---------------- DIRECT CHECKOUT MODAL ---------------- */
           <div className="p-6 sm:p-8 overflow-y-auto">
             {/* Header info */}
             <div className="flex items-start gap-4 mb-6">
@@ -339,7 +371,7 @@ export function EbookCheckoutModal({
               </div>
             )}
 
-            {/* Form */}
+            {/* Instant Actions (No email required) */}
             {product.isFree ? (
               <div>
                 <button
@@ -354,29 +386,10 @@ export function EbookCheckoutModal({
                 </div>
               </div>
             ) : (
-              <form onSubmit={handlePaidCheckout}>
-                <div className="mb-4">
-                  <label className="block text-xs font-medium text-neutral-700 mb-1.5">
-                    Your Delivery Email Address <span className="text-amber-600">*</span>
-                  </label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@domain.com"
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-neutral-300 focus:border-[#111111] focus:ring-1 focus:ring-[#111111] text-sm outline-none transition-all"
-                    />
-                  </div>
-                  <p className="text-[11px] text-neutral-500 mt-1.5">
-                    The ebook PDF and download link will be delivered to this email.
-                  </p>
-                </div>
-
+              <div>
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={handlePaidCheckout}
                   disabled={isProcessing}
                   className="w-full py-4 px-6 rounded-2xl bg-[#111111] hover:bg-[#222222] disabled:bg-neutral-400 text-white text-sm sm:text-base font-semibold transition-all shadow-md flex items-center justify-center gap-2 group cursor-pointer"
                 >
@@ -388,21 +401,26 @@ export function EbookCheckoutModal({
                   ) : (
                     <>
                       <Lock className="w-4 h-4 text-amber-400" />
-                      <span>Pay ₹{product.priceInr} with Razorpay</span>
+                      <span>Pay ₹{product.priceInr} &amp; Download Instantly</span>
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                     </>
                   )}
                 </button>
 
-                <div className="mt-4 flex items-center justify-center gap-4 text-[11px] text-neutral-500">
-                  <span className="flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    100% Secure Razorpay Checkout
+                <div className="mt-4 flex flex-col items-center justify-center gap-1.5 text-[11px] text-neutral-500 text-center">
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      100% Secure Razorpay Checkout
+                    </span>
+                    <span>•</span>
+                    <span>Instant Direct Download</span>
+                  </div>
+                  <span className="text-[10px] text-neutral-400">
+                    UPI, Credit/Debit Cards, NetBanking • No account or email needed
                   </span>
-                  <span>•</span>
-                  <span>UPI, Cards, NetBanking</span>
                 </div>
-              </form>
+              </div>
             )}
           </div>
         )}

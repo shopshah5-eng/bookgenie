@@ -9,6 +9,7 @@ import { MinimalHeader } from '@/components/home/MinimalHeader';
 import { Footer } from '@/components/landing/Footer';
 import { BookOpen, ArrowRight, RotateCcw, Plus, Trash2 } from 'lucide-react';
 import { CuratedEbooksSection } from '@/components/ebooks/CuratedEbooksSection';
+import { OrderLookupSection } from '@/components/ebooks/OrderLookupSection';
 
 interface BookItem {
   id: string;
@@ -104,22 +105,27 @@ export default function MyEbooksPage() {
 
         {/* Unauthenticated State */}
         {!authLoading && !user && !isLoading && (
-          <div className="max-w-md mx-auto text-center py-20">
-            <div className="w-14 h-14 rounded-2xl bg-[#F7F7F6] border border-[#EAEAEA] flex items-center justify-center mx-auto mb-4 text-[#111111]">
-              <BookOpen className="w-6 h-6 stroke-[1.5]" />
+          <div className="space-y-12">
+            <div className="max-w-md mx-auto text-center py-12">
+              <div className="w-14 h-14 rounded-2xl bg-[#F7F7F6] border border-[#EAEAEA] flex items-center justify-center mx-auto mb-4 text-[#111111]">
+                <BookOpen className="w-6 h-6 stroke-[1.5]" />
+              </div>
+              <h2 className="text-2xl font-serif text-[#111111] mb-2 font-normal">
+                Sign in to view your eBooks
+              </h2>
+              <p className="text-sm text-[#666666] mb-6 font-light">
+                Create an account or sign in to access your bookshelf and download your books.
+              </p>
+              <button
+                onClick={() => openAuthModal('signin')}
+                className="px-6 py-3 rounded-full bg-[#111111] hover:bg-[#222222] text-white text-sm font-medium transition-all shadow-xs cursor-pointer"
+              >
+                Sign In to Your Account
+              </button>
             </div>
-            <h2 className="text-2xl font-serif text-[#111111] mb-2 font-normal">
-              Sign in to view your eBooks
-            </h2>
-            <p className="text-sm text-[#666666] mb-6 font-light">
-              Create an account or sign in to access your bookshelf and download your books.
-            </p>
-            <button
-              onClick={() => openAuthModal('signin')}
-              className="px-6 py-3 rounded-full bg-[#111111] hover:bg-[#222222] text-white text-sm font-medium transition-all shadow-xs cursor-pointer"
-            >
-              Sign In to Your Account
-            </button>
+
+            {/* Guest Order Lookup for buyers without an account */}
+            <OrderLookupSection />
           </div>
         )}
 
@@ -294,6 +300,13 @@ export default function MyEbooksPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Order Verification Section for Logged-In Users as well */}
+        {!isLoading && user && (
+          <div className="mt-16">
+            <OrderLookupSection />
           </div>
         )}
       </main>

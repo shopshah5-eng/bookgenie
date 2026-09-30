@@ -34,36 +34,33 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Generate secure download token
-    const token = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'bookgenie-secure-secret')
-      .update(`${orderId}:${paymentId}:${email || 'buyer'}`)
-      .digest('hex');
-
-    // 3. Mark purchase record as completed
-    try {
-      const admin = createAdminClient();
-      await admin
-        .from('purchases')
-        .update({
-          status: 'completed',
-          razorpay_payment_id: paymentId,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('razorpay_order_id', orderId);
-    } catch {
-      // Non-fatal if purchases table is not populated
-    }
-
     const targetSlug = bookId === 'glow-up' ? 'glow-up' : 'blueprint';
+    const { EBOOK_CATALOG } = await import('@/lib/ebooks/catalog');
+    const { generateOrderCode, recordEbookOrder, generateEbookToken } = await import('@/lib/ebooks/order-store');
+
+    const orderCode = generateOrderCode();
+    const token = generateEbookToken(orderCode, targetSlug);
+    const catalogItem = EBOOK_CATALOG[targetSlug];
+
+    await recordEbookOrder({
+      orderCode,
+      razorpayOrderId: orderId,
+      razorpayPaymentId: paymentId,
+      slug: targetSlug as 'blueprint' | 'glow-up',
+      bookTitle: catalogItem?.title || 'eBook Edition',
+      amount: catalogItem?.priceInr || 149,
+      createdAt: new Date().toISOString(),
+    });
 
     return NextResponse.json({
       success: true,
       message: 'Payment verified successfully.',
+      orderCode,
       orderId,
       paymentId,
-      email: email || '',
-      downloadUrl: `/api/ebooks/download/${targetSlug}?token=${token}`,
+      slug: targetSlug,
+      title: catalogItem?.title || 'eBook Edition',
+      downloadUrl: `/api/ebooks/download/${targetSlug}?token=${token}&orderCode=${encodeURIComponent(orderCode)}`,
       token,
     });
   } catch (err: unknown) {

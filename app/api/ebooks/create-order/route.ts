@@ -9,14 +9,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const email = typeof body?.email === 'string' ? body.email.trim() : '';
-
-    if (!email || !email.includes('@')) {
-      return NextResponse.json(
-        { error: 'EMAIL_REQUIRED', message: 'A valid email address is required for receipt and delivery.' },
-        { status: 400 }
-      );
-    }
+    const email = typeof body?.email === 'string' && body.email.includes('@') ? body.email.trim() : 'buyer@bookgenie.download';
 
     if (!isRazorpayConfigured()) {
       return NextResponse.json(
@@ -70,13 +63,13 @@ export async function POST(req: NextRequest) {
       const admin = createAdminClient();
       await admin.from('purchases').insert({
         user_id: user?.id || null,
-        plan_id: 'digital-product-profit-blueprint',
+        plan_id: product.id,
         razorpay_order_id: order.id,
         amount: amountInPaise,
         currency: 'INR',
         status: 'created',
         notes: {
-          bookTitle: 'The Digital Product Profit Blueprint',
+          bookTitle: product.title,
           buyerEmail: email,
           receipt,
         },
@@ -91,7 +84,7 @@ export async function POST(req: NextRequest) {
       currency: 'INR',
       keyId: config.keyId,
       email,
-      bookTitle: 'The Digital Product Profit Blueprint',
+      bookTitle: product.title,
     });
   } catch (err: unknown) {
     console.error('Ebook create order error:', err);

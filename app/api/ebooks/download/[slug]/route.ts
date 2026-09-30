@@ -40,16 +40,28 @@ export async function GET(
       const { user } = await getAuthenticatedUser(req).catch(() => ({ user: null }));
       const userEmail = user?.email?.toLowerCase().trim();
       const token = req.nextUrl.searchParams.get('token');
+      const orderCode = req.nextUrl.searchParams.get('orderCode');
       const isOwner = userEmail === 'shopshah5@gmail.com';
 
-      // Allow download if owner, or token matches, or user has verified purchase
-      const hasAccess = isOwner || Boolean(token);
+      // Allow download if owner, verified orderCode, or verified HMAC token
+      let hasAccess = isOwner;
+      if (!hasAccess && orderCode) {
+        const { findOrderByCodeOrId, verifyEbookToken } = await import('@/lib/ebooks/order-store');
+        if (token && verifyEbookToken(orderCode, 'blueprint', token)) {
+          hasAccess = true;
+        } else {
+          const matched = await findOrderByCodeOrId(orderCode);
+          if (matched && matched.slug === 'blueprint') {
+            hasAccess = true;
+          }
+        }
+      }
 
       if (!hasAccess) {
         return NextResponse.json(
           {
             error: 'PAYMENT_REQUIRED',
-            message: 'Please complete the ₹299 checkout to download The Digital Product Profit Blueprint.',
+            message: 'Please complete checkout or verify your Order Number to download The Digital Product Profit Blueprint.',
           },
           { status: 402 }
         );
@@ -78,16 +90,28 @@ export async function GET(
       const { user } = await getAuthenticatedUser(req).catch(() => ({ user: null }));
       const userEmail = user?.email?.toLowerCase().trim();
       const token = req.nextUrl.searchParams.get('token');
+      const orderCode = req.nextUrl.searchParams.get('orderCode');
       const isOwner = userEmail === 'shopshah5@gmail.com';
 
-      // Allow download if owner or verified token
-      const hasAccess = isOwner || Boolean(token);
+      // Allow download if owner, verified orderCode, or verified HMAC token
+      let hasAccess = isOwner;
+      if (!hasAccess && orderCode) {
+        const { findOrderByCodeOrId, verifyEbookToken } = await import('@/lib/ebooks/order-store');
+        if (token && verifyEbookToken(orderCode, 'glow-up', token)) {
+          hasAccess = true;
+        } else {
+          const matched = await findOrderByCodeOrId(orderCode);
+          if (matched && matched.slug === 'glow-up') {
+            hasAccess = true;
+          }
+        }
+      }
 
       if (!hasAccess) {
         return NextResponse.json(
           {
             error: 'PAYMENT_REQUIRED',
-            message: 'Please complete the ₹149 checkout to download 30 Day Glow Up: Man Plan.',
+            message: 'Please complete the ₹149 checkout or verify your Order Number to download 30 Day Glow Up: Man Plan.',
           },
           { status: 402 }
         );

@@ -101,6 +101,14 @@ export function MinimalFooter() {
               </li>
               <li>
                 <Link
+                  href="/digital-blueprint"
+                  className="text-[13px] sm:text-[14px] text-amber-900 font-medium hover:text-[#111111] transition-colors"
+                >
+                  eBook Store &amp; Guides
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/features"
                   className="text-[13px] sm:text-[14px] text-[#666666] hover:text-[#111111] transition-colors"
                 >
