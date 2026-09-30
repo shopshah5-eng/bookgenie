@@ -92,26 +92,47 @@ export async function POST(req: NextRequest) {
       throw new Error('Failed to generate Razorpay order ID.');
     }
 
-    // Persist pending purchase record in Supabase
-    const admin = createAdminClient();
-    const { error: dbError } = await admin.from('purchases').insert({
-      user_id: user.id,
-      plan_id: plan.id,
-      razorpay_order_id: order.id,
-      amount: orderAmountCents,
-      currency: 'USD',
-      status: 'created',
-      notes: {
-        planName: plan.name,
-        receipt,
-        userEmail: user.email || '',
-        maxPages: selectedMaxPages,
-      },
-    });
+    // Persist pending purchase record in Supabase with legacy database constraint compatibility
+    try {
+      const admin = createAdminClient();
+      const dbPlanId = plan.id === 'single' ? 'book' : plan.id === 'pro' ? 'creator' : plan.id;
 
-    if (dbError) {
-      console.error('Failed to persist purchase record:', dbError);
-      throw new Error('Could not initialize purchase record.');
+      const { error: dbError } = await admin.from('purchases').insert({
+        user_id: user.id,
+        plan_id: plan.id,
+        razorpay_order_id: order.id,
+        amount: orderAmountCents,
+        currency: 'USD',
+        status: 'created',
+        notes: {
+          canonicalPlanId: plan.id,
+          planName: plan.name,
+          receipt,
+          userEmail: user.email || '',
+          maxPages: selectedMaxPages,
+        },
+      });
+
+      if (dbError) {
+        console.warn('Initial purchase insert with plan.id failed, retrying with dbPlanId fallback:', dbError.message);
+        await admin.from('purchases').insert({
+          user_id: user.id,
+          plan_id: dbPlanId,
+          razorpay_order_id: order.id,
+          amount: orderAmountCents,
+          currency: 'USD',
+          status: 'created',
+          notes: {
+            canonicalPlanId: plan.id,
+            planName: plan.name,
+            receipt,
+            userEmail: user.email || '',
+            maxPages: selectedMaxPages,
+          },
+        });
+      }
+    } catch (dbErr) {
+      console.warn('Non-fatal: Failed to persist preliminary purchase record:', dbErr);
     }
 
     return NextResponse.json({

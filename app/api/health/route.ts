@@ -5,23 +5,27 @@ import { getSupabaseConfig } from '@/lib/supabase/config';
 export async function GET() {
   const openRouterConfigured = Boolean(process.env.OPENROUTER_API_KEY?.trim());
   const geminiConfigured = Boolean(process.env.GEMINI_API_KEY?.trim());
+  const nvidiaConfigured = Boolean(process.env.NVIDIA_API_KEY?.trim());
   const supabaseConfigured = getSupabaseConfig() !== null;
   const razorpayConfigured = isRazorpayConfigured();
+
+  const textProvider = process.env.AI_TEXT_PROVIDER || (nvidiaConfigured ? 'nvidia' : 'openrouter');
+  const isImageGemini = process.env.AI_IMAGE_PROVIDER === 'gemini' && geminiConfigured;
 
   const status = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     providers: {
       text: {
-        provider: 'openrouter',
-        model: 'meta-llama/llama-3.1-8b-instruct',
-        configured: openRouterConfigured,
-        status: openRouterConfigured ? 'ready' : 'missing_api_key',
+        provider: textProvider,
+        configured: textProvider === 'nvidia' ? nvidiaConfigured : openRouterConfigured,
+        status: (textProvider === 'nvidia' ? nvidiaConfigured : openRouterConfigured) ? 'ready' : 'missing_api_key',
       },
       image: {
-        provider: geminiConfigured ? 'gemini' : 'flux-pollinations',
+        freeTier: 'pollinations',
+        paidTier: isImageGemini ? 'gemini' : 'pollinations',
         configured: geminiConfigured,
-        fallback: 'flux',
+        watermark: isImageGemini ? 'none_on_paid' : 'pollinations_watermark_on_free',
         status: 'ready',
       },
       database: {
@@ -37,7 +41,7 @@ export async function GET() {
     },
     system: {
       environment: process.env.NODE_ENV || 'production',
-      version: '1.0.0',
+      version: '1.0.1',
     },
   };
 

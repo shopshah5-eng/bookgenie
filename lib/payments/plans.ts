@@ -216,6 +216,6 @@ export function getPlan(planId: string): PlanDefinition | null {
     return CANONICAL_PLANS.single;
   }
   if (normalized === 'pro') return CANONICAL_PLANS.pro;
-  if (normalized === 'creator' || normalized === 'premium') return CANONICAL_PLANS.creator;
+  if (normalized === 'creator') return CANONICAL_PLANS.creator;
   return null;
 }

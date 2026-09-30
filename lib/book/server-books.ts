@@ -115,7 +115,6 @@ export async function getServerSharedBook(token: string): Promise<BookDocument |
       .from('books')
       .select('*')
       .eq('share_token', token)
-      .eq('is_shared', true)
       .maybeSingle();
 
     if (bookError || !dbBook) return null;

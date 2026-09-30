@@ -98,7 +98,8 @@ export async function POST(req: NextRequest) {
         })
         .eq('id', purchase.id);
     } else {
-      const { data: newPurchase } = await admin
+      const dbPlanId = plan.id === 'single' ? 'book' : plan.id === 'pro' ? 'creator' : plan.id;
+      const { data: newPurchase, error: pErr } = await admin
         .from('purchases')
         .insert({
           user_id: user.id,
@@ -109,10 +110,32 @@ export async function POST(req: NextRequest) {
           amount: plan.amountCents ?? plan.amountPaise ?? 0,
           currency: 'USD',
           status: 'captured',
+          notes: { canonicalPlanId: plan.id },
         })
         .select('id')
-        .single();
-      purchaseId = newPurchase?.id;
+        .maybeSingle();
+
+      if (pErr) {
+        console.warn('Purchase insert with plan.id failed, retrying with dbPlanId:', pErr.message);
+        const { data: fallbackPurchase } = await admin
+          .from('purchases')
+          .insert({
+            user_id: user.id,
+            plan_id: dbPlanId,
+            razorpay_order_id: orderId,
+            razorpay_payment_id: paymentId,
+            razorpay_signature: signature,
+            amount: plan.amountCents ?? plan.amountPaise ?? 0,
+            currency: 'USD',
+            status: 'captured',
+            notes: { canonicalPlanId: plan.id },
+          })
+          .select('id')
+          .maybeSingle();
+        purchaseId = fallbackPurchase?.id;
+      } else {
+        purchaseId = newPurchase?.id;
+      }
     }
 
     // 4. Grant explicit entitlement in entitlements table
@@ -121,6 +144,7 @@ export async function POST(req: NextRequest) {
         ? Number((purchase.notes as Record<string, unknown>).maxPages)
         : plan.maxPagesPerBook;
 
+    const dbPlanId = plan.id === 'single' ? 'book_plus' : plan.id === 'pro' ? 'creator' : plan.id;
     const { error: entError } = await admin.from('entitlements').insert({
       user_id: user.id,
       plan_id: plan.id,
@@ -137,14 +161,35 @@ export async function POST(req: NextRequest) {
     });
 
     if (entError) {
-      console.error('Failed to grant entitlement:', entError);
+      console.warn('Entitlement insert with plan.id failed, retrying with compatible dbPlanId:', entError.message);
+      await admin.from('entitlements').insert({
+        user_id: user.id,
+        plan_id: dbPlanId,
+        source_purchase_id: purchaseId || null,
+        max_pages: customMaxPages,
+        allowed_formats: plan.allowedFormats,
+        has_watermark: plan.hasWatermark,
+        commercial_rights: plan.commercialUse,
+        can_regenerate: plan.canRegenerate,
+        books_remaining: plan.maxBooksAllowed,
+        expires_at: plan.billingType === 'subscription' 
+          ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+          : null,
+      });
     }
 
     // 5. Update user profile active tier
-    await admin
+    const profileTier = plan.id === 'single' ? 'book_plus' : plan.id;
+    const { error: profError } = await admin
       .from('profiles')
       .update({ tier: plan.id, updated_at: new Date().toISOString() })
       .eq('id', user.id);
+    if (profError) {
+      await admin
+        .from('profiles')
+        .update({ tier: profileTier, updated_at: new Date().toISOString() })
+        .eq('id', user.id);
+    }
 
     try {
       await sessionClient.auth.updateUser({

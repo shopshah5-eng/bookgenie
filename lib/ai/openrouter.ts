@@ -118,46 +118,73 @@ ${params.uploadedContext ? `Uploaded Source Material:\n${params.uploadedContext.
       `${bp.title || ''} ${bp.subtitle || ''} ${chapter.title || ''} ${chapter.summary || ''}`
     );
 
-    const systemPrompt = `You are an elite non-fiction book author, field guide designer, and publishing specialist.
+    const isChildren = bp.bookType === 'children';
+    const isFiction = bp.bookType === 'novel';
+
+    let systemPrompt = '';
+    let userPrompt = '';
+
+    if (isChildren) {
+      systemPrompt = `You are an acclaimed children's book author and illustrator-storyteller for BookGenie.
+Return strictly valid JSON: {"pages": BookPageDocument[]}.
+
+MANDATORY CHILDREN'S STORY STANDARDS:
+1. Warm, delightful, heartwarming narrative prose suitable for children and bedtime reading.
+2. Focus on character dialogue, expressive emotions, sensory world details, and gentle moral growth.
+3. NEVER include worksheets, checklists [ ], time-limits (e.g. 15 MIN), exercises, or technical/financial boilerplate.
+4. STRUCTURE: Every page must have pageNumber, chapterIndex: ${params.chapterIndex}, pageType ("content"), layout ("standard"), and blocks: Array<{"id": string, "type": "heading"|"paragraph"|"quote", "text": string}>.`;
+
+      userPrompt = `Book Title: "${bp.title || 'Children Story'}"
+Genre: Children's Story
+Chapter ${params.chapterIndex}: "${chapter.title}"
+Chapter Story Beats: ${chapter.summary}
+Target Pages for this chapter: ${pagesForThisChapter}
+
+Write ${pagesForThisChapter} enchanting storytelling page(s) with warm dialogue and heartwarming scenes.`;
+    } else if (isFiction) {
+      systemPrompt = `You are an acclaimed fiction novelist and literary master for BookGenie.
+Return strictly valid JSON: {"pages": BookPageDocument[]}.
+
+MANDATORY FICTION STANDARDS:
+1. Compelling scene work, atmospheric worldbuilding, natural character dialogue, and emotional resonance.
+2. NEVER include worksheets, checkboxes [ ], field checklists, or technical bullet points.
+3. STRUCTURE: Every page must have pageNumber, chapterIndex: ${params.chapterIndex}, pageType ("content"), layout ("standard"), and blocks: Array<{"id": string, "type": "heading"|"paragraph"|"quote", "text": string}>.`;
+
+      userPrompt = `Book Title: "${bp.title || 'Novel'}"
+Genre: Fiction
+Chapter ${params.chapterIndex}: "${chapter.title}"
+Chapter Scene Outline: ${chapter.summary}
+Target Pages for this chapter: ${pagesForThisChapter}
+
+Write ${pagesForThisChapter} captivating fiction page(s) with immersive dialogue and dramatic narrative pacing.`;
+    } else {
+      systemPrompt = `You are an elite non-fiction book author, field guide designer, and publishing specialist.
 Return strictly valid JSON: {"pages": BookPageDocument[]}.
 
 MANDATORY EDITORIAL STANDARDS:
 1. SIMPLE, COMPELLING WORDS ACCORDING TO GENRE:
    - Write with supreme clarity using simple, grounded, and engaging words.
    - Avoid academic posturing, filler words, or purple prose.
-   - For educational guides and field workbooks: write in a calm, realistic, actionable tone (e.g., "A better baseline, not a new face.", "Repeat, do not reinvent", "Fit is the quiet multiplier").
 2. CONTENT DENSITY & HIGH-VALUE PAGES:
-   - Every page must contain approximately 240 to 380 substantive words or dense structured content. Never leave pages sparse or half-empty.
+   - Every page must contain substantive words or dense structured content. Never leave pages sparse or half-empty.
 3. RICH PUBLISHING LAYOUTS:
-   - Use diverse content blocks:
-     * "heading" and "subheading"
-     * "paragraph"
-     * "list" with actionable bullet items or time-stamped checkboxes (e.g. "[ ] Brush with fluoride toothpaste for 2 minutes", "[ ] Choose broad-spectrum SPF 30+")
-     * "callout" / "quote" (for Checkpoints, Ground Rules, Honest Timelines, or Warning Notes)
-     * "table" / structured columns (e.g. Workout A vs Workout B, Morning vs Evening, What You Can Do Now vs What Takes Longer)
-     * Research source tags (e.g. "[01, 04]") when stating medical, scientific, dietary, or market facts.
+   - Use diverse content blocks: "heading", "paragraph", "list" with actionable items, and "callout" / "quote".
 4. STRICT BAN ON REPETITIVE CLICHES:
-   - NEVER use the formula: "X is not just a [pattern/tool], it's an opportunity to..."
-   - NEVER use the formula: "By mastering the art of X, you will gain a competitive edge..."
-   - NEVER use the formula: "Remember, X are not random events; they often follow predictable patterns..."
-   - NEVER repeat the phrase: "manage risk, manage expectations, and manage emotions."
-   Every section must provide unique, actionable, technical, or practical instructions.
+   - Avoid generic formulas. Every section must provide unique, actionable, technical, or practical instructions.
 5. TOPIC SPECIFICITY & FACTUAL ACCURACY:
-   - If writing trading/finance: Position Size = (Account Capital * Risk %) / (Entry - Stop). Example: $10,000 account, 1% risk = $100 risk amount; $50 entry with $48 stop = 50 shares. NEVER state a $1,000 stop loss on a $10,000 account is 1% risk!
-   - If writing self-care/health/fitness: Follow WHO 2026 guidelines (150-300 min moderate/week; 2+ strength days), realistic timelines (acne treatments take 6-8 weeks; hair regrowth 6-12 months).
-   - If writing digital products/business: Specify real platform fees, 2-weekend validation tests, and step-by-step funnel architecture.
-6. STRUCTURE: Every page must have pageNumber, chapterIndex, pageType ("chapter"|"content"), layout ("standard"|"quote-callout"|"split-horizontal"), and blocks: Array<{"id": string, "type": "heading"|"paragraph"|"quote"|"list"|"callout", "text"?: string, "items"?: string[]}>. When creating lists, provide items as an array of distinct strings.`;
+   - If writing trading/finance: Position Size = (Account Capital * Risk %) / (Entry - Stop).
+   - If writing health/fitness: Follow WHO guidelines and realistic timelines.
+6. STRUCTURE: Every page must have pageNumber, chapterIndex: ${params.chapterIndex}, pageType ("chapter"|"content"), layout ("standard"|"quote-callout"|"split-horizontal"), and blocks: Array<{"id": string, "type": "heading"|"paragraph"|"quote"|"list"|"callout", "text"?: string, "items"?: string[]}>.`;
 
-    const userPrompt = `Book Title: "${bp.title || 'Practical Field Guide'}" (${bp.subtitle || ''})
+      userPrompt = `Book Title: "${bp.title || 'Practical Field Guide'}" (${bp.subtitle || ''})
 Genre / Book Type: ${bp.bookType || 'guide'}
 Chapter ${params.chapterIndex}: "${chapter.title}"
 Chapter Focus & Scope: ${chapter.summary}
 ${bp.enhancedEditorialPrompt ? `Editorial Blueprint: ${bp.enhancedEditorialPrompt}` : ''}
-${bp.nicheAnalysis ? `Trending Niche Best-Seller Insights: ${JSON.stringify(bp.nicheAnalysis)}` : ''}
 Target Pages to generate for this chapter: ${pagesForThisChapter}
 
-Write ${pagesForThisChapter} dense, deeply insightful, beautifully structured page(s) in simple, accessible, high-impact words.
-Use rich blocks: headings, subheadings, actionable checklists with checkboxes [ ], visual heuristics, step-by-step procedures, and zero repetitive filler.`;
+Write ${pagesForThisChapter} dense, deeply insightful, beautifully structured page(s) in simple, accessible, high-impact words.`;
+    }
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',

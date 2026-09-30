@@ -6,7 +6,7 @@ import { NvidiaTextProvider } from './nvidia';
 import type { ITextProvider } from './text-provider';
 import { GeminiImageProvider } from './gemini';
 import { PollinationsImageProvider } from './pollinations';
-import type { BookBlueprint, BookDocument, BookPageDocument, BookType } from '@/lib/book/types';
+import type { BookBlueprint, BookDocument, BookPageDocument, BookType, ContentBlock } from '@/lib/book/types';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { persistGeneratedImage } from '@/lib/book/asset-storage';
 import { normalizeManuscriptPages } from '@/lib/book/manuscript-normalizer';
@@ -18,41 +18,61 @@ function synthesizeFallbackChapterPages(
   blueprint: BookBlueprint
 ): BookPageDocument[] {
   const title = chapter.title || `Chapter ${chapterIndex}`;
-  const summary = chapter.summary || 'Essential perspectives, practical methods, and foundational breakthroughs.';
+  const summary = chapter.summary || `Exploration of ${title}.`;
   const pagesCount = Math.max(1, Math.min(3, chapter.allocatedPages || 2));
+  const isChildren = blueprint.bookType === 'children';
+  const isFiction = blueprint.bookType === 'novel';
 
   const pages: BookPageDocument[] = [];
   for (let p = 0; p < pagesCount; p++) {
     const pageNum = p + 1;
+    const isFirstPage = p === 0;
+
+    const blocks: ContentBlock[] = [
+      {
+        id: `blk-${chapterIndex}-${pageNum}-1-${Math.random().toString(36).slice(2, 6)}`,
+        type: 'heading',
+        text: isFirstPage ? title : `${title} — Part ${pageNum}`,
+        level: 2,
+      },
+      {
+        id: `blk-${chapterIndex}-${pageNum}-2-${Math.random().toString(36).slice(2, 6)}`,
+        type: 'paragraph',
+        text: summary,
+      },
+    ];
+
+    if (isChildren) {
+      blocks.push({
+        id: `blk-${chapterIndex}-${pageNum}-3-${Math.random().toString(36).slice(2, 6)}`,
+        type: 'paragraph',
+        text: isFirstPage
+          ? `The journey unfolded with quiet wonder as new discoveries brought smiles, courage, and gentle lessons shared along the way.`
+          : `Together with warm friends and curious hearts, every new step was an adventure filled with joy and understanding.`,
+      });
+    } else if (isFiction) {
+      blocks.push({
+        id: `blk-${chapterIndex}-${pageNum}-3-${Math.random().toString(36).slice(2, 6)}`,
+        type: 'paragraph',
+        text: isFirstPage
+          ? `The air was thick with anticipation. What began as a simple path quickly deepened into an immersive narrative of courage and discovery.`
+          : `Reflections settled into clarity as the characters confronted their choices, forging a bond that would redefine their journey.`,
+      });
+    } else {
+      blocks.push({
+        id: `blk-${chapterIndex}-${pageNum}-3-${Math.random().toString(36).slice(2, 6)}`,
+        type: 'paragraph',
+        text: `Applying these core frameworks sequentially enables sustainable progress and practical mastery across each milestone.`,
+      });
+    }
+
     pages.push({
       pageNumber: pageNum,
       chapterIndex,
-      pageType: p === 0 ? 'chapter_header' : 'content',
-      layout: p === 0 ? 'standard' : 'standard',
-      title: p === 0 ? title : `${title} — Strategic Framework`,
-      blocks: [
-        {
-          id: `blk-${chapterIndex}-${pageNum}-1`,
-          type: 'heading',
-          text: p === 0 ? title : `Core Implementation: ${title}`,
-          level: 2,
-        },
-        {
-          id: `blk-${chapterIndex}-${pageNum}-2`,
-          type: 'paragraph',
-          text: summary,
-        },
-        {
-          id: `blk-${chapterIndex}-${pageNum}-3`,
-          type: 'quote',
-          text: 'Key Principle: Mastery compounds through disciplined execution of proven structural fundamentals.',
-        },
-        {
-          id: `blk-${chapterIndex}-${pageNum}-4`,
-          type: 'paragraph',
-          text: `By integrating these insights sequentially, every milestone reinforces long-term consistency and professional execution across the entire publication roadmap.`,
-        },
-      ],
+      pageType: isFirstPage ? 'chapter_header' : 'content',
+      layout: 'standard',
+      title: isFirstPage ? title : `${title} — Part ${pageNum}`,
+      blocks,
     });
   }
   return pages;
@@ -109,10 +129,14 @@ export class GenerationPipeline {
 
     const targetPages = Number(params.pageTarget) || 16;
 
-    const isTradingPrompt = /trading|finance|invest|forex|crypto|stock|market|candlestick|technical analysis|option|futures/i.test(params.prompt);
+    const isChildrenPrompt = /\b(children|kids?|child|lion|fox|bear|bedtime|animal|fable|fairy tale|story for|preschool)\b/i.test(params.prompt);
+    const isFictionPrompt = /\b(story|novel|fiction|fantasy|adventure|mystery|thriller)\b/i.test(params.prompt);
+    const isRecipePrompt = /\b(recipe|cooking|cookbook|baking|culinary|food|dish)\b/i.test(params.prompt);
+    const isTradingPrompt = /\b(trading|finance|invest|forex|crypto|stock|market|candlestick|technical analysis|option|futures)\b/i.test(params.prompt);
+
     const initialBookType: BookType = params.bookType && params.bookType !== 'auto'
       ? params.bookType
-      : (isTradingPrompt ? 'guide' : 'guide');
+      : (isChildrenPrompt ? 'children' : isFictionPrompt ? 'novel' : isRecipePrompt ? 'recipe' : isTradingPrompt ? 'guide' : 'guide');
 
     // Initial placeholder document
     const initialDoc: BookDocument = {

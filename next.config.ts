@@ -44,6 +44,11 @@ const nextConfig: NextConfig = {
         destination: '/#creator-card',
         permanent: false,
       },
+      {
+        source: '/share/:token',
+        destination: '/shared/:token',
+        permanent: true,
+      },
     ];
   },
   async headers() {

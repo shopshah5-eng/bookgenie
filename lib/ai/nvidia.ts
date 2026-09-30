@@ -133,26 +133,66 @@ ${params.uploadedContext ? `Uploaded Context:\n${params.uploadedContext.slice(0,
       Math.min(4, Math.round((bp.pageTarget || 16) / Math.max(1, chapters.length)))
     );
 
-    const systemPrompt = `You are an elite non-fiction book author, field guide designer, and publishing specialist.
+    const isChildren = bp.bookType === 'children';
+    const isFiction = bp.bookType === 'novel';
+
+    let systemPrompt = '';
+    let userPrompt = '';
+
+    if (isChildren) {
+      systemPrompt = `You are an acclaimed children's book author and illustrator-storyteller for BookGenie.
+Return ONLY valid JSON: {"pages": BookPageDocument[]}.
+
+MANDATORY CHILDREN'S STORY STANDARDS:
+1. Warm, delightful, heartwarming storytelling prose suitable for children and bedtime reading.
+2. Rich dialogue, gentle pacing, expressive characters, and imaginative world details.
+3. NEVER include worksheets, checklists [ ], time-limits (e.g. 15 MIN), exercises, or technical/financial boilerplate.
+4. STRUCTURE: Every page must have pageNumber, chapterIndex: ${params.chapterIndex}, pageType ("content"), layout ("standard"), and blocks: Array<{"id": string, "type": "heading"|"paragraph"|"quote", "text": string}>.`;
+
+      userPrompt = `Book Title: "${bp.title || 'Children Story'}"
+Genre: Children's Story
+Chapter ${params.chapterIndex}: "${chapter.title}"
+Chapter Story Beats: ${chapter.summary}
+Target Pages for this chapter: ${pagesForThisChapter}
+
+Write ${pagesForThisChapter} enchanting storytelling page(s) with warm dialogue and heartwarming scenes.`;
+    } else if (isFiction) {
+      systemPrompt = `You are an acclaimed fiction novelist and literary master for BookGenie.
+Return ONLY valid JSON: {"pages": BookPageDocument[]}.
+
+MANDATORY FICTION STANDARDS:
+1. Compelling scene work, atmospheric worldbuilding, natural character dialogue, and dramatic tension.
+2. NEVER include worksheets, checkboxes [ ], field checklists, or technical bullet points.
+3. STRUCTURE: Every page must have pageNumber, chapterIndex: ${params.chapterIndex}, pageType ("content"), layout ("standard"), and blocks: Array<{"id": string, "type": "heading"|"paragraph"|"quote", "text": string}>.`;
+
+      userPrompt = `Book Title: "${bp.title || 'Novel'}"
+Genre: Fiction
+Chapter ${params.chapterIndex}: "${chapter.title}"
+Chapter Scene Outline: ${chapter.summary}
+Target Pages for this chapter: ${pagesForThisChapter}
+
+Write ${pagesForThisChapter} captivating fiction page(s) with immersive dialogue and dynamic narrative pacing.`;
+    } else {
+      systemPrompt = `You are an elite non-fiction book author, field guide designer, and publishing specialist.
 Return ONLY valid JSON: {"pages": BookPageDocument[]}.
 
 MANDATORY RULES:
-1. SIMPLE WORDS ACCORDING TO GENRE: Write with supreme clarity in accessible, engaging words. Avoid academic jargon, condescending fluff, or purple prose.
-2. CONTENT DENSITY & VALUE: Every page must contain 240 to 380 meaningful words or dense structured content. Never output sparse or empty pages.
-3. RICH PUBLISHING BLOCKS: Include headings, subheadings, paragraphs, lists with checkboxes [ ] and time estimates (e.g. 15 MIN), callouts for checkpoints/rules, and structured comparative tables.
-4. BAN ON REPETITIVE CLICHES: Do NOT repeat template formulas like "X is not just a pattern, it is an opportunity" or "By mastering the art of X...".
-5. FACTUAL INTEGRITY: In financial or risk sections, use exact formulas: Position Size = (Account Capital * Risk %) / (Entry - Stop Loss). In health/fitness, adhere to WHO 2026 guidelines.
+1. SIMPLE WORDS ACCORDING TO GENRE: Write with supreme clarity in accessible, engaging words.
+2. CONTENT DENSITY & VALUE: Every page must contain meaningful words or dense structured content. Never output sparse or empty pages.
+3. RICH PUBLISHING BLOCKS: Include headings, subheadings, paragraphs, actionable lists, and callouts.
+4. BAN ON REPETITIVE CLICHES: Do NOT repeat template formulas or generic buzzwords.
+5. FACTUAL INTEGRITY: In financial or risk sections, use exact formulas: Position Size = (Account Capital * Risk %) / (Entry - Stop Loss). In health/fitness, adhere to WHO guidelines.
 6. STRUCTURE: Every page has pageNumber, chapterIndex: ${params.chapterIndex}, pageType ("chapter"|"content"), layout ("standard"|"quote-callout"|"split-horizontal"), and blocks: Array<{"id": string, "type": "heading"|"paragraph"|"quote"|"list"|"callout", "text"?: string, "items"?: string[]}>.`;
 
-    const userPrompt = `Book Title: "${bp.title || 'Practical Field Guide'}" (${bp.subtitle || ''})
+      userPrompt = `Book Title: "${bp.title || 'Practical Field Guide'}" (${bp.subtitle || ''})
 Genre / Book Type: ${bp.bookType || 'guide'}
 Chapter ${params.chapterIndex}: "${chapter.title}"
 Chapter Focus & Summary: ${chapter.summary}
 ${bp.enhancedEditorialPrompt ? `Editorial Blueprint: ${bp.enhancedEditorialPrompt}` : ''}
-${bp.nicheAnalysis ? `Trending Niche Insights: ${JSON.stringify(bp.nicheAnalysis)}` : ''}
 Target Pages for this chapter: ${pagesForThisChapter}
 
 Write ${pagesForThisChapter} dense, highly actionable, deeply insightful, publishable page(s) in simple, accessible, high-impact words.`;
+    }
 
     try {
       const controller = new AbortController();

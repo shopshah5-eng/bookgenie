@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
-import { Menu, X, ChevronDown, Edit3, BookOpen, LogOut, Check, Loader2, Shield } from 'lucide-react';
+import { Menu, X, ChevronDown, Edit3, BookOpen, LogOut, Check, Loader2, Shield, Sun, Moon } from 'lucide-react';
 
 export function MinimalHeader() {
   const { user, openAuthModal, signOut, updateProfileName } = useAuth();
@@ -15,6 +15,23 @@ export function MinimalHeader() {
   const [isSavingName, setIsSavingName] = useState(false);
   const [nameError, setNameError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains('dark'));
+  }, []);
+
+  const toggleTheme = () => {
+    const nextDark = !isDark;
+    setIsDark(nextDark);
+    if (nextDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
   const [quotaInfo, setQuotaInfo] = useState<{
     tier?: string;
     planName?: string;
@@ -414,6 +431,17 @@ export function MinimalHeader() {
               </button>
             </>
           )}
+
+          {/* Theme Mode Toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-2 rounded-full border border-[#EAEAEA] dark:border-[#333333] text-[#111111] dark:text-[#EAEAEA] hover:border-[#111111] dark:hover:border-white transition-all cursor-pointer"
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={isDark ? 'Light Mode' : 'Dark Mode'}
+          >
+            {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-[#555555]" />}
+          </button>
         </div>
 
         {/* Mobile menu trigger */}
@@ -561,6 +589,28 @@ export function MinimalHeader() {
                 </button>
               </div>
             )}
+
+            {/* Mobile Theme Toggle */}
+            <div className="pt-2 border-t border-[#F0F0F0] dark:border-[#333333] flex items-center justify-between">
+              <span className="text-xs font-medium text-[#666666] dark:text-[#AAAAAA]">Appearance Theme</span>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#EAEAEA] dark:border-[#333333] text-xs font-medium text-[#111111] dark:text-[#EAEAEA]"
+              >
+                {isDark ? (
+                  <>
+                    <Sun className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Dark (Active)</span>
+                  </>
+                ) : (
+                  <>
+                    <Moon className="w-3.5 h-3.5 text-[#555555]" />
+                    <span>Light (Active)</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -8,10 +8,10 @@ export interface NormalizationContext {
 
 /**
  * Normalizes generated manuscript pages:
- * 1. Removes empty pages (no substantive text or images).
- * 2. Deduplicates repeated consecutive headings and redundant titles.
- * 3. Merges sparse pages (heading-only or quote-only pages) into substantive content pages.
- * 4. Ensures financial/trading books contain an educational-only risk disclaimer on page 1.
+ * 1. Removes completely empty pages (zero blocks or zero substantive content).
+ * 2. Deduplicates consecutive identical headings within a page.
+ * 3. Preserves distinct page structure across all genres (children's books, fiction, workbooks, etc.).
+ * 4. Ensures strict global uniqueness for every block ID.
  * 5. Re-indexes page numbers sequentially (1, 2, 3...).
  */
 export function normalizeManuscriptPages(
@@ -21,52 +21,57 @@ export function normalizeManuscriptPages(
   if (!pages || pages.length === 0) return [];
 
   const combinedText = `${context.title || ''} ${context.prompt || ''}`.toLowerCase();
+  const isChildrenOrFiction = context.bookType === 'children' || context.bookType === 'novel';
   const isTradingBook =
-    combinedText.includes('trading') ||
-    combinedText.includes('market') ||
-    combinedText.includes('stock') ||
-    combinedText.includes('investing') ||
-    combinedText.includes('finance') ||
-    combinedText.includes('forex') ||
-    combinedText.includes('crypto') ||
-    combinedText.includes('options');
+    !isChildrenOrFiction &&
+    /\b(trading|forex|crypto|stocks|investing|day trading|swing trading|candlestick|technical analysis)\b/i.test(
+      combinedText
+    );
 
-  // 1. Remove empty pages
-  const nonEmptyPages = pages.filter((page) => {
+  // 1. Filter out completely empty pages
+  const validPages = pages.filter((page) => {
     if (!page.blocks || !Array.isArray(page.blocks) || page.blocks.length === 0) {
       return false;
     }
     return page.blocks.some(
-      (block) => (block.text && block.text.trim().length > 0) || block.type === 'image'
+      (block) =>
+        (typeof block.text === 'string' && block.text.trim().length > 0) ||
+        (Array.isArray(block.items) && block.items.length > 0) ||
+        block.type === 'image' ||
+        Boolean(block.url || block.imageUrl)
     );
   });
 
-  if (nonEmptyPages.length === 0) return pages;
+  if (validPages.length === 0) return pages;
 
-  // 2. Clean blocks inside each page: deduplicate duplicate headings,
-  // remove headings that repeat the page/chapter title, and trim whitespace
+  // 2. Clean blocks inside each page and assign globally unique block IDs
   const cleanedPages: BookPageDocument[] = [];
-  for (const page of nonEmptyPages) {
+  let globalBlockIndex = 0;
+
+  for (let pIdx = 0; pIdx < validPages.length; pIdx++) {
+    const page = validPages[pIdx];
     const seenHeadings = new Set<string>();
     const cleanedBlocks: ContentBlock[] = [];
     const normalizedPageTitle = (page.title || '').trim().toLowerCase();
 
     for (const block of page.blocks) {
+      globalBlockIndex++;
+      const uniqueId = `blk-p${pIdx + 1}-${globalBlockIndex}-${Math.random().toString(36).slice(2, 6)}`;
+
       if (block.type === 'heading') {
         const normalized = (block.text || '').trim().toLowerCase();
-        // Skip duplicate headings or headings that blindly repeat the page title
-        if (!normalized || seenHeadings.has(normalized) || (normalizedPageTitle && normalized === normalizedPageTitle)) {
+        // Skip duplicate identical headings on the same page
+        if (!normalized || seenHeadings.has(normalized) || (normalizedPageTitle && normalized === normalizedPageTitle && cleanedBlocks.length > 0)) {
           continue;
         }
         seenHeadings.add(normalized);
       }
 
-      // Convert paragraph blocks that start with bullets into formal list blocks
+      // Format bullet lists cleanly
       if (block.type === 'paragraph' && (block.text?.trim().startsWith('•') || block.text?.trim().startsWith('- '))) {
         block.type = 'list';
       }
 
-      // Robust item splitting for list blocks
       if (block.type === 'list' || (block.type as string) === 'bullet_list') {
         if (!block.items || block.items.length === 0) {
           const raw = block.text || '';
@@ -80,61 +85,41 @@ export function normalizeManuscriptPages(
         }
       }
 
-      cleanedBlocks.push(block);
+      cleanedBlocks.push({
+        ...block,
+        id: uniqueId,
+      });
     }
 
-    cleanedPages.push({
-      ...page,
-      blocks: cleanedBlocks,
-    });
-  }
-
-  // 3. Merge sparse pages:
-  // - Pages with ONLY a heading or ONLY a quote
-  // - Pages with < 160 total words and no image (unless marked full-bleed/callout)
-  const substantivePages: BookPageDocument[] = [];
-  for (let i = 0; i < cleanedPages.length; i++) {
-    const page = cleanedPages[i];
-    const hasImage = page.blocks.some((b) => b.type === 'image' || Boolean(b.url || b.imageUrl));
-    const wordCount = page.blocks.reduce((acc, b) => {
-      return acc + (b.text ? b.text.trim().split(/\s+/).filter(Boolean).length : 0);
-    }, 0);
-
-    const isSubstantive = hasImage || wordCount >= 160 || page.layout === 'full-bleed';
-
-    if (!isSubstantive && substantivePages.length > 0) {
-      // Merge blocks into the preceding substantive page
-      const target = substantivePages[substantivePages.length - 1];
-      target.blocks = [...target.blocks, ...page.blocks];
-    } else {
-      substantivePages.push(page);
+    if (cleanedBlocks.length > 0) {
+      cleanedPages.push({
+        ...page,
+        blocks: cleanedBlocks,
+      });
     }
   }
 
-  // 4. Ensure Trading books have an Educational-Only Risk Disclaimer on page 1
-  if (isTradingBook && substantivePages.length > 0) {
-    const hasExistingDisclaimer = substantivePages.some((p) =>
+  // 3. Ensure financial/trading books contain an educational risk disclaimer
+  if (isTradingBook && cleanedPages.length > 0) {
+    const hasExistingDisclaimer = cleanedPages.some((p) =>
       p.blocks.some((b) => {
         const text = (b.text || '').toLowerCase();
         return text.includes('educational') && text.includes('disclaimer');
       })
     );
 
-    if (!hasExistingDisclaimer) {
+    if (!hasExistingDisclaimer && cleanedPages[0]) {
       const disclaimerBlock: ContentBlock = {
-        id: 'disclaimer-regulatory-notice',
+        id: `disclaimer-notice-${Math.random().toString(36).slice(2, 6)}`,
         type: 'quote',
-        text: 'EDUCATIONAL DISCLAIMER: This guide is published exclusively for educational, informational, and research purposes. It does not constitute investment advice, financial planning, or professional trade solicitation. Trading financial instruments involves significant risk of capital loss. Never trade with money you cannot afford to lose. Past market performance is never indicative of future results.',
+        text: 'EDUCATIONAL DISCLAIMER: This guide is published exclusively for educational, informational, and research purposes. It does not constitute investment advice, financial planning, or professional trade solicitation. Trading financial instruments involves significant risk of capital loss.',
       };
-
-      if (substantivePages[0]) {
-        substantivePages[0].blocks.unshift(disclaimerBlock);
-      }
+      cleanedPages[0].blocks.unshift(disclaimerBlock);
     }
   }
 
-  // 5. Re-index page numbers sequentially across entire book
-  return substantivePages.map((page, index) => ({
+  // 4. Re-index page numbers sequentially across entire book
+  return cleanedPages.map((page, index) => ({
     ...page,
     pageNumber: index + 1,
   }));
