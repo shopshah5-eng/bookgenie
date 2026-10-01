@@ -428,39 +428,6 @@ export function MinimalPricing() {
           </div>
         )}
 
-        {/* Promo Code & Affiliate Discount Box */}
-        <div className="max-w-md mx-auto mb-10">
-          <form
-            onSubmit={handleApplyCoupon}
-            className="flex items-center gap-2 p-1.5 rounded-xl bg-white border border-[#EFECE6] shadow-xs focus-within:border-[#9A6F3C] transition-colors"
-          >
-            <Tag className="w-4 h-4 text-[#9A6F3C] ml-2 shrink-0" />
-            <input
-              type="text"
-              placeholder="Promo or affiliate code (e.g. FOUNDER10)"
-              value={couponInput}
-              onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-              className="flex-1 bg-transparent border-none text-xs font-mono text-[#111111] placeholder:text-neutral-400 focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="px-3.5 py-1.5 rounded-lg bg-[#111111] text-white text-xs font-semibold hover:bg-neutral-800 transition-colors cursor-pointer"
-            >
-              {appliedCoupon ? 'Applied' : 'Apply'}
-            </button>
-          </form>
-
-          {couponFeedback && (
-            <div
-              className={`mt-2 text-center text-xs font-medium ${
-                couponFeedback.type === 'success' ? 'text-emerald-700' : 'text-rose-600'
-              }`}
-            >
-              {couponFeedback.text}
-            </div>
-          )}
-        </div>
-
         {/* Global Alert Banners */}
         {configError && (
           <div className="max-w-2xl mx-auto mb-8 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs sm:text-sm flex items-start gap-3">
@@ -710,6 +677,46 @@ export function MinimalPricing() {
               </div>
             );
           })}
+        </div>
+
+        {/* Coupon & Promotional Code Box (Below Pricing Plans) */}
+        <div className="mt-12 max-w-lg mx-auto p-6 rounded-2xl bg-[#FAF9F6] border border-[#EAEAEA] shadow-2xs text-center">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#EAEAEA] text-xs font-semibold text-[#1A1612] mb-3">
+            <Tag className="w-3.5 h-3.5 text-[#9A6F3C]" />
+            <span>Have a Coupon or Affiliate Code?</span>
+          </div>
+          <p className="text-xs text-[#6B635B] mb-4">
+            Enter your code below to claim an extra discount or support your favorite creator partner.
+          </p>
+          <form
+            onSubmit={handleApplyCoupon}
+            className="flex items-center gap-2 p-1.5 rounded-xl bg-white border border-[#EFECE6] shadow-xs focus-within:border-[#9A6F3C] transition-colors"
+          >
+            <Tag className="w-4 h-4 text-[#9A6F3C] ml-2 shrink-0" />
+            <input
+              type="text"
+              placeholder="Enter coupon code (e.g. FOUNDER10 or creator code)"
+              value={couponInput}
+              onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+              className="flex-1 bg-transparent border-none text-xs sm:text-sm font-mono text-[#111111] placeholder:text-neutral-400 focus:outline-none px-1"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-lg bg-[#111111] text-white text-xs font-semibold hover:bg-neutral-800 transition-colors cursor-pointer shrink-0"
+            >
+              {appliedCoupon ? 'Applied' : 'Apply Code'}
+            </button>
+          </form>
+
+          {couponFeedback && (
+            <div
+              className={`mt-3 text-center text-xs font-medium ${
+                couponFeedback.type === 'success' ? 'text-emerald-700' : 'text-rose-600'
+              }`}
+            >
+              {couponFeedback.text}
+            </div>
+          )}
         </div>
 
         {/* Feature Comparison & Value Highlights */}
