@@ -97,12 +97,34 @@ export function MinimalPricing() {
         .catch(() => {});
     }
 
-    // Fetch real-time pre-order campaign counter
+    // Fetch real-time pre-order campaign counter and auto-apply founder discount
     fetch('/api/preorder/status')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && typeof data.totalClaimed === 'number') {
           setPreorderStatus(data);
+
+          // If pre-order is active and no custom referral code exists, auto-apply 10% founder discount!
+          if (typeof window !== 'undefined') {
+            const urlParams = new URLSearchParams(window.location.search);
+            const incomingRef = urlParams.get('ref') || urlParams.get('aff') || urlParams.get('coupon') || localStorage.getItem('bookgenie_ref');
+
+            if (!incomingRef && data.isPreorderActive) {
+              const autoRes = validateCoupon('FOUNDER10', 1000);
+              if (autoRes.valid) {
+                setAppliedCoupon({
+                  code: autoRes.code,
+                  percent: autoRes.discountPercent,
+                  isAffiliate: autoRes.isAffiliate,
+                  message: '⚡ Early Bird Launch: 10% Founding Author discount automatically applied!',
+                });
+                setCouponFeedback({
+                  type: 'success',
+                  text: '⚡ Early Bird Launch: 10% Founding Author discount automatically applied to all plans!',
+                });
+              }
+            }
+          }
         }
       })
       .catch(() => {});

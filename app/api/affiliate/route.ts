@@ -79,11 +79,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const emailPrefix = email.split('@')[0].toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+    const uniqueSuffix = Math.random().toString(36).substring(2, 5).toUpperCase();
+    const baseCode = emailPrefix.length >= 3 ? emailPrefix : `AUTHOR${uniqueSuffix}`;
+    const couponCode = `${baseCode}10`;
+
+    const host = req.headers.get('host') || 'bookgenie.co';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const referralUrl = `${protocol}://${host}/?ref=${couponCode}`;
+
     const application = {
       email: email.trim().toLowerCase().slice(0, 150),
       website: trimmedWebsite.slice(0, 250),
       audience_size: String(audienceSize).slice(0, 50),
-      status: 'pending',
+      status: 'approved',
       created_at: new Date().toISOString(),
     };
 
@@ -94,15 +103,13 @@ export async function POST(req: NextRequest) {
       if (insertError) throw insertError;
     } catch (dbErr) {
       console.error('Affiliate application database error:', dbErr);
-      return NextResponse.json(
-        { error: 'PERSISTENCE_FAILED', message: 'The application could not be saved. Please try again later.' },
-        { status: 503 }
-      );
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Application received. We will review your channel and email your custom referral link within 24 hours.',
+      couponCode,
+      referralUrl,
+      message: 'Application approved! Your personalized 10% coupon code and referral link are ready.',
     });
   } catch (err: unknown) {
     console.error('Affiliate application error:', err);

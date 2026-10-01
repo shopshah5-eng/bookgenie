@@ -7,12 +7,15 @@ import { AuthProvider } from '@/components/auth/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Sparkles, DollarSign, Users, Award, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Sparkles, DollarSign, Users, Award, CheckCircle2, ArrowRight, Copy, Check, Tag, Link as LinkIcon } from 'lucide-react';
 
 export default function AffiliatePage() {
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
   const [applied, setApplied] = useState(false);
+  const [partnerData, setPartnerData] = useState<{ couponCode: string; referralUrl: string } | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,6 +36,10 @@ export default function AffiliatePage() {
         throw new Error(data.error || 'Failed to submit application.');
       }
 
+      setPartnerData({
+        couponCode: data.couponCode || 'PARTNER10',
+        referralUrl: data.referralUrl || `${typeof window !== 'undefined' ? window.location.origin : 'https://bookgenie.co'}/?ref=${data.couponCode || 'PARTNER10'}`,
+      });
       setApplied(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
@@ -101,7 +108,81 @@ export default function AffiliatePage() {
 
           {/* Application Form Card */}
           <div className="max-w-xl mx-auto rounded-3xl bg-surface-container-low dark:bg-[#1a1b22] border border-outline-variant/20 dark:border-white/5 p-8 sm:p-10 shadow-lg text-center">
-            {applied ? (
+            {applied && partnerData ? (
+              <div className="py-4 space-y-5 text-left">
+                <div className="w-12 h-12 mx-auto rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
+                <div className="text-center">
+                  <h3 className="font-headline-sm text-xl sm:text-2xl text-on-surface dark:text-white font-bold">
+                    You&apos;re an Official BookGenie Partner!
+                  </h3>
+                  <p className="font-body-md text-xs sm:text-sm text-on-surface-variant dark:text-[#c4c7c5] mt-1">
+                    Your unique audience coupon and affiliate tracking link are ready to share immediately.
+                  </p>
+                </div>
+
+                {/* Personalized Coupon Box */}
+                <div className="p-4 rounded-2xl bg-white dark:bg-black/30 border border-outline-variant/30 space-y-2">
+                  <div className="flex items-center justify-between text-xs text-on-surface-variant dark:text-neutral-400">
+                    <span className="flex items-center gap-1 font-semibold text-[#9A6F3C]">
+                      <Tag className="w-3.5 h-3.5" /> Your Audience 10% Coupon Code:
+                    </span>
+                    <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">10% CASH COMMISSION</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-surface-container-low dark:bg-white/5 border border-outline-variant/20">
+                    <code className="text-sm sm:text-base font-mono font-bold tracking-wider text-[#9A6F3C] px-1">
+                      {partnerData.couponCode}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(partnerData.couponCode);
+                        setCopiedCode(true);
+                        setTimeout(() => setCopiedCode(false), 2000);
+                      }}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#111111] text-white text-xs font-semibold hover:bg-neutral-800 transition-colors cursor-pointer"
+                    >
+                      {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedCode ? 'Copied' : 'Copy Code'}</span>
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-neutral-500">
+                    Share this code on YouTube, Twitter, Instagram, or TikTok. When your followers enter it at checkout, they save 10% and you earn 10% cash commission.
+                  </p>
+                </div>
+
+                {/* Direct Referral Link Box */}
+                <div className="p-4 rounded-2xl bg-white dark:bg-black/30 border border-outline-variant/30 space-y-2">
+                  <div className="flex items-center justify-between text-xs text-on-surface-variant dark:text-neutral-400">
+                    <span className="flex items-center gap-1 font-semibold text-[#9A6F3C]">
+                      <LinkIcon className="w-3.5 h-3.5" /> Your Direct Tracking Link:
+                    </span>
+                    <span className="text-[11px] font-mono text-neutral-400">60-day cookie</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-surface-container-low dark:bg-white/5 border border-outline-variant/20">
+                    <span className="text-xs font-mono truncate text-neutral-600 dark:text-neutral-300 px-1 select-all">
+                      {partnerData.referralUrl}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(partnerData.referralUrl);
+                        setCopiedLink(true);
+                        setTimeout(() => setCopiedLink(false), 2000);
+                      }}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#9A6F3C] text-white text-xs font-semibold hover:bg-[#845D30] transition-colors cursor-pointer shrink-0"
+                    >
+                      {copiedLink ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedLink ? 'Copied' : 'Copy Link'}</span>
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-neutral-500">
+                    Anyone clicking this link has your promo code and 10% discount automatically pre-applied on the pricing table.
+                  </p>
+                </div>
+              </div>
+            ) : applied ? (
               <div className="py-8 space-y-3">
                 <div className="w-12 h-12 mx-auto rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                   <CheckCircle2 className="w-6 h-6" />
@@ -110,7 +191,7 @@ export default function AffiliatePage() {
                   Application Received!
                 </h3>
                 <p className="font-body-md text-xs sm:text-sm text-on-surface-variant dark:text-[#c4c7c5] max-w-md mx-auto">
-                  Thank you for applying to the BookGenie Partner Program. Our team will review your application and email your custom referral link within 24 hours.
+                  Thank you for applying to the BookGenie Partner Program. Your application has been logged.
                 </p>
               </div>
             ) : (

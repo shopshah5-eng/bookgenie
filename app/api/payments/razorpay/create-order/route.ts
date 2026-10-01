@@ -93,6 +93,18 @@ export async function POST(req: NextRequest) {
         appliedCouponCode = couponResult.code;
         appliedAffiliateCode = couponResult.affiliateCode || (typeof body?.affiliateRef === 'string' ? body.affiliateRef : null);
       }
+    } else {
+      // Automatic Early Bird Founder discount for the first 100 users
+      const { getPreorderStatus } = await import('@/lib/payments/preorder');
+      const preorder = await getPreorderStatus();
+      if (preorder.isPreorderActive) {
+        const autoResult = validateCoupon('FOUNDER10', orderAmountCents);
+        if (autoResult.valid) {
+          discountCents = autoResult.discountAmountCents;
+          orderAmountCents = autoResult.finalAmountCents;
+          appliedCouponCode = 'FOUNDER10';
+        }
+      }
     }
 
     const receipt = `rcpt_${Date.now().toString(36)}_${user.id.slice(0, 8)}`;
