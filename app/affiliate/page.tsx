@@ -43,19 +43,19 @@ export default function AffiliatePage() {
 
   const benefits = [
     {
-      title: '30% Recurring Commission',
-      desc: 'Earn 30% of every subscription payment for the entire lifetime of your referred creators.',
+      title: '10% Cash Commission on Every Order',
+      desc: 'Earn 10% cash on every single book purchase, bundle, and subscription tier referred by your link or promo code.',
       icon: <DollarSign className="w-6 h-6 text-[#9A6F3C]" />,
     },
     {
-      title: '60-Day Referral Cookie',
-      desc: 'Your referrals are tracked for 60 full days after clicking your unique invitation link.',
-      icon: <Users className="w-6 h-6 text-[#9A6F3C]" />,
+      title: 'Custom 10% Audience Coupon Code',
+      desc: 'Give your audience an exclusive 10% discount with your personalized coupon (e.g. YOURNAME10). When they save, you earn!',
+      icon: <Award className="w-6 h-6 text-[#9A6F3C]" />,
     },
     {
-      title: 'Promotional Resources & Assets',
-      desc: 'Get access to high-converting banners, copy templates, and product video clips.',
-      icon: <Award className="w-6 h-6 text-[#9A6F3C]" />,
+      title: 'Dual Attribution (Link + Code)',
+      desc: 'Your referrals are tracked for 60 full days. Even if a user visits on mobile and buys on desktop, your promo code guarantees attribution.',
+      icon: <Users className="w-6 h-6 text-[#9A6F3C]" />,
     },
   ];
 

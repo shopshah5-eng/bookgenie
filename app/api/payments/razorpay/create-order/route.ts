@@ -6,6 +6,7 @@ import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getPlan } from '@/lib/payments/plans';
 import { getRazorpayClient, getRazorpayConfig, isRazorpayConfigured } from '@/lib/payments/razorpay';
+import { validateCoupon } from '@/lib/payments/coupons';
 
 export async function POST(req: NextRequest) {
   try {
@@ -73,7 +74,30 @@ export async function POST(req: NextRequest) {
       orderAmountCents = plan.annualAmountCents || plan.annualAmountPaise || 0;
     }
 
+    const originalAmountCents = orderAmountCents;
+
+    // Apply Coupon / Affiliate discount (10% OFF for buyer, 10% commission for affiliate)
+    const rawCoupon = typeof body?.couponCode === 'string' && body.couponCode.trim()
+      ? body.couponCode.trim()
+      : (typeof body?.affiliateRef === 'string' ? body.affiliateRef.trim() : '');
+
+    let discountCents = 0;
+    let appliedCouponCode: string | null = null;
+    let appliedAffiliateCode: string | null = null;
+
+    if (rawCoupon) {
+      const couponResult = validateCoupon(rawCoupon, orderAmountCents);
+      if (couponResult.valid) {
+        discountCents = couponResult.discountAmountCents;
+        orderAmountCents = couponResult.finalAmountCents;
+        appliedCouponCode = couponResult.code;
+        appliedAffiliateCode = couponResult.affiliateCode || (typeof body?.affiliateRef === 'string' ? body.affiliateRef : null);
+      }
+    }
+
     const receipt = `rcpt_${Date.now().toString(36)}_${user.id.slice(0, 8)}`;
+    const commissionCents = appliedAffiliateCode ? Math.round(orderAmountCents * 0.1) : 0;
+
     const order = await razorpay.orders.create({
       amount: orderAmountCents,
       currency: 'USD',
@@ -85,6 +109,11 @@ export async function POST(req: NextRequest) {
         planName: plan.name,
         maxPages: String(selectedMaxPages),
         interval: isAnnual ? 'annual' : 'monthly',
+        isPreorder: 'true',
+        couponCode: appliedCouponCode || '',
+        affiliateCode: appliedAffiliateCode || '',
+        discountCents: String(discountCents),
+        commissionCents: String(commissionCents),
       },
     });
 
@@ -97,6 +126,19 @@ export async function POST(req: NextRequest) {
       const admin = createAdminClient();
       const dbPlanId = plan.id === 'single' ? 'book' : plan.id === 'pro' ? 'creator' : plan.id;
 
+      const purchaseNotes = {
+        canonicalPlanId: plan.id,
+        planName: plan.name,
+        receipt,
+        userEmail: user.email || '',
+        maxPages: selectedMaxPages,
+        isPreorder: true,
+        couponCode: appliedCouponCode || null,
+        affiliateCode: appliedAffiliateCode || null,
+        discountCents,
+        commissionCents,
+      };
+
       const { error: dbError } = await admin.from('purchases').insert({
         user_id: user.id,
         plan_id: plan.id,
@@ -104,13 +146,7 @@ export async function POST(req: NextRequest) {
         amount: orderAmountCents,
         currency: 'USD',
         status: 'created',
-        notes: {
-          canonicalPlanId: plan.id,
-          planName: plan.name,
-          receipt,
-          userEmail: user.email || '',
-          maxPages: selectedMaxPages,
-        },
+        notes: purchaseNotes,
       });
 
       if (dbError) {
@@ -122,13 +158,7 @@ export async function POST(req: NextRequest) {
           amount: orderAmountCents,
           currency: 'USD',
           status: 'created',
-          notes: {
-            canonicalPlanId: plan.id,
-            planName: plan.name,
-            receipt,
-            userEmail: user.email || '',
-            maxPages: selectedMaxPages,
-          },
+          notes: purchaseNotes,
         });
       }
     } catch (dbErr) {
@@ -139,6 +169,10 @@ export async function POST(req: NextRequest) {
       success: true,
       orderId: order.id,
       amount: orderAmountCents,
+      originalAmount: originalAmountCents,
+      discountAmount: discountCents,
+      couponCode: appliedCouponCode,
+      affiliateCode: appliedAffiliateCode,
       currency: 'USD',
       keyId: config.keyId,
       planId: plan.id,

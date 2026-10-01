@@ -6,6 +6,7 @@ import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getPlan } from '@/lib/payments/plans';
 import { verifyPaymentSignature, isRazorpayConfigured } from '@/lib/payments/razorpay';
+import { determineFounderNumber } from '@/lib/payments/preorder';
 
 export async function POST(req: NextRequest) {
   try {
@@ -75,17 +76,34 @@ export async function POST(req: NextRequest) {
 
     if (purchase && purchase.status === 'captured') {
       // Already processed idempotently
+      const existingNotes = (purchase?.notes as Record<string, unknown>) || {};
+      const isFounder = Boolean(existingNotes.isFoundingMember);
+      const founderNumber = typeof existingNotes.founderNumber === 'number' ? existingNotes.founderNumber : null;
+
       return NextResponse.json({
         success: true,
         verified: true,
         alreadyProcessed: true,
         planId: plan.id,
         planName: plan.name,
+        isFounder,
+        founderNumber,
         message: 'Payment was already verified and credited.',
       });
     }
 
-    // 3. Mark purchase as captured
+    // Determine founder designation for the first 100 creators
+    const { isFounder, founderNumber } = await determineFounderNumber();
+    const existingNotes = (purchase?.notes as Record<string, unknown>) || {};
+    const updatedNotes = {
+      ...existingNotes,
+      isPreorder: true,
+      isFoundingMember: isFounder,
+      founderNumber: isFounder ? founderNumber : null,
+      verifiedAt: new Date().toISOString(),
+    };
+
+    // 3. Mark purchase as captured with founder notes
     let purchaseId = purchase?.id;
     if (purchase) {
       await admin
@@ -94,6 +112,7 @@ export async function POST(req: NextRequest) {
           status: 'captured',
           razorpay_payment_id: paymentId,
           razorpay_signature: signature,
+          notes: updatedNotes,
           updated_at: new Date().toISOString(),
         })
         .eq('id', purchase.id);
@@ -110,7 +129,7 @@ export async function POST(req: NextRequest) {
           amount: plan.amountCents ?? plan.amountPaise ?? 0,
           currency: 'USD',
           status: 'captured',
-          notes: { canonicalPlanId: plan.id },
+          notes: updatedNotes,
         })
         .select('id')
         .maybeSingle();
@@ -128,7 +147,7 @@ export async function POST(req: NextRequest) {
             amount: plan.amountCents ?? plan.amountPaise ?? 0,
             currency: 'USD',
             status: 'captured',
-            notes: { canonicalPlanId: plan.id },
+            notes: updatedNotes,
           })
           .select('id')
           .maybeSingle();
@@ -178,7 +197,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 5. Update user profile active tier
+    // 5. Update user profile active tier & founder badge
     const profileTier = plan.id === 'single' ? 'book_plus' : plan.id;
     const { error: profError } = await admin
       .from('profiles')
@@ -193,16 +212,26 @@ export async function POST(req: NextRequest) {
 
     try {
       await sessionClient.auth.updateUser({
-        data: { tier: plan.id },
+        data: {
+          tier: plan.id,
+          isFoundingMember: isFounder,
+          founderNumber: isFounder ? founderNumber : null,
+        },
       });
     } catch (_) {}
+
+    const successMessage = isFounder && founderNumber
+      ? `🎉 Verified! Welcome, Founding Author #${founderNumber}! Your ${plan.name} access and exclusive perks are now active.`
+      : `Payment verified successfully. Your ${plan.name} access is now active.`;
 
     return NextResponse.json({
       success: true,
       verified: true,
       planId: plan.id,
       planName: plan.name,
-      message: `Payment verified successfully. Your ${plan.name} access is now active.`,
+      isFounder,
+      founderNumber,
+      message: successMessage,
     });
   } catch (err) {
     console.error('Verify payment error:', err);

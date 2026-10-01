@@ -13,6 +13,9 @@ import {
   BookOpen,
   Zap,
   HelpCircle,
+  Tag,
+  Flame,
+  Award,
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthContext';
 import {
@@ -21,6 +24,7 @@ import {
   calculateSinglePlanPrice,
   type PlanId,
 } from '@/lib/payments/plans';
+import { validateCoupon } from '@/lib/payments/coupons';
 
 declare global {
   interface Window {
@@ -53,6 +57,29 @@ export function MinimalPricing() {
   const [configError, setConfigError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  // Pre-order campaign status (First 100 Founding Authors)
+  const [preorderStatus, setPreorderStatus] = useState<{
+    totalClaimed: number;
+    maxSpots: number;
+    remaining: number;
+    isPreorderActive: boolean;
+  }>({
+    totalClaimed: 64,
+    maxSpots: 100,
+    remaining: 36,
+    isPreorderActive: true,
+  });
+
+  // Coupon / Affiliate discount state
+  const [couponInput, setCouponInput] = useState<string>('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    percent: number;
+    isAffiliate: boolean;
+    message: string;
+  } | null>(null);
+  const [couponFeedback, setCouponFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
   // Billing interval toggle for subscriptions: 'monthly' | 'annual'
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('monthly');
 
@@ -69,7 +96,68 @@ export function MinimalPricing() {
         })
         .catch(() => {});
     }
+
+    // Fetch real-time pre-order campaign counter
+    fetch('/api/preorder/status')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && typeof data.totalClaimed === 'number') {
+          setPreorderStatus(data);
+        }
+      })
+      .catch(() => {});
+
+    // Capture affiliate / referral code from URL parameters (?ref=... or ?coupon=...)
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const incomingRef = urlParams.get('ref') || urlParams.get('aff') || urlParams.get('coupon');
+      const cleanRef = incomingRef || localStorage.getItem('bookgenie_ref');
+
+      if (cleanRef) {
+        const uppercase = cleanRef.trim().toUpperCase();
+        setCouponInput(uppercase);
+        localStorage.setItem('bookgenie_ref', uppercase);
+        document.cookie = `bookgenie_ref=${encodeURIComponent(uppercase)}; path=/; max-age=5184000; SameSite=Lax`;
+
+        // Automatically validate & apply 10% discount
+        const res = validateCoupon(uppercase, 1000);
+        if (res.valid) {
+          setAppliedCoupon({
+            code: res.code,
+            percent: res.discountPercent,
+            isAffiliate: res.isAffiliate,
+            message: res.message,
+          });
+          setCouponFeedback({ type: 'success', text: res.message });
+        }
+      }
+    }
   }, [user]);
+
+  const handleApplyCoupon = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!couponInput.trim()) {
+      setAppliedCoupon(null);
+      setCouponFeedback(null);
+      return;
+    }
+
+    const res = validateCoupon(couponInput.trim(), 1000);
+    if (res.valid) {
+      setAppliedCoupon({
+        code: res.code,
+        percent: res.discountPercent,
+        isAffiliate: res.isAffiliate,
+        message: res.message,
+      });
+      setCouponFeedback({ type: 'success', text: res.message });
+      localStorage.setItem('bookgenie_ref', res.code);
+      document.cookie = `bookgenie_ref=${encodeURIComponent(res.code)}; path=/; max-age=5184000; SameSite=Lax`;
+    } else {
+      setAppliedCoupon(null);
+      setCouponFeedback({ type: 'error', text: res.message });
+    }
+  };
 
   const handleChoosePlan = async (planId: PlanId) => {
     setConfigError(null);
@@ -99,8 +187,14 @@ export function MinimalPricing() {
     setLoadingPlanId(planId);
 
     try {
-      // 1. Create server-side Razorpay order
-      const requestPayload: { planId: PlanId; pages?: number; interval?: 'monthly' | 'annual' } = {
+      // 1. Create server-side Razorpay order with optional coupon / affiliate code
+      const requestPayload: {
+        planId: PlanId;
+        pages?: number;
+        interval?: 'monthly' | 'annual';
+        couponCode?: string;
+        affiliateRef?: string;
+      } = {
         planId,
       };
 
@@ -108,6 +202,11 @@ export function MinimalPricing() {
         requestPayload.pages = customPages;
       } else if (planId === 'pro' || planId === 'creator') {
         requestPayload.interval = billingInterval;
+      }
+
+      if (appliedCoupon?.code) {
+        requestPayload.couponCode = appliedCoupon.code;
+        requestPayload.affiliateRef = appliedCoupon.code;
       }
 
       const orderRes = await fetch('/api/payments/razorpay/create-order', {
@@ -252,6 +351,94 @@ export function MinimalPricing() {
           </div>
         </div>
 
+        {/* Pre-Order Launch Banner (First 100 Founding Authors) */}
+        {preorderStatus.isPreorderActive && (
+          <div className="max-w-3xl mx-auto mb-8 p-5 rounded-2xl bg-gradient-to-br from-[#FDFBF7] via-[#FFFDF9] to-[#F7F2E8] border border-[#EFECE6] shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+              <div className="flex items-center gap-2.5">
+                <span className="inline-flex items-center justify-center p-2 rounded-xl bg-[#9A6F3C]/10 text-[#9A6F3C]">
+                  <Flame className="w-5 h-5 text-[#9A6F3C]" />
+                </span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm sm:text-base font-bold text-[#1A1612] tracking-tight">
+                      Early Bird Launch: First 100 Founding Authors
+                    </h3>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#9A6F3C] text-white">
+                      50% OFF Core
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#6B635B] mt-0.5">
+                    Save an extra 10% with code <code className="font-mono font-bold text-[#9A6F3C]">FOUNDER10</code> + get permanent Founding Author perks &amp; priority GPU generation.
+                  </p>
+                </div>
+              </div>
+              <div className="text-left sm:text-right shrink-0">
+                <span className="text-xs font-bold text-[#9A6F3C] uppercase tracking-wider block">
+                  {preorderStatus.remaining} Spots Remaining
+                </span>
+                <p className="text-[11px] text-neutral-500">
+                  {preorderStatus.totalClaimed} of {preorderStatus.maxSpots} claimed
+                </p>
+              </div>
+            </div>
+
+            {/* Visual Progress Bar */}
+            <div className="w-full bg-[#EFECE6] rounded-full h-2.5 overflow-hidden mb-3">
+              <div
+                className="h-full rounded-full transition-all duration-700 bg-gradient-to-r from-[#9A6F3C] via-[#B88746] to-[#D4A559]"
+                style={{ width: `${Math.min((preorderStatus.totalClaimed / preorderStatus.maxSpots) * 100, 100)}%` }}
+              />
+            </div>
+
+            {/* Founder Perks Pill List */}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-[#EFECE6] text-[11px] font-medium text-[#1A1612] shadow-2xs">
+                <Award className="w-3.5 h-3.5 text-[#9A6F3C]" /> Gold Founding Author Badge
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-[#EFECE6] text-[11px] font-medium text-[#1A1612] shadow-2xs">
+                <Zap className="w-3.5 h-3.5 text-[#9A6F3C]" /> Priority GPU Generation Queue
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-[#EFECE6] text-[11px] font-medium text-[#1A1612] shadow-2xs">
+                <Tag className="w-3.5 h-3.5 text-[#9A6F3C]" /> 10% Extra Off with Code
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Promo Code & Affiliate Discount Box */}
+        <div className="max-w-md mx-auto mb-10">
+          <form
+            onSubmit={handleApplyCoupon}
+            className="flex items-center gap-2 p-1.5 rounded-xl bg-white border border-[#EFECE6] shadow-xs focus-within:border-[#9A6F3C] transition-colors"
+          >
+            <Tag className="w-4 h-4 text-[#9A6F3C] ml-2 shrink-0" />
+            <input
+              type="text"
+              placeholder="Promo or affiliate code (e.g. FOUNDER10)"
+              value={couponInput}
+              onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+              className="flex-1 bg-transparent border-none text-xs font-mono text-[#111111] placeholder:text-neutral-400 focus:outline-none"
+            />
+            <button
+              type="submit"
+              className="px-3.5 py-1.5 rounded-lg bg-[#111111] text-white text-xs font-semibold hover:bg-neutral-800 transition-colors cursor-pointer"
+            >
+              {appliedCoupon ? 'Applied' : 'Apply'}
+            </button>
+          </form>
+
+          {couponFeedback && (
+            <div
+              className={`mt-2 text-center text-xs font-medium ${
+                couponFeedback.type === 'success' ? 'text-emerald-700' : 'text-rose-600'
+              }`}
+            >
+              {couponFeedback.text}
+            </div>
+          )}
+        </div>
+
         {/* Global Alert Banners */}
         {configError && (
           <div className="max-w-2xl mx-auto mb-8 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs sm:text-sm flex items-start gap-3">
@@ -296,12 +483,17 @@ export function MinimalPricing() {
             const isLoading = loadingPlanId === plan.id;
 
             // Compute display price based on interval or slider
-            const displayPrice =
+            const baseDisplayPrice =
               isSingle
                 ? singlePricing.priceUsd
                 : billingInterval === 'annual' && plan.annualPriceUsd
                 ? plan.annualPriceUsd
                 : plan.priceUsd;
+
+            const hasDiscount = Boolean(appliedCoupon && baseDisplayPrice > 0);
+            const discountedDisplayPrice = hasDiscount
+              ? Math.max(Number((baseDisplayPrice * (1 - (appliedCoupon?.percent || 0) / 100)).toFixed(2)), 1)
+              : baseDisplayPrice;
 
             const billingSubtext =
               plan.billingType === 'free'
@@ -354,13 +546,27 @@ export function MinimalPricing() {
 
                   {/* Price */}
                   <div
-                    className={`flex items-baseline gap-1 my-3 pb-3 border-b ${
+                    className={`flex items-baseline gap-1.5 my-3 pb-3 border-b ${
                       isCreator ? 'border-white/10' : 'border-[#F0F0F0]'
                     }`}
                   >
-                    <span className="text-3xl font-extrabold tracking-tight">
-                      ${displayPrice}
-                    </span>
+                    {hasDiscount ? (
+                      <>
+                        <span className="text-3xl font-extrabold tracking-tight text-[#9A6F3C]">
+                          ${discountedDisplayPrice % 1 === 0 ? discountedDisplayPrice : discountedDisplayPrice.toFixed(2)}
+                        </span>
+                        <span className="text-sm line-through text-neutral-400 font-medium">
+                          ${baseDisplayPrice}
+                        </span>
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[#9A6F3C]/10 text-[#9A6F3C] uppercase tracking-wide">
+                          -{appliedCoupon?.percent}%
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-3xl font-extrabold tracking-tight">
+                        ${baseDisplayPrice}
+                      </span>
+                    )}
                     <span
                       className={`text-xs ${
                         isCreator ? 'text-neutral-400' : 'text-[#777777]'
@@ -472,7 +678,7 @@ export function MinimalPricing() {
                           {plan.id === 'free'
                             ? 'Start Free (20 Pages)'
                             : isSingle
-                            ? `Get Book ($${displayPrice})`
+                            ? `Get Book ($${discountedDisplayPrice % 1 === 0 ? discountedDisplayPrice : discountedDisplayPrice.toFixed(2)})`
                             : `Choose ${plan.name}`}
                         </span>
                       )}
