@@ -61,7 +61,7 @@ export default function GlowUpStandalonePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white text-[#1A1612] antialiased flex flex-col selection:bg-amber-100 selection:text-amber-900">
+    <div className="min-h-screen bg-white text-[#111111] antialiased font-sans flex flex-col selection:bg-[#111111] selection:text-white">
       <MinimalHeader />
 
       <main className="flex-1 max-w-[1100px] w-full mx-auto px-5 sm:px-6 py-12 sm:py-16">

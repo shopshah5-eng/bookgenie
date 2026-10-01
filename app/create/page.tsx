@@ -272,7 +272,7 @@ function CreatePageContent() {
   const wordsEstimate = chapterScale === 1 ? '~18,000 Words' : chapterScale === 2 ? '~42,000 Words' : '~85,000 Words';
 
   return (
-    <div className="min-h-screen bg-surface-container-lowest dark:bg-[#121217] font-body-md text-on-surface dark:text-[#f1effa] antialiased">
+    <div className="min-h-screen bg-white text-[#111111] font-sans selection:bg-[#111111] selection:text-white antialiased">
       <SearchParamsSync onSync={handleSyncParams} />
       {/* 01: Left Architectural Spine Index Navigation (Desktop Fixed w-72) */}
       <aside className="hidden lg:flex fixed left-0 top-0 h-full w-72 bg-surface-container-low dark:bg-[#181820] border-r border-surface-container-highest dark:border-white/10 z-50 flex-col justify-between pt-6 pb-6 select-none">

@@ -6,31 +6,35 @@ import { BookX, ArrowLeft, Sparkles } from 'lucide-react';
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex flex-col bg-surface dark:bg-[#0f1015] text-on-surface dark:text-[#f3f0f7] transition-colors">
+    <div className="min-h-screen flex flex-col bg-white text-[#111111] font-sans selection:bg-[#111111] selection:text-white">
       <Header />
       <main className="flex-1 flex flex-col items-center justify-center max-w-xl mx-auto px-4 py-20 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-secondary-container/20 dark:bg-white/5 border border-secondary/20 flex items-center justify-center mb-6 shadow-xs">
-          <BookX className="w-8 h-8 text-secondary dark:text-secondary-fixed" />
+        <div className="w-14 h-14 rounded-2xl bg-[#FAF9F6] border border-[#EAEAEA] flex items-center justify-center mb-6 text-[#111111] shadow-2xs">
+          <BookX className="w-7 h-7 text-[#9A6F3C]" />
         </div>
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/30 text-secondary dark:text-secondary-fixed border border-secondary/20 text-xs font-label-caps tracking-widest uppercase mb-4">
-          404 • Folio Uncataloged
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF9F6] text-[#9A6F3C] border border-[#EAEAEA] text-xs font-semibold tracking-wider uppercase mb-4">
+          404 • Page Not Found
         </span>
-        <h1 className="font-headline-lg text-3xl sm:text-4xl text-on-surface dark:text-[#f3f0f7] tracking-tight mb-3">
-          This Page or Publication Does Not Exist
+        <h1 className="font-serif text-3xl sm:text-4xl text-[#111111] font-normal tracking-tight mb-3">
+          This Page Does Not Exist
         </h1>
-        <p className="font-body-md text-sm sm:text-base text-on-surface-variant dark:text-[#c4c7c5] mb-8 leading-relaxed">
-          The publication or URL you are trying to reach has moved, expired, or was typed incorrectly.
+        <p className="text-sm sm:text-base text-[#666666] mb-8 leading-relaxed max-w-md">
+          The publication or link you are trying to reach has moved, expired, or was typed incorrectly.
         </p>
         <div className="flex flex-col sm:flex-row items-center gap-3">
-          <Link href="/">
-            <Button variant="secondary" size="lg" className="border-outline-variant/30 text-on-surface dark:text-white hover:bg-surface-container">
-              <ArrowLeft className="w-4 h-4 mr-1.5" /> Back to Home
-            </Button>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-[#EAEAEA] hover:border-[#111111] text-xs sm:text-sm font-semibold text-[#111111] bg-white transition-all shadow-2xs"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            <span>Back to Home</span>
           </Link>
-          <Link href="/create">
-            <Button variant="primary" size="lg" className="bg-primary hover:bg-primary-hover text-on-primary shadow-sm font-semibold">
-              <Sparkles className="w-4 h-4 mr-1.5 text-secondary-fixed" /> Open Studio Atelier
-            </Button>
+          <Link
+            href="/create"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#111111] hover:bg-black text-xs sm:text-sm font-semibold text-white transition-all shadow-xs"
+          >
+            <Sparkles className="w-4 h-4 mr-1 text-[#9A6F3C]" />
+            <span>Create New eBook</span>
           </Link>
         </div>
       </main>

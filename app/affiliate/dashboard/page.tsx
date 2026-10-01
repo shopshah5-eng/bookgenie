@@ -214,7 +214,7 @@ export default function AffiliateDashboardPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#FDFBF7] text-[#1A1612]">
+      <div className="min-h-screen flex flex-col bg-white text-[#111111] font-sans selection:bg-[#111111] selection:text-white">
         <MinimalHeader />
         <main className="flex-1 max-w-xl mx-auto px-6 py-24 text-center">
           <div className="p-8 rounded-3xl bg-white border border-[#EFECE6] shadow-md">
@@ -256,7 +256,7 @@ export default function AffiliateDashboardPage() {
   const progressPercent = Math.min((availableBalance / 10) * 100, 100);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FDFBF7] text-[#1A1612] font-sans selection:bg-[#111111] selection:text-white">
+    <div className="min-h-screen flex flex-col bg-white text-[#111111] font-sans selection:bg-[#111111] selection:text-white">
       <MinimalHeader />
 
       <main className="flex-1 max-w-[1240px] mx-auto w-full px-6 py-10 sm:py-14">

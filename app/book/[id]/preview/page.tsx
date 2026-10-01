@@ -249,7 +249,7 @@ export default function BookPreviewEditPage({
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#111111] font-sans antialiased flex flex-col selection:bg-neutral-200">
+    <div className="min-h-screen bg-white text-[#111111] font-sans antialiased flex flex-col selection:bg-[#111111] selection:text-white">
       {/* 1. Header (Matching Section 5) */}
       <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-[#0000000d]">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">

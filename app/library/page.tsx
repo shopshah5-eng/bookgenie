@@ -255,7 +255,7 @@ function BookshelfContent() {
 export default function BookshelfPage() {
   return (
     <AuthProvider>
-      <div className="min-h-screen flex flex-col bg-surface-container-lowest dark:bg-[#121217] text-on-surface dark:text-[#f1effa] transition-colors">
+      <div className="min-h-screen flex flex-col bg-white text-[#111111] font-sans selection:bg-[#111111] selection:text-white">
         <Header />
         <main className="flex-1 flex flex-col">
           <BookshelfContent />

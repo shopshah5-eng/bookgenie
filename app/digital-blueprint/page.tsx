@@ -29,7 +29,7 @@ export default function DigitalBlueprintStorePage() {
   const glowUp = EBOOK_CATALOG['glow-up'];
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#1A1612] antialiased flex flex-col selection:bg-[#EFE7D8]">
+    <div className="min-h-screen bg-white text-[#111111] antialiased font-sans flex flex-col selection:bg-[#111111] selection:text-white">
       <MinimalHeader />
 
       <main className="flex-1 max-w-[1200px] w-full mx-auto px-6 py-12 sm:py-16">

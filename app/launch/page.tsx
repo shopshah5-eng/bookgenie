@@ -312,7 +312,7 @@ export default function LaunchPage() {
   const annualDiscount = getAnnualDiscountPercent(baseDiscount); // e.g. 30%
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-[#FDFBF7] text-[#1A1612] font-sans selection:bg-[#111111] selection:text-white">
+    <div className="relative min-h-screen w-full overflow-hidden bg-white text-[#111111] font-sans selection:bg-[#111111] selection:text-white">
       {/* Dynamic Background Glowing Mesh (behind white blur) */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-amber-200/40 via-amber-100/30 to-transparent blur-3xl pointer-events-none" />
       <div className="absolute top-[20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-gradient-to-bl from-amber-300/25 via-stone-200/30 to-transparent blur-3xl pointer-events-none" />

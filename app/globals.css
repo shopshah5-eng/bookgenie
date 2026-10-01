@@ -3,53 +3,53 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-surface: #fbf8ff;
-  --color-surface-dim: #dad9e3;
-  --color-surface-bright: #fbf8ff;
+  --color-surface: #ffffff;
+  --color-surface-dim: #f7f7f7;
+  --color-surface-bright: #ffffff;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f4f2fd;
-  --color-surface-container: #eeedf7;
-  --color-surface-container-high: #e8e7f1;
-  --color-surface-container-highest: #e3e1ec;
-  --color-on-surface: #1a1b22;
-  --color-on-surface-variant: #47464b;
-  --color-inverse-surface: #2f3038;
-  --color-inverse-on-surface: #f1effa;
-  --color-outline: #77767b;
-  --color-outline-variant: #c8c5cb;
-  --color-surface-tint: #5f5e61;
-  --color-primary: #000000;
+  --color-surface-container-low: #faf9f6;
+  --color-surface-container: #f5f5f0;
+  --color-surface-container-high: #eaeaea;
+  --color-surface-container-highest: #e5e5e0;
+  --color-on-surface: #111111;
+  --color-on-surface-variant: #666666;
+  --color-inverse-surface: #111111;
+  --color-inverse-on-surface: #ffffff;
+  --color-outline: #888888;
+  --color-outline-variant: #eaeaea;
+  --color-surface-tint: #9a6f3c;
+  --color-primary: #111111;
   --color-on-primary: #ffffff;
   --color-primary-container: #1b1b1e;
-  --color-on-primary-container: #858387;
-  --color-inverse-primary: #c8c5ca;
-  --color-secondary: #775a19;
+  --color-on-primary-container: #888888;
+  --color-inverse-primary: #eaeaea;
+  --color-secondary: #9a6f3c;
   --color-on-secondary: #ffffff;
-  --color-secondary-container: #fed488;
-  --color-on-secondary-container: #785a1a;
-  --color-tertiary: #000000;
+  --color-secondary-container: #f5ebd9;
+  --color-on-secondary-container: #7a5528;
+  --color-tertiary: #111111;
   --color-on-tertiary: #ffffff;
-  --color-tertiary-container: #2a1800;
-  --color-on-tertiary-container: #b07929;
+  --color-tertiary-container: #f4f3ef;
+  --color-on-tertiary-container: #9a6f3c;
   --color-error: #ba1a1a;
   --color-on-error: #ffffff;
   --color-error-container: #ffdad6;
   --color-on-error-container: #93000a;
-  --color-primary-fixed: #e4e1e6;
-  --color-primary-fixed-dim: #c8c5ca;
-  --color-on-primary-fixed: #1b1b1e;
-  --color-on-primary-fixed-variant: #47464a;
-  --color-secondary-fixed: #ffdea5;
-  --color-secondary-fixed-dim: #e9c176;
-  --color-on-secondary-fixed: #261900;
-  --color-on-secondary-fixed-variant: #5d4201;
-  --color-tertiary-fixed: #ffddb6;
-  --color-tertiary-fixed-dim: #fcba64;
-  --color-on-tertiary-fixed: #2a1800;
-  --color-on-tertiary-fixed-variant: #643f00;
-  --color-background: #fbf8ff;
-  --color-on-background: #1a1b22;
-  --color-surface-variant: #e3e1ec;
+  --color-primary-fixed: #f4f3ef;
+  --color-primary-fixed-dim: #eaeaea;
+  --color-on-primary-fixed: #111111;
+  --color-on-primary-fixed-variant: #666666;
+  --color-secondary-fixed: #fbf5ea;
+  --color-secondary-fixed-dim: #ebd8b8;
+  --color-on-secondary-fixed: #422d10;
+  --color-on-secondary-fixed-variant: #7a5528;
+  --color-tertiary-fixed: #fbf5ea;
+  --color-tertiary-fixed-dim: #ebd8b8;
+  --color-on-tertiary-fixed: #422d10;
+  --color-on-tertiary-fixed-variant: #7a5528;
+  --color-background: #ffffff;
+  --color-on-background: #111111;
+  --color-surface-variant: #f4f3ef;
 
   --spacing-gutter-mobile: 1rem;
   --spacing-gutter: 1.5rem;
@@ -62,66 +62,66 @@
   --spacing-space-md: 1rem;
   --spacing-space-lg: 1.5rem;
   --spacing-space-xl: 2.5rem;
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "San Francisco", system-ui, sans-serif;
-  --font-serif: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "San Francisco", system-ui, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "San Francisco", -apple-system, system-ui, sans-serif;
+  --font-serif: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "San Francisco", -apple-system, system-ui, sans-serif;
 }
 
 @layer base {
   :root {
-    --canvas: #fbf8ff;
+    --canvas: #ffffff;
     --canvas-pure: #ffffff;
-    --canvas-subtle: #f4f2fd;
-    --canvas-sand: #eeedf7;
+    --canvas-subtle: #faf9f6;
+    --canvas-sand: #f5f5f0;
 
-    --foreground: #1a1b22;
-    --foreground-muted: #47464b;
-    --foreground-faint: #77767b;
+    --foreground: #111111;
+    --foreground-muted: #666666;
+    --foreground-faint: #888888;
     
     --card: #ffffff;
-    --card-foreground: #1a1b22;
-    --border: #e3e1ec;
-    --border-subtle: #eeedf7;
+    --card-foreground: #111111;
+    --border: #eaeaea;
+    --border-subtle: #f0f0f0;
 
-    --gold-primary: #775a19;
-    --gold-hover: #5d4201;
-    --gold-light: #fed488;
-    --gold-border: #e9c176;
-    --gold-gradient: linear-gradient(135deg, #775a19 0%, #b07929 100%);
+    --gold-primary: #9a6f3c;
+    --gold-hover: #845d30;
+    --gold-light: #f5ebd9;
+    --gold-border: #e2c99f;
+    --gold-gradient: linear-gradient(135deg, #a87b45 0%, #8c5f2e 100%);
 
-    --font-serif: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "San Francisco", system-ui, sans-serif;
-    --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "San Francisco", system-ui, sans-serif;
+    --font-serif: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "San Francisco", -apple-system, system-ui, sans-serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "San Francisco", -apple-system, system-ui, sans-serif;
   }
 
   .dark {
-    --canvas: #121217;
-    --canvas-pure: #09090c;
-    --canvas-subtle: #1a1b22;
-    --canvas-sand: #24252e;
-    --foreground: #f1effa;
-    --foreground-muted: #c8c5cb;
-    --foreground-faint: #77767b;
+    --canvas: #ffffff;
+    --canvas-pure: #ffffff;
+    --canvas-subtle: #faf9f6;
+    --canvas-sand: #f5f5f0;
+    --foreground: #111111;
+    --foreground-muted: #666666;
+    --foreground-faint: #888888;
 
-    --card: #1a1b22;
-    --card-foreground: #f1effa;
-    --border: rgba(227, 225, 236, 0.12);
-    --border-subtle: rgba(227, 225, 236, 0.06);
+    --card: #ffffff;
+    --card-foreground: #111111;
+    --border: #eaeaea;
+    --border-subtle: #f0f0f0;
 
-    --gold-primary: #fcba64;
-    --gold-hover: #ffddb6;
-    --gold-light: #2a1800;
-    --gold-border: #785a1a;
-    --gold-gradient: linear-gradient(135deg, #fcba64 0%, #fed488 100%);
+    --gold-primary: #9a6f3c;
+    --gold-hover: #845d30;
+    --gold-light: #f5ebd9;
+    --gold-border: #e2c99f;
+    --gold-gradient: linear-gradient(135deg, #a87b45 0%, #8c5f2e 100%);
   }
 
   *, *::before, *::after {
     border-color: var(--border);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "San Francisco", system-ui, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "San Francisco", -apple-system, system-ui, sans-serif;
   }
 
   html {
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "San Francisco", system-ui, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "San Francisco", -apple-system, system-ui, sans-serif;
   }
 
   :focus-visible {
@@ -144,7 +144,7 @@
     flex-direction: column;
   }
 
-  h1, h2, h3, h4, h5, h6, .font-serif, .font-sans, .font-serif-editorial {
+  h1, h2, h3, h4, h5, h6, button, input, select, textarea, .font-serif, .font-sans, .font-serif-editorial {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "San Francisco", system-ui, sans-serif !important;
     letter-spacing: -0.015em;
   }

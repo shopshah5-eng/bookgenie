@@ -77,13 +77,13 @@ export default function RootLayout({
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');var d=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(!t&&d)){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}}catch(e){}})();`,
           }}
         />
       </head>
       <body
         suppressHydrationWarning
-        className="antialiased selection:bg-[#9A6F3C]/20 selection:text-[#111111] dark:selection:text-white bg-white dark:bg-[#0A0A0A] text-[#111111] dark:text-[#F5F5F5] transition-colors duration-200"
+        className="antialiased selection:bg-[#111111] selection:text-white bg-white text-[#111111] transition-colors duration-200 font-sans"
       >
         <a
           href="#main-content"

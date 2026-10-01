@@ -105,7 +105,7 @@ export function SharedBookReaderClient({ initialBook, token }: SharedBookReaderC
 
   return (
     <div
-      className="min-h-screen flex flex-col bg-surface-container dark:bg-[#0e0e14] text-on-surface dark:text-[#f1effa] relative overflow-x-hidden"
+      className="min-h-screen flex flex-col bg-white text-[#111111] font-sans relative overflow-x-hidden"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >

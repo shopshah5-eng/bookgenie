@@ -53,19 +53,19 @@ export default function FAQPage() {
 
   return (
     <AuthProvider>
-      <div className="min-h-screen flex flex-col bg-surface-container-lowest dark:bg-[#121217] text-on-surface dark:text-[#f1effa] transition-colors">
+      <div className="min-h-screen flex flex-col bg-white text-[#111111] font-sans selection:bg-[#111111] selection:text-white">
         <Header />
 
         <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
           <div className="text-center mb-16">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container dark:bg-white/10 text-secondary dark:text-[#fcba64] border border-surface-container-highest dark:border-white/10 text-[11px] font-label-caps uppercase tracking-wider mb-4">
-              <span className="w-1.5 h-1.5 rounded-full bg-secondary dark:bg-[#fcba64]" />
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FAF9F6] text-[#9A6F3C] border border-[#EAEAEA] text-[11px] font-semibold uppercase tracking-wider mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#9A6F3C]" />
               Knowledge &amp; Support
             </span>
-            <h1 className="font-display-hero text-display-hero-mobile md:text-display-hero text-primary dark:text-[#f1effa] tracking-tight leading-none mb-4">
+            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-[#111111] tracking-tight leading-tight mb-4">
               Frequently Asked Questions
             </h1>
-            <p className="font-body-lg text-body-lg text-on-surface-variant dark:text-neutral-400">
+            <p className="text-sm sm:text-base text-[#666666] leading-relaxed max-w-xl mx-auto">
               Clear answers regarding autonomous book generation, licensing, and printing.
             </p>
           </div>
@@ -74,31 +74,31 @@ export default function FAQPage() {
             {faqs.map((faq, idx) => (
               <details
                 key={idx}
-                className="group p-6 rounded-xl bg-surface-container-lowest dark:bg-[#181820] border border-surface-container-highest dark:border-white/10 shadow-xs transition-colors open:bg-surface-container-low dark:open:bg-[#1a1b24]"
+                className="group p-5 sm:p-6 rounded-xl bg-white border border-[#EAEAEA] shadow-[0_2px_12px_rgba(0,0,0,0.02)] transition-colors open:border-[#CCCCCC]"
               >
-                <summary className="flex items-center justify-between cursor-pointer font-headline-sm text-base sm:text-lg text-primary dark:text-[#f1effa] list-none select-none">
+                <summary className="flex items-center justify-between cursor-pointer font-serif text-base sm:text-lg text-[#111111] font-semibold list-none select-none">
                   <span>{faq.q}</span>
-                  <span className="material-symbols-outlined text-secondary dark:text-[#fcba64] transition-transform group-open:rotate-180 shrink-0 ml-4">
+                  <span className="material-symbols-outlined text-[#888888] transition-transform group-open:rotate-180 shrink-0 ml-4">
                     expand_more
                   </span>
                 </summary>
-                <p className="mt-4 pt-4 border-t border-surface-container-highest dark:border-white/10 font-body-md text-sm sm:text-base text-on-surface-variant dark:text-neutral-300 leading-relaxed">
+                <p className="mt-4 pt-4 border-t border-[#F5F5F5] text-sm sm:text-base text-[#666666] leading-relaxed">
                   {faq.a}
                 </p>
               </details>
             ))}
           </div>
 
-          <div className="text-center p-8 bg-surface-container-low dark:bg-[#181820] rounded-2xl border border-surface-container-highest dark:border-white/10">
-            <h3 className="font-headline-sm text-lg font-bold text-primary dark:text-[#f1effa] mb-2">
+          <div className="text-center p-8 bg-[#FAF9F6] rounded-2xl border border-[#EAEAEA]">
+            <h3 className="font-serif text-xl sm:text-2xl font-semibold text-[#111111] mb-2">
               Have a specific printing or publishing requirement?
             </h3>
-            <p className="font-body-sm text-sm text-on-surface-variant dark:text-neutral-400 mb-6">
+            <p className="text-sm text-[#666666] mb-6 max-w-md mx-auto">
               Our typographical engineering team is available for custom imprint formats, ISBNs, and distribution specs.
             </p>
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 bg-primary dark:bg-white text-on-primary dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 px-6 py-2.5 rounded-full font-label-ui text-sm font-semibold transition-all"
+              className="inline-flex items-center gap-2 bg-[#111111] text-white hover:bg-black px-6 py-2.5 rounded-full text-sm font-semibold transition-all shadow-xs"
             >
               <span>Contact Editorial Atelier</span>
               <span className="material-symbols-outlined text-[16px]">arrow_forward</span>

@@ -40,7 +40,7 @@ export default async function BlogArticlePage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FDFBF7] text-[#1A1612] antialiased font-sans">
+    <div className="min-h-screen flex flex-col bg-white text-[#111111] antialiased font-sans selection:bg-[#111111] selection:text-white">
       <MinimalHeader />
 
       <main className="flex-1 max-w-[840px] w-full mx-auto px-5 sm:px-6 pt-12 sm:pt-16 pb-24">
