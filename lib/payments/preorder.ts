@@ -118,10 +118,9 @@ export async function getPreorderStatus(): Promise<PreorderStatus> {
       console.warn('Could not count completed purchases for preorder status:', error.message);
     }
 
-    // Launch momentum baseline (e.g. 14 spots claimed in Tier 1 at 50% OFF) + real DB purchases
+    // Live DB purchases only — zero fake/demo seed
     const dbPurchases = count || 0;
-    const initialSeed = 14; 
-    const totalClaimed = Math.min(Math.max(dbPurchases, initialSeed), MAX_FOUNDER_SPOTS);
+    const totalClaimed = Math.min(dbPurchases, MAX_FOUNDER_SPOTS);
     const remainingTotal = Math.max(MAX_FOUNDER_SPOTS - totalClaimed, 0);
     const activeTier = calculateSteppedTier(totalClaimed);
 
@@ -134,13 +133,12 @@ export async function getPreorderStatus(): Promise<PreorderStatus> {
     };
   } catch (err) {
     console.error('Error fetching preorder status:', err);
-    const fallbackClaimed = 14;
     return {
-      totalClaimed: fallbackClaimed,
+      totalClaimed: 0,
       maxSpots: MAX_FOUNDER_SPOTS,
-      remainingTotal: 86,
+      remainingTotal: MAX_FOUNDER_SPOTS,
       isPreorderActive: true,
-      activeTier: calculateSteppedTier(fallbackClaimed),
+      activeTier: calculateSteppedTier(0),
     };
   }
 }
@@ -160,7 +158,7 @@ export async function determineFounderNumber(): Promise<{ isFounder: boolean; fo
     if (total < MAX_FOUNDER_SPOTS) {
       return {
         isFounder: true,
-        founderNumber: Math.max(total + 1, 15),
+        founderNumber: total + 1,
       };
     }
     return {
@@ -168,6 +166,6 @@ export async function determineFounderNumber(): Promise<{ isFounder: boolean; fo
       founderNumber: null,
     };
   } catch {
-    return { isFounder: true, founderNumber: 15 };
+    return { isFounder: true, founderNumber: 1 };
   }
 }

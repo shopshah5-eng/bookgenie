@@ -79,9 +79,9 @@ export default function LaunchPage() {
       nextTierPercent: number;
     };
   }>({
-    totalClaimed: 14,
+    totalClaimed: 0,
     maxSpots: 100,
-    remainingTotal: 86,
+    remainingTotal: 100,
     isPreorderActive: true,
     activeTier: {
       tierNumber: 1,
@@ -89,7 +89,7 @@ export default function LaunchPage() {
       discountPercent: 50,
       tierRange: 'Spots 1 – 25',
       spotsInTier: 25,
-      remainingInTier: 11,
+      remainingInTier: 25,
       nextTierPercent: 40,
     },
   });

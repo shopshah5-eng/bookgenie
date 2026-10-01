@@ -7,7 +7,7 @@ import { AuthProvider } from '@/components/auth/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Sparkles, DollarSign, Users, Award, CheckCircle2, ArrowRight, Copy, Check, Tag, Link as LinkIcon } from 'lucide-react';
+import { Sparkles, DollarSign, Users, Award, CheckCircle2, ArrowRight, Copy, Check, Tag, Link as LinkIcon, Building } from 'lucide-react';
 
 export default function AffiliatePage() {
   const [email, setEmail] = useState('');
@@ -50,9 +50,14 @@ export default function AffiliatePage() {
 
   const benefits = [
     {
-      title: '10% Cash Commission on Every Order',
-      desc: 'Earn 10% cash on every single book purchase, bundle, and subscription tier referred by your link or promo code.',
+      title: '10% Monthly Recurring Commission',
+      desc: 'Earn 10% cash every single month on subscriptions, plus 10% on one-time book purchases and founder passes referred by your link or promo code.',
       icon: <DollarSign className="w-6 h-6 text-[#9A6F3C]" />,
+    },
+    {
+      title: 'Direct Bank & UPI Transfers ($10 Min)',
+      desc: 'No complicated points or waiting months. Add your Bank Account or UPI ID to your dashboard and withdraw your earnings with a low $10 minimum threshold.',
+      icon: <Building className="w-6 h-6 text-[#9A6F3C]" />,
     },
     {
       title: 'Custom 10% Audience Coupon Code',
@@ -82,10 +87,26 @@ export default function AffiliatePage() {
             <p className="font-body-md text-sm sm:text-base text-on-surface-variant dark:text-[#c4c7c5]">
               Partner with the leading luxury digital publishing platform. Share BookGenie with your audience and build recurring monthly revenue.
             </p>
+
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <a
+                href="/affiliate/dashboard"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#111111] dark:bg-white text-white dark:text-[#111111] text-xs font-bold hover:opacity-90 transition-all shadow-xs"
+              >
+                <span>Go to Affiliate Dashboard</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </a>
+              <a
+                href="#apply"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-outline-variant/30 text-xs font-semibold hover:bg-black/5 dark:hover:bg-white/5 transition-all text-on-surface dark:text-white"
+              >
+                <span>New Partner? Apply Below</span>
+              </a>
+            </div>
           </div>
 
-          {/* Benefits Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          {/* Benefits Grid (4 Cards) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
             {benefits.map((b) => (
               <div
                 key={b.title}
@@ -107,7 +128,7 @@ export default function AffiliatePage() {
           </div>
 
           {/* Application Form Card */}
-          <div className="max-w-xl mx-auto rounded-3xl bg-surface-container-low dark:bg-[#1a1b22] border border-outline-variant/20 dark:border-white/5 p-8 sm:p-10 shadow-lg text-center">
+          <div id="apply" className="max-w-xl mx-auto rounded-3xl bg-surface-container-low dark:bg-[#1a1b22] border border-outline-variant/20 dark:border-white/5 p-8 sm:p-10 shadow-lg text-center scroll-mt-24">
             {applied && partnerData ? (
               <div className="py-4 space-y-5 text-left">
                 <div className="w-12 h-12 mx-auto rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
@@ -180,6 +201,16 @@ export default function AffiliatePage() {
                   <p className="text-[11px] text-neutral-500">
                     Anyone clicking this link has your promo code and 10% discount automatically pre-applied on the pricing table.
                   </p>
+                </div>
+
+                <div className="pt-2">
+                  <a
+                    href="/affiliate/dashboard"
+                    className="w-full py-3 px-4 rounded-xl bg-[#111111] dark:bg-white text-white dark:text-[#111111] text-xs font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-sm"
+                  >
+                    <span>Open Your Partner Dashboard &amp; Configure Payouts</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
                 </div>
               </div>
             ) : applied ? (

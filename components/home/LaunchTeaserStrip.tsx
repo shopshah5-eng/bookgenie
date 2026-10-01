@@ -26,12 +26,12 @@ export function LaunchTeaserStrip() {
       remainingInTier: number;
     };
   }>({
-    totalClaimed: 14,
+    totalClaimed: 0,
     maxSpots: 100,
     activeTier: {
       tierName: 'Tier 1: Super Early Bird',
       discountPercent: 50,
-      remainingInTier: 11,
+      remainingInTier: 25,
     },
   });
 

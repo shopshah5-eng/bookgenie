@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
-import { Menu, X, ChevronDown, Edit3, BookOpen, LogOut, Check, Loader2, Shield, Sun, Moon } from 'lucide-react';
+import { Menu, X, ChevronDown, Edit3, BookOpen, LogOut, Check, Loader2, Shield, Sun, Moon, DollarSign } from 'lucide-react';
 
 export function MinimalHeader() {
   const { user, openAuthModal, signOut, updateProfileName } = useAuth();
@@ -394,6 +394,15 @@ export function MinimalHeader() {
                       <span>My eBooks Library</span>
                     </Link>
 
+                    <Link
+                      href="/affiliate/dashboard"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#111111] hover:bg-[#F6F5F2] transition-colors"
+                    >
+                      <DollarSign className="w-3.5 h-3.5 text-[#9A6F3C]" />
+                      <span>Affiliate Dashboard</span>
+                    </Link>
+
                     {quotaInfo?.isAdmin && (
                       <Link
                         href="/admin"
@@ -571,6 +580,13 @@ export function MinimalHeader() {
                       Sign Out
                     </button>
                   </div>
+                  <Link
+                    href="/affiliate/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-xs font-semibold text-[#9A6F3C] flex items-center gap-1.5 py-1"
+                  >
+                    <DollarSign className="w-3.5 h-3.5" /> Affiliate Dashboard
+                  </Link>
                   {quotaInfo?.isAdmin && (
                     <Link
                       href="/admin"
