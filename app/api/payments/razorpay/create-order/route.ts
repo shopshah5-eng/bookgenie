@@ -85,25 +85,25 @@ export async function POST(req: NextRequest) {
     let appliedCouponCode: string | null = null;
     let appliedAffiliateCode: string | null = null;
 
+    const { getPreorderStatus } = await import('@/lib/payments/preorder');
+    const preorder = await getPreorderStatus();
+    const activePercent = preorder.isPreorderActive ? preorder.activeTier.discountPercent : 0;
+
     if (rawCoupon) {
-      const couponResult = validateCoupon(rawCoupon, orderAmountCents);
+      const couponResult = validateCoupon(rawCoupon, orderAmountCents, activePercent);
       if (couponResult.valid) {
         discountCents = couponResult.discountAmountCents;
         orderAmountCents = couponResult.finalAmountCents;
         appliedCouponCode = couponResult.code;
         appliedAffiliateCode = couponResult.affiliateCode || (typeof body?.affiliateRef === 'string' ? body.affiliateRef : null);
       }
-    } else {
-      // Automatic Early Bird Founder discount for the first 100 users
-      const { getPreorderStatus } = await import('@/lib/payments/preorder');
-      const preorder = await getPreorderStatus();
-      if (preorder.isPreorderActive) {
-        const autoResult = validateCoupon('FOUNDER10', orderAmountCents);
-        if (autoResult.valid) {
-          discountCents = autoResult.discountAmountCents;
-          orderAmountCents = autoResult.finalAmountCents;
-          appliedCouponCode = 'FOUNDER10';
-        }
+    } else if (preorder.isPreorderActive && activePercent > 0) {
+      // Automatic Stepped Founder discount (e.g. 50% for Tier 1, 40% for Tier 2, etc.)
+      const autoResult = validateCoupon('FOUNDER', orderAmountCents, activePercent);
+      if (autoResult.valid) {
+        discountCents = autoResult.discountAmountCents;
+        orderAmountCents = autoResult.finalAmountCents;
+        appliedCouponCode = `FOUNDER${activePercent}`;
       }
     }
 

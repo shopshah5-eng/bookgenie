@@ -57,17 +57,35 @@ export function MinimalPricing() {
   const [configError, setConfigError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Pre-order campaign status (First 100 Founding Authors)
+  // Stepped Pre-Order campaign status (First 100 Founding Authors)
   const [preorderStatus, setPreorderStatus] = useState<{
     totalClaimed: number;
     maxSpots: number;
-    remaining: number;
+    remainingTotal: number;
     isPreorderActive: boolean;
+    activeTier?: {
+      tierNumber: number;
+      tierName: string;
+      discountPercent: number;
+      tierRange: string;
+      spotsInTier: number;
+      remainingInTier: number;
+      nextTierPercent: number;
+    };
   }>({
-    totalClaimed: 64,
+    totalClaimed: 14,
     maxSpots: 100,
-    remaining: 36,
+    remainingTotal: 86,
     isPreorderActive: true,
+    activeTier: {
+      tierNumber: 1,
+      tierName: 'Tier 1: Super Early Bird',
+      discountPercent: 50,
+      tierRange: 'Spots 1 – 25',
+      spotsInTier: 25,
+      remainingInTier: 11,
+      nextTierPercent: 40,
+    },
   });
 
   // Coupon / Affiliate discount state
@@ -97,30 +115,31 @@ export function MinimalPricing() {
         .catch(() => {});
     }
 
-    // Fetch real-time pre-order campaign counter and auto-apply founder discount
+    // Fetch real-time stepped pre-order campaign status and auto-apply tier discount
     fetch('/api/preorder/status')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && typeof data.totalClaimed === 'number') {
           setPreorderStatus(data);
 
-          // If pre-order is active and no custom referral code exists, auto-apply 10% founder discount!
+          // If pre-order is active and no custom referral code exists, auto-apply the active stepped discount!
           if (typeof window !== 'undefined') {
             const urlParams = new URLSearchParams(window.location.search);
             const incomingRef = urlParams.get('ref') || urlParams.get('aff') || urlParams.get('coupon') || localStorage.getItem('bookgenie_ref');
 
-            if (!incomingRef && data.isPreorderActive) {
-              const autoRes = validateCoupon('FOUNDER10', 1000);
+            if (!incomingRef && data.isPreorderActive && data.activeTier) {
+              const activePercent = data.activeTier.discountPercent;
+              const autoRes = validateCoupon('FOUNDER', 1000, activePercent);
               if (autoRes.valid) {
                 setAppliedCoupon({
-                  code: autoRes.code,
-                  percent: autoRes.discountPercent,
-                  isAffiliate: autoRes.isAffiliate,
-                  message: '⚡ Early Bird Launch: 10% Founding Author discount automatically applied!',
+                  code: `FOUNDER${activePercent}`,
+                  percent: activePercent,
+                  isAffiliate: false,
+                  message: `⚡ ${data.activeTier.tierName} Active: ${activePercent}% discount automatically applied!`,
                 });
                 setCouponFeedback({
                   type: 'success',
-                  text: '⚡ Early Bird Launch: 10% Founding Author discount automatically applied to all plans!',
+                  text: `⚡ ${data.activeTier.tierName}: ${activePercent}% discount automatically applied! (Only ${data.activeTier.remainingInTier} spots left at this price)`,
                 });
               }
             }
@@ -373,40 +392,82 @@ export function MinimalPricing() {
           </div>
         </div>
 
-        {/* Pre-Order Launch Banner (First 100 Founding Authors) */}
+        {/* Stepped Tier Pre-Order Launch Banner (Option C) */}
         {preorderStatus.isPreorderActive && (
-          <div className="max-w-3xl mx-auto mb-8 p-5 rounded-2xl bg-gradient-to-br from-[#FDFBF7] via-[#FFFDF9] to-[#F7F2E8] border border-[#EFECE6] shadow-xs">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-              <div className="flex items-center gap-2.5">
-                <span className="inline-flex items-center justify-center p-2 rounded-xl bg-[#9A6F3C]/10 text-[#9A6F3C]">
+          <div className="max-w-4xl mx-auto mb-10 p-6 rounded-3xl bg-gradient-to-br from-[#FDFBF7] via-[#FFFDF9] to-[#F7F2E8] border border-[#EFECE6] shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex items-center justify-center p-2.5 rounded-2xl bg-[#9A6F3C]/15 text-[#9A6F3C]">
                   <Flame className="w-5 h-5 text-[#9A6F3C]" />
                 </span>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm sm:text-base font-bold text-[#1A1612] tracking-tight">
-                      Early Bird Launch: First 100 Founding Authors
-                    </h3>
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#9A6F3C] text-white">
-                      50% OFF Core
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#9A6F3C] text-white text-[11px] font-bold uppercase tracking-wider">
+                      {preorderStatus.activeTier?.tierName || 'Tier 1: 50% OFF'}
+                    </span>
+                    <span className="text-xs font-semibold text-emerald-800 bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 px-2 py-0.5 rounded-full">
+                      Price Rises in {preorderStatus.activeTier?.remainingInTier ?? 11} orders
                     </span>
                   </div>
-                  <p className="text-xs text-[#6B635B] mt-0.5">
-                    Save an extra 10% with code <code className="font-mono font-bold text-[#9A6F3C]">FOUNDER10</code> + get permanent Founding Author perks &amp; priority GPU generation.
+                  <h3 className="text-base sm:text-lg font-bold text-[#1A1612] tracking-tight mt-1">
+                    First 100 Founding Authors: Stepped Early Bird Deal
+                  </h3>
+                  <p className="text-xs text-[#6B635B]">
+                    Price increases every 25 orders. Claim your spot now to lock in {preorderStatus.activeTier?.discountPercent ?? 50}% OFF before the next price hike!
                   </p>
                 </div>
               </div>
-              <div className="text-left sm:text-right shrink-0">
+              <div className="text-left sm:text-right shrink-0 bg-white/70 p-3 rounded-xl border border-[#EFECE6]">
                 <span className="text-xs font-bold text-[#9A6F3C] uppercase tracking-wider block">
-                  {preorderStatus.remaining} Spots Remaining
+                  {preorderStatus.activeTier?.remainingInTier ?? 11} of 25 Left in This Tier
                 </span>
                 <p className="text-[11px] text-neutral-500">
-                  {preorderStatus.totalClaimed} of {preorderStatus.maxSpots} claimed
+                  Total: {preorderStatus.totalClaimed} of 100 claimed
                 </p>
               </div>
             </div>
 
-            {/* Visual Progress Bar */}
-            <div className="w-full bg-[#EFECE6] rounded-full h-2.5 overflow-hidden mb-3">
+            {/* Stepped Tier Visual Ladder */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+              {[
+                { num: 1, range: 'Spots 1–25', disc: '50% OFF', label: 'Super Early' },
+                { num: 2, range: 'Spots 26–50', disc: '40% OFF', label: 'Early Bird' },
+                { num: 3, range: 'Spots 51–75', disc: '30% OFF', label: 'Founder' },
+                { num: 4, range: 'Spots 76–100', disc: '20% OFF', label: 'Final Call' },
+              ].map((tier) => {
+                const isCurrent = (preorderStatus.activeTier?.tierNumber ?? 1) === tier.num;
+                const isPassed = (preorderStatus.activeTier?.tierNumber ?? 1) > tier.num;
+
+                return (
+                  <div
+                    key={tier.num}
+                    className={`p-2.5 rounded-xl border transition-all text-center ${
+                      isCurrent
+                        ? 'bg-white border-[#9A6F3C] shadow-xs ring-1 ring-[#9A6F3C]'
+                        : isPassed
+                        ? 'bg-neutral-100/60 border-neutral-200 opacity-60'
+                        : 'bg-white/40 border-[#EFECE6]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-[10px] text-neutral-500 mb-0.5">
+                      <span>{tier.range}</span>
+                      {isCurrent && (
+                        <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      )}
+                    </div>
+                    <div className={`text-xs sm:text-sm font-bold ${isCurrent ? 'text-[#9A6F3C]' : 'text-neutral-700'}`}>
+                      {tier.disc}
+                    </div>
+                    <div className="text-[10px] text-neutral-400 font-medium">
+                      {isCurrent ? '⚡ ACTIVE NOW' : isPassed ? 'Sold Out' : 'Upcoming'}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Progress Bar */}
+            <div className="w-full bg-[#EFECE6] rounded-full h-2 overflow-hidden mb-3">
               <div
                 className="h-full rounded-full transition-all duration-700 bg-gradient-to-r from-[#9A6F3C] via-[#B88746] to-[#D4A559]"
                 style={{ width: `${Math.min((preorderStatus.totalClaimed / preorderStatus.maxSpots) * 100, 100)}%` }}
@@ -422,7 +483,7 @@ export function MinimalPricing() {
                 <Zap className="w-3.5 h-3.5 text-[#9A6F3C]" /> Priority GPU Generation Queue
               </span>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-[#EFECE6] text-[11px] font-medium text-[#1A1612] shadow-2xs">
-                <Tag className="w-3.5 h-3.5 text-[#9A6F3C]" /> 10% Extra Off with Code
+                <Tag className="w-3.5 h-3.5 text-[#9A6F3C]" /> Auto-Applied at Checkout
               </span>
             </div>
           </div>
