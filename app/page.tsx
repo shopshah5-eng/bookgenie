@@ -4,6 +4,7 @@ import React from 'react';
 import { AuthProvider } from '@/components/auth/AuthContext';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { MinimalHeader } from '@/components/home/MinimalHeader';
+import { LaunchTeaserStrip } from '@/components/home/LaunchTeaserStrip';
 import { MinimalHero } from '@/components/home/MinimalHero';
 import { BookCreatorCard } from '@/components/home/BookCreatorCard';
 import { MinimalFeatureStrip } from '@/components/home/MinimalFeatureStrip';
@@ -15,6 +16,9 @@ import { MinimalFooter } from '@/components/home/MinimalFooter';
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#111111] font-sans selection:bg-[#111111] selection:text-white">
+      {/* 0. Launch Countdown Teaser Banner (In Starting) */}
+      <LaunchTeaserStrip />
+
       {/* Fixed transparent minimal header */}
       <MinimalHeader />
 

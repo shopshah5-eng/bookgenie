@@ -29,6 +29,8 @@ export interface PlanDefinition {
   annualAmountCents?: number;
   annualPriceInr?: number;
   annualAmountPaise?: number;
+  quarterlyPriceUsd?: number;
+  quarterlyAmountCents?: number;
 }
 
 /**
@@ -137,6 +139,8 @@ export const CANONICAL_PLANS: Record<PlanId, PlanDefinition> = {
     annualAmountCents: 18000,
     annualPriceInr: 15,
     annualAmountPaise: 18000,
+    quarterlyPriceUsd: 57, // $19/mo * 3 ($57/quarter)
+    quarterlyAmountCents: 5700,
     billingType: 'subscription',
     currency: 'USD',
     description: 'For active authors, teachers, and coaches releasing continuous publication series.',
@@ -171,6 +175,8 @@ export const CANONICAL_PLANS: Record<PlanId, PlanDefinition> = {
     annualAmountCents: 37200,
     annualPriceInr: 31,
     annualAmountPaise: 37200,
+    quarterlyPriceUsd: 117, // $39/mo * 3 ($117/quarter)
+    quarterlyAmountCents: 11700,
     billingType: 'subscription',
     currency: 'USD',
     description: 'For publishing houses, prolific agencies, and serial digital creators producing at scale.',

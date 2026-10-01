@@ -59,24 +59,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Server-enforced amount from canonical definition with support for custom pages or annual interval
+    // Server-enforced amount from canonical definition with support for custom pages, quarterly, or annual interval
+    const interval = (typeof body?.interval === 'string' ? body.interval : 'monthly') as 'monthly' | 'quarterly' | 'annual';
+    const isQuarterly = interval === 'quarterly';
+    const isAnnual = interval === 'annual';
+
     let orderAmountCents = plan.amountCents ?? plan.amountPaise ?? 0;
     let selectedMaxPages = plan.maxPagesPerBook;
     const requestedPages = typeof body?.pages === 'number' ? body.pages : undefined;
-    const isAnnual = body?.interval === 'annual';
 
     if (plan.id === 'single' && requestedPages) {
       const { calculateSinglePlanPrice } = await import('@/lib/payments/plans');
       const dynamic = calculateSinglePlanPrice(requestedPages);
       orderAmountCents = dynamic.amountCents;
       selectedMaxPages = dynamic.maxPages;
+    } else if (isQuarterly && plan.quarterlyAmountCents) {
+      orderAmountCents = plan.quarterlyAmountCents;
     } else if (isAnnual && (plan.annualAmountCents || plan.annualAmountPaise)) {
       orderAmountCents = plan.annualAmountCents || plan.annualAmountPaise || 0;
     }
 
     const originalAmountCents = orderAmountCents;
 
-    // Apply Coupon / Affiliate discount (10% OFF for buyer, 10% commission for affiliate)
+    // Apply Coupon / Stepped Tier discount
     const rawCoupon = typeof body?.couponCode === 'string' && body.couponCode.trim()
       ? body.couponCode.trim()
       : (typeof body?.affiliateRef === 'string' ? body.affiliateRef.trim() : '');
@@ -85,9 +90,14 @@ export async function POST(req: NextRequest) {
     let appliedCouponCode: string | null = null;
     let appliedAffiliateCode: string | null = null;
 
-    const { getPreorderStatus } = await import('@/lib/payments/preorder');
+    const { getPreorderStatus, getAnnualDiscountPercent } = await import('@/lib/payments/preorder');
     const preorder = await getPreorderStatus();
-    const activePercent = preorder.isPreorderActive ? preorder.activeTier.discountPercent : 0;
+    const baseActivePercent = preorder.isPreorderActive ? preorder.activeTier.discountPercent : 0;
+
+    // First 100 users get full discount (e.g. 50%) on 3-month/monthly plans, and half discount (30% in Tier 1) on 12-month annual
+    const activePercent = isAnnual
+      ? getAnnualDiscountPercent(baseActivePercent)
+      : baseActivePercent;
 
     if (rawCoupon) {
       const couponResult = validateCoupon(rawCoupon, orderAmountCents, activePercent);
@@ -98,7 +108,7 @@ export async function POST(req: NextRequest) {
         appliedAffiliateCode = couponResult.affiliateCode || (typeof body?.affiliateRef === 'string' ? body.affiliateRef : null);
       }
     } else if (preorder.isPreorderActive && activePercent > 0) {
-      // Automatic Stepped Founder discount (e.g. 50% for Tier 1, 40% for Tier 2, etc.)
+      // Automatic Stepped Founder discount
       const autoResult = validateCoupon('FOUNDER', orderAmountCents, activePercent);
       if (autoResult.valid) {
         discountCents = autoResult.discountAmountCents;
@@ -120,7 +130,7 @@ export async function POST(req: NextRequest) {
         planId: plan.id,
         planName: plan.name,
         maxPages: String(selectedMaxPages),
-        interval: isAnnual ? 'annual' : 'monthly',
+        interval,
         isPreorder: 'true',
         couponCode: appliedCouponCode || '',
         affiliateCode: appliedAffiliateCode || '',

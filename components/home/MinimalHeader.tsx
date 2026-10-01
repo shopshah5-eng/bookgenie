@@ -193,6 +193,14 @@ export function MinimalHeader() {
           >
             Pricing
           </Link>
+
+          <Link
+            href="/launch"
+            className="flex items-center gap-1.5 text-[12px] font-semibold text-[#9A6F3C] bg-[#9A6F3C]/10 border border-[#9A6F3C]/20 px-3 py-1 rounded-full hover:bg-[#9A6F3C]/20 transition-all cursor-pointer"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Launch Deals (50% OFF)</span>
+          </Link>
         </nav>
 
         {/* Right: User Profile / Auth Buttons */}
@@ -471,6 +479,13 @@ export function MinimalHeader() {
             className="text-sm font-medium text-[#666666] py-1 cursor-pointer"
           >
             Pricing
+          </Link>
+          <Link
+            href="/launch"
+            onClick={() => setMobileMenuOpen(false)}
+            className="text-sm font-semibold text-[#9A6F3C] flex items-center gap-1.5 py-1"
+          >
+            <span>🚀 Launch Offers (50% OFF)</span>
           </Link>
 
           <div className="pt-4 border-t border-[#F0F0F0] flex flex-col gap-3">

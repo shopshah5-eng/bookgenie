@@ -25,6 +25,7 @@ import {
   type PlanId,
 } from '@/lib/payments/plans';
 import { validateCoupon } from '@/lib/payments/coupons';
+import { getAnnualDiscountPercent } from '@/lib/payments/preorder';
 
 declare global {
   interface Window {
@@ -98,8 +99,8 @@ export function MinimalPricing() {
   } | null>(null);
   const [couponFeedback, setCouponFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // Billing interval toggle for subscriptions: 'monthly' | 'annual'
-  const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('monthly');
+  // Billing interval toggle for subscriptions: 'monthly' | 'quarterly' | 'annual'
+  const [billingInterval, setBillingInterval] = useState<'monthly' | 'quarterly' | 'annual'>('quarterly');
 
   // Interactive page count slider for the One-Time Single Book plan
   const [customPages, setCustomPages] = useState<number>(50);
@@ -232,7 +233,7 @@ export function MinimalPricing() {
       const requestPayload: {
         planId: PlanId;
         pages?: number;
-        interval?: 'monthly' | 'annual';
+        interval?: 'monthly' | 'quarterly' | 'annual';
         couponCode?: string;
         affiliateRef?: string;
       } = {
@@ -362,18 +363,32 @@ export function MinimalPricing() {
             Start free, purchase single books with custom length, or subscribe for high-volume publishing.
           </p>
 
-          {/* Monthly / Annual Billing Toggle */}
+          {/* 3-Interval Billing Toggle: Monthly, 3-Month Founder Pass, Annual */}
           <div className="mt-8 inline-flex items-center p-1 rounded-full bg-[#F5F5F3] border border-[#EAEAEA] text-xs font-medium">
             <button
               type="button"
               onClick={() => setBillingInterval('monthly')}
               className={`px-4 py-1.5 rounded-full transition-all cursor-pointer ${
                 billingInterval === 'monthly'
-                  ? 'bg-white text-[#111111] font-semibold shadow-xs'
+                  ? 'bg-[#111111] text-white font-semibold shadow-xs'
                   : 'text-[#666666] hover:text-[#111111]'
               }`}
             >
               Monthly Billing
+            </button>
+            <button
+              type="button"
+              onClick={() => setBillingInterval('quarterly')}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full transition-all cursor-pointer ${
+                billingInterval === 'quarterly'
+                  ? 'bg-[#9A6F3C] text-white font-semibold shadow-xs'
+                  : 'text-[#666666] hover:text-[#111111]'
+              }`}
+            >
+              <span>3-Month Founder Pass</span>
+              <span className="bg-white/20 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full uppercase">
+                {preorderStatus.activeTier?.discountPercent ?? 50}% OFF
+              </span>
             </button>
             <button
               type="button"
@@ -386,7 +401,7 @@ export function MinimalPricing() {
             >
               <span>Annual Billing</span>
               <span className="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full uppercase">
-                Save 20%
+                {getAnnualDiscountPercent(preorderStatus.activeTier?.discountPercent ?? 50)}% OFF
               </span>
             </button>
           </div>
@@ -413,17 +428,25 @@ export function MinimalPricing() {
                     First 100 Founding Authors: Stepped Early Bird Deal
                   </h3>
                   <p className="text-xs text-[#6B635B]">
-                    Price increases every 25 orders. Claim your spot now to lock in {preorderStatus.activeTier?.discountPercent ?? 50}% OFF before the next price hike!
+                    ⚡ First 100 users lock in this benefit for their first 3 months! Price increases every 25 orders.
                   </p>
                 </div>
               </div>
               <div className="text-left sm:text-right shrink-0 bg-white/70 p-3 rounded-xl border border-[#EFECE6]">
-                <span className="text-xs font-bold text-[#9A6F3C] uppercase tracking-wider block">
-                  {preorderStatus.activeTier?.remainingInTier ?? 11} of 25 Left in This Tier
-                </span>
-                <p className="text-[11px] text-neutral-500">
+                <div className="flex items-center justify-between sm:justify-end gap-2 mb-1">
+                  <span className="text-xs font-bold text-[#9A6F3C] uppercase tracking-wider block">
+                    {preorderStatus.activeTier?.remainingInTier ?? 11} of 25 Left in This Tier
+                  </span>
+                </div>
+                <p className="text-[11px] text-neutral-500 mb-2">
                   Total: {preorderStatus.totalClaimed} of 100 claimed
                 </p>
+                <Link
+                  href="/launch"
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-[#9A6F3C] hover:text-[#845D30] transition-colors"
+                >
+                  View Launch Countdown Page →
+                </Link>
               </div>
             </div>
 
@@ -532,17 +555,27 @@ export function MinimalPricing() {
             const isCurrent = user && currentTier === plan.id;
             const isLoading = loadingPlanId === plan.id;
 
-            // Compute display price based on interval or slider
+            // Compute display price and applicable discount percent based on interval
+            const activeSteppedPercent = preorderStatus.activeTier?.discountPercent ?? 50;
+            const effectiveDiscountPercent =
+              billingInterval === 'annual'
+                ? getAnnualDiscountPercent(appliedCoupon?.percent ?? activeSteppedPercent)
+                : (appliedCoupon?.percent ?? activeSteppedPercent);
+
             const baseDisplayPrice =
               isSingle
                 ? singlePricing.priceUsd
-                : billingInterval === 'annual' && plan.annualPriceUsd
-                ? plan.annualPriceUsd
+                : plan.billingType === 'free'
+                ? 0
+                : billingInterval === 'quarterly'
+                ? (plan.quarterlyPriceUsd ?? plan.priceUsd * 3)
+                : billingInterval === 'annual'
+                ? (plan.annualAmountCents ? plan.annualAmountCents / 100 : (plan.annualPriceUsd ?? 15) * 12)
                 : plan.priceUsd;
 
-            const hasDiscount = Boolean(appliedCoupon && baseDisplayPrice > 0);
+            const hasDiscount = Boolean((appliedCoupon || preorderStatus.isPreorderActive) && baseDisplayPrice > 0);
             const discountedDisplayPrice = hasDiscount
-              ? Math.max(Number((baseDisplayPrice * (1 - (appliedCoupon?.percent || 0) / 100)).toFixed(2)), 1)
+              ? Math.max(Number((baseDisplayPrice * (1 - effectiveDiscountPercent / 100)).toFixed(2)), 1)
               : baseDisplayPrice;
 
             const billingSubtext =
@@ -550,9 +583,19 @@ export function MinimalPricing() {
                 ? 'forever'
                 : plan.billingType === 'one_time'
                 ? 'one-time payment'
+                : billingInterval === 'quarterly'
+                ? isPro
+                  ? '/ 3 mos ($9.50/mo)'
+                  : isCreator
+                  ? '/ 3 mos ($19.50/mo)'
+                  : '/ 3 months'
                 : billingInterval === 'annual'
-                ? '/ month (billed yearly)'
-                : '/ month';
+                ? isPro
+                  ? '/ year ($10.50/mo)'
+                  : isCreator
+                  ? '/ year ($21.70/mo)'
+                  : '/ year'
+                : '/ month (first 3 mos)';
 
             return (
               <div
@@ -609,7 +652,7 @@ export function MinimalPricing() {
                           ${baseDisplayPrice}
                         </span>
                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[#9A6F3C]/10 text-[#9A6F3C] uppercase tracking-wide">
-                          -{appliedCoupon?.percent}%
+                          -{effectiveDiscountPercent}%
                         </span>
                       </>
                     ) : (

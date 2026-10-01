@@ -88,6 +88,22 @@ export function calculateSteppedTier(totalClaimed: number): SteppedTierInfo {
 }
 
 /**
+ * Calculates the annual discount percentage based on the active stepped tier.
+ * Annual plans receive half of the 3-month discount:
+ * Tier 1 (50% on 3-mo) -> 30% OFF on 12-mo
+ * Tier 2 (40% on 3-mo) -> 20% OFF on 12-mo
+ * Tier 3 (30% on 3-mo) -> 15% OFF on 12-mo
+ * Tier 4 (20% on 3-mo) -> 10% OFF on 12-mo
+ */
+export function getAnnualDiscountPercent(baseTierPercent: number): number {
+  if (baseTierPercent >= 50) return 30;
+  if (baseTierPercent >= 40) return 20;
+  if (baseTierPercent >= 30) return 15;
+  if (baseTierPercent >= 20) return 10;
+  return 0;
+}
+
+/**
  * Returns the live status of the Stepped Pre-Order campaign.
  */
 export async function getPreorderStatus(): Promise<PreorderStatus> {
